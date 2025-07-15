@@ -1,0 +1,19 @@
+{
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    // Practical strictness for better type safety
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    // Better error reporting
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    
+    // Enhanced linting
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `WidgetInstance` ADD `pageId` integer REFERENCES Pages(id);

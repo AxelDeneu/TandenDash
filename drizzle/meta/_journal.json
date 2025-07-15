@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1744910556700,
+      "tag": "0000_curved_dreadnoughts",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1744919946725,
+      "tag": "0001_premium_longshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1744989462988,
+      "tag": "0002_past_triton",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1751983116124,
+      "tag": "0003_long_calypso",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1752394926571,
+      "tag": "0004_chilly_reptil",
+      "breakpoints": true
+    }
+  ]
+}
