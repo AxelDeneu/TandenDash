@@ -166,7 +166,7 @@ const handleSave = async () => {
             <SelectValue placeholder="Select widget" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem v-for="w in availableWidgets" :key="w.name" :value="w.name" :data-testid="`widget-option-${w.name.toLowerCase()}`">
+            <SelectItem v-for="w in availableWidgets" :key="w.id" :value="w.id" :data-testid="`widget-option-${w.id.toLowerCase()}`">
               {{ w.name }}
             </SelectItem>
           </SelectContent>
