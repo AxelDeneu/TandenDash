@@ -7,6 +7,7 @@ module.exports = {
         './components/**/*.{ts,tsx,vue}',
         './app/**/*.{ts,tsx,vue}',
         './content/**/*.{ts,tsx,vue}',
+		'./widgets/**/*.{ts,tsx,vue}',
     ],
     theme: {
     	container: {
