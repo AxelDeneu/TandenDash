@@ -95,3 +95,4 @@ npx drizzle-kit migrate
 - Never start or kill a dev server. Ask me for the url when you need to check if everything is working and remember to use PlayWright MCP to check the website
 - You must test every functionality you create. Use playwright tests only
 - Your code must pass when using `tsc`. You cannot end your task until `tsc` passes
+- At the end of the task I asked you, you MUST always propose a commit, with commitizen syntax and without your watermark
