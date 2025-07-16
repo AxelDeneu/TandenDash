@@ -9,17 +9,16 @@ import {
   usePageOperations,
   usePageUI,
   useComposableContext,
-  useLogger
+  useLogger,
+  useFloatingDock
 } from '@/composables'
 import { getGridConfig, snapToGridWithMargins } from '~/lib/utils/grid'
 import { useSwipeGesture } from '@/composables'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
 import DialogManager from '@/components/dashboard/DialogManager.vue'
 import LoadingPlaceholder from '@/components/common/LoadingPlaceholder.vue'
-import TouchToolbar from '@/components/dashboard/TouchToolbar.vue'
-import ToolbarHint from '@/components/dashboard/ToolbarHint.vue'
+import { FloatingDock, type DockAction } from '@/components/ui/dock'
 import type { Page, WidgetInstance } from '@/types'
-import { useToolbarVisibility } from '@/composables/ui/useToolbarVisibility'
 
 // New architecture composables
 const context = useComposableContext()
@@ -28,7 +27,9 @@ const widgetOperations = useWidgetOperations()
 const widgetUI = useWidgetUI()
 const pageOperations = usePageOperations()
 const pageUI = usePageUI()
-const toolbarVisibility = useToolbarVisibility()
+const floatingDock = useFloatingDock({
+  autoHideDelay: 30000
+})
 const logger = useLogger({ module: 'pages/index' })
 
 // Page state
@@ -417,25 +418,54 @@ watch(pages, (newPages) => {
 const editMode = computed(() => editModeComposable.isEditMode.value)
 const currentPage = computed(() => pages.value[currentPageIndex.value] || null)
 
-// Handle edit mode toggle
-function handleToggleEditMode() {
-  editModeComposable.toggleEditMode()
-  
-  // Show toolbar when entering edit mode
-  if (editModeComposable.isEditMode.value) {
-    toolbarVisibility.forceShow()
-  } else {
-    // Re-enable auto-hide when exiting edit mode
-    toolbarVisibility.showToolbar()
+// Dock actions configuration
+const dockActions = computed<DockAction[]>(() => [
+  {
+    id: 'add-widget',
+    icon: 'Plus',
+    label: 'Add Widget',
+    active: editMode.value,
+    disabled: !currentPage.value
+  },
+  {
+    id: 'settings',
+    icon: 'Settings', 
+    label: 'Page Settings',
+    disabled: !currentPage.value
+  }
+])
+
+// Handle dock action clicks
+function handleDockAction(actionId: string, event: MouseEvent): void {
+  switch (actionId) {
+    case 'add-widget':
+      if (currentPage.value) {
+        openAddWidget(currentPage.value.id)
+      }
+      break
+    case 'settings':
+      if (currentPage.value) {
+        openRenamePage(currentPage.value)
+      }
+      break
+    default:
+      logger.warn('Unknown dock action:', actionId)
   }
 }
 
-// Show toolbar when interacting with widgets
-watch(editMode, (isEdit) => {
-  if (isEdit) {
-    toolbarVisibility.forceShow()
+// Handle dock show (auto-enable edit mode)
+function handleDockShow(): void {
+  if (!editMode.value) {
+    editModeComposable.enableEditMode()
   }
-})
+}
+
+// Handle dock hide (disable edit mode)
+function handleDockHide(): void {
+  if (editMode.value) {
+    editModeComposable.disableEditMode()
+  }
+}
 
 // Widgets par page avec positions temporaires
 const widgetsByPage = computed(() => {
@@ -652,32 +682,15 @@ watch(pages, async (newPages) => {
       </CarouselContent>
     </Carousel>
     
-    <!-- Touch-optimized toolbar -->
-    <Transition
-      enter-active-class="transition-transform duration-300 ease-out"
-      enter-from-class="translate-y-full"
-      enter-to-class="translate-y-0"
-      leave-active-class="transition-transform duration-300 ease-in"
-      leave-from-class="translate-y-0"
-      leave-to-class="translate-y-full"
-    >
-      <TouchToolbar
-        v-if="pages && pages.length > 0 && toolbarVisibility.isVisible.value"
-        :edit-mode="editMode"
-        :current-page-index="currentPageIndex"
-        :total-pages="pages.length"
-        :can-add-widget="true"
-        @toggle-edit-mode="handleToggleEditMode"
-        @add-widget="openAddWidget"
-        @go-to-page="goToPage"
-        @open-settings="() => currentPage && openRenamePage(currentPage)"
-      />
-    </Transition>
-    
-    <!-- Toolbar hint when hidden -->
-    <ToolbarHint 
-      :show="!toolbarVisibility.isVisible.value && pages && pages.length > 0"
-      @click="toolbarVisibility.showToolbar"
+    <!-- Floating Dock -->
+    <FloatingDock
+      v-if="pages && pages.length > 0"
+      :actions="dockActions"
+      :edit-mode="editMode"
+      size="md"
+      @action-click="handleDockAction"
+      @dock-show="handleDockShow"
+      @dock-hide="handleDockHide"
     />
 
     <DialogManager

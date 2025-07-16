@@ -13,7 +13,7 @@ export { usePageOperations } from './data/usePageOperations'
 export { useEditMode } from './ui/useEditMode'
 export { useWidgetUI } from './ui/useWidgetUI'
 export { usePageUI } from './ui/usePageUI'
-export { useToolbarVisibility } from './ui/useToolbarVisibility'
+export { useFloatingDock } from './ui/useFloatingDock'
 
 // Interaction composables
 export { useSwipeGesture } from './interaction/useSwipeGesture'
@@ -29,3 +29,4 @@ export { useWidgetEventBus } from './events/useWidgetEventBus'
 export type * from './core/interfaces'
 export type { SwipeOptions } from './interaction/useSwipeGesture'
 export type { UseWidgetPlugins } from './widgets/useWidgetPlugins'
+export type { UseFloatingDock, DockPosition } from './ui/useFloatingDock'
