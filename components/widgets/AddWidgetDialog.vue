@@ -11,11 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import WidgetOptionsForm from './WidgetOptionsForm.vue'
 
 // Composable imports
-import { useWidgetSystem } from '@/composables/useWidgetSystem'
-import { useWidgetOperations } from '@/composables'
-
-// Utils
-import { getEnhancedWidgetConfig, getWidgetDisplayName } from '../../lib/utils/widget-config-mapping'
+import { useWidgetOperations, useWidgetPlugins } from '@/composables'
 
 // Type imports
 import type { WidgetInstance } from '@/types'
@@ -35,32 +31,43 @@ const emit = defineEmits<{
   'widget-edited': [pageId: number]
 }>()
 
-const widgetSystem = useWidgetSystem();
+const widgetPlugins = useWidgetPlugins();
 const widgetOperations = useWidgetOperations();
 
 // Ensure widget system is initialized when dialog opens
 watch(() => props.open, async (isOpen) => {
-  if (isOpen && !widgetSystem.isInitialized.value) {
+  if (isOpen && !widgetPlugins.isInitialized.value) {
     console.log('Dialog opened, ensuring widget system is initialized...')
-    await widgetSystem.ensureInitialized()
+    await widgetPlugins.initialize()
   }
 })
 
-const availableWidgets = computed(() => widgetSystem.getAllWidgets());
+const availableWidgets = computed(() => widgetPlugins.getAllPlugins());
 const selectedWidgetType = ref('');
 const widgetOptions = ref<Record<string, any>>({});
 
 const optionsDef = computed(() => {
-  const widget = availableWidgets.value.find(w => w.name === selectedWidgetType.value);
+  const widget = availableWidgets.value.find(w => w.id === selectedWidgetType.value);
   return widget?.defaultConfig || {};
 });
 
+const selectedPlugin = computed(() => {
+  if (!selectedWidgetType.value) return null;
+  // Get the plugin using the widget system
+  return widgetPlugins.getPlugin(selectedWidgetType.value);
+});
+
 const enhancedConfig = computed(() => {
-  return selectedWidgetType.value ? getEnhancedWidgetConfig(selectedWidgetType.value) : undefined;
+  if (!selectedPlugin.value) return undefined;
+  
+  // Get the configUI from the plugin manifest
+  return selectedPlugin.value.configUI;
 });
 
 const widgetDisplayName = computed(() => {
-  return selectedWidgetType.value ? getWidgetDisplayName(selectedWidgetType.value) : '';
+  if (!selectedPlugin.value) return '';
+  // Get display name from plugin metadata
+  return selectedPlugin.value.metadata?.name || selectedWidgetType.value;
 });
 
 // Prefill for edit mode

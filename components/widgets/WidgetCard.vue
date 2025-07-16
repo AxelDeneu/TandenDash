@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { GripVertical, MoveDiagonal2, Edit, Trash2 } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import type { WidgetInstance, WidgetPosition, Page } from '@/types'
-import { useWidgetSystem } from '@/composables/useWidgetSystem'
+import { useWidgetPlugins } from '@/composables'
 import WidgetErrorBoundaryWrapper from './WidgetErrorBoundaryWrapper.vue'
 
 const props = defineProps<{
@@ -20,8 +20,8 @@ const emit = defineEmits<{
   (e: 'delete', widget: WidgetInstance, pageId: number): void
 }>()
 
-// Get widget system
-const widgetSystem = useWidgetSystem()
+// Get widget plugins
+const widgetPlugins = useWidgetPlugins()
 
 // Position finale = tempPosition OU position parsée du widget
 const displayPosition = computed<WidgetPosition>(() => {
@@ -59,9 +59,9 @@ const widgetStyle = computed(() => {
 })
 
 const widgetProps = computed(() => {
-  const widgetDef = widgetSystem.getWidget(props.widget.type)
-  if (!widgetDef) {
-    console.error(`Widget definition not found for type: ${props.widget.type}`)
+  const plugin = widgetPlugins.getPlugin(props.widget.type)
+  if (!plugin) {
+    console.error(`Widget plugin not found for type: ${props.widget.type}`)
     return {}
   }
   
@@ -69,7 +69,7 @@ const widgetProps = computed(() => {
     const options = props.widget.options ? JSON.parse(props.widget.options) : {}
     // Merge default config with widget options to ensure all required props are present
     const mergedProps = {
-      ...widgetDef.defaultConfig,
+      ...plugin.defaultConfig,
       ...options,
       id: props.widget.id  // Include widget instance ID for widgets that need to update themselves
     }
@@ -88,14 +88,14 @@ const widgetProps = computed(() => {
     return filteredProps
   } catch (error) {
     console.error('Error parsing widget options:', error)
-    return widgetDef.defaultConfig || {}
+    return plugin.defaultConfig || {}
   }
 })
 
 // Get widget component
 const widgetComponent = computed(() => {
-  const widgetDef = widgetSystem.getWidget(props.widget.type)
-  return widgetDef?.component || null
+  const plugin = widgetPlugins.getPlugin(props.widget.type)
+  return plugin?.component || null
 })
 </script>
 

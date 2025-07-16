@@ -2,17 +2,17 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
-import { usePages } from '@/composables/usePages'
 import { 
   useEditMode, 
   useWidgetOperations, 
   useWidgetUI, 
   usePageOperations,
-  useComposableContext
+  usePageUI,
+  useComposableContext,
+  useLogger
 } from '@/composables'
-import { useWidgetSystem } from '@/composables/useWidgetSystem'
-import { getGridConfig, snapToGrid, snapToGridWithMargins } from '~/lib/utils/grid'
-import { useSwipeGesture } from '@/composables/useSwipeGesture'
+import { getGridConfig, snapToGridWithMargins } from '~/lib/utils/grid'
+import { useSwipeGesture } from '@/composables'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
 import DialogManager from '@/components/dashboard/DialogManager.vue'
 import LoadingPlaceholder from '@/components/common/LoadingPlaceholder.vue'
@@ -23,28 +23,58 @@ import { useToolbarVisibility } from '@/composables/ui/useToolbarVisibility'
 
 // New architecture composables
 const context = useComposableContext()
-const widgetSystem = useWidgetSystem()
 const editModeComposable = useEditMode()
 const widgetOperations = useWidgetOperations()
 const widgetUI = useWidgetUI()
 const pageOperations = usePageOperations()
+const pageUI = usePageUI()
 const toolbarVisibility = useToolbarVisibility()
+const logger = useLogger({ module: 'pages/index' })
 
-// Pages composable
-const {
-  pages,
-  isLoadingPages,
-  showAddPage,
-  newPageName,
-  showRenamePage,
-  pageToRename,
-  fetchPages,
-  addPage,
-  openRenamePage,
-  deletePage,
-  closeRenamePageDialog,
-  updateNewPageName
-} = usePages()
+// Page state
+const pages = computed(() => pageOperations.pages.value)
+const isLoadingPages = computed(() => pageOperations.loading.value)
+const showAddPage = computed(() => pageUI.showAddPage.value)
+const newPageName = computed(() => pageUI.newPageName.value)
+const showRenamePage = computed(() => pageUI.showRenamePage.value)
+const pageToRename = computed(() => pageUI.pageToEdit.value)
+
+// Page operations
+const fetchPages = () => pageOperations.fetchPages()
+const openRenamePage = (page: Page) => pageUI.openRenamePageDialog(page)
+const closeRenamePageDialog = () => pageUI.closeRenamePageDialog()
+const updateNewPageName = (value: string) => pageUI.updateNewPageName(value)
+
+// Add page handler
+const addPage = async () => {
+  if (!pageUI.newPageName.value.trim()) return
+  
+  try {
+    await pageOperations.createPage({
+      name: pageUI.newPageName.value,
+      snapping: pageUI.newPageSnapping.value,
+      gridRows: pageUI.newPageGridRows.value,
+      gridCols: pageUI.newPageGridCols.value
+    })
+    await pageOperations.fetchPages()
+    pageUI.closeAddPageDialog()
+  } catch (error) {
+    logger.error('Error adding page', error as Error)
+  }
+}
+
+// Delete page handler
+const deletePage = async (page: Page) => {
+  // TODO: Replace with proper touch-friendly dialog
+  if (!confirm('Delete this page?')) return
+  
+  try {
+    await pageOperations.deletePage(page.id)
+    await pageOperations.fetchPages()
+  } catch (error) {
+    logger.error('Error deleting page', error as Error)
+  }
+}
 
 // Temporary positions for drag/resize
 const tempPositions = ref<Record<number, import('@/types').WidgetPosition>>({})
@@ -489,7 +519,7 @@ async function handleWidgetEdited(pageId: number): Promise<void> {
 
 // Event handlers
 const openAddPageFromMenu = () => {
-  showAddPage.value = true
+  pageUI.openAddPageDialog()
 }
 
 const openRenamePageFromMenu = (page: Page) => {
@@ -502,18 +532,18 @@ const openDeletePageFromMenu = (page: Page) => {
 
 // Handle page edit from dialog
 const handleEditPage = async (data: { name: string; snapping: boolean; gridRows: number; gridCols: number }) => {
-  const page = currentPage.value
+  const page = pageToRename.value
   if (!page) return
   
-  console.log('[handleEditPage] Received data from dialog:', data)
-  console.log('[handleEditPage] Current page id:', page.id)
+  logger.debug('Received data from dialog:', data)
+  logger.debug('Current page id:', page.id)
   
   try {
     await pageOperations.updatePage(page.id, data)
     await fetchPages()
     closeRenamePageDialog()
   } catch (error) {
-    console.error('Error updating page:', error)
+    logger.error('Error updating page:', error as Error)
   }
 }
 
@@ -664,7 +694,7 @@ watch(pages, async (newPages) => {
       @widget-added="handleWidgetAdded"
       @close-edit-widget="showEditWidget = false"
       @widget-edited="handleWidgetEdited"
-      @close-add-page="showAddPage = false"
+      @close-add-page="pageUI.closeAddPageDialog()"
       @add-page="addPage"
       @close-edit-page="closeRenamePageDialog()"
       @edit-page="handleEditPage"

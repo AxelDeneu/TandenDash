@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref, onErrorCaptured, watch } from 'vue'
 import { Button } from '@/components/ui/button'
-import { useWidgetSystem } from '@/composables/useWidgetSystem'
+import { useWidgetPlugins } from '@/composables'
 
 interface Props {
   widgetId: string
@@ -37,7 +37,7 @@ const emit = defineEmits<{
   retry: []
 }>()
 
-const widgetSystem = useWidgetSystem()
+const widgetPlugins = useWidgetPlugins()
 const hasError = ref(false)
 const errorMessage = ref('')
 const retryCount = ref(0)
@@ -50,10 +50,12 @@ onErrorCaptured((error: Error) => {
   
   // Register error with widget system if instance ID is provided
   if (props.instanceId) {
-    widgetSystem.errorBoundary.registerError(props.instanceId, error, {
-      widgetId: props.widgetId,
-      timestamp: Date.now()
-    })
+    if (widgetPlugins.systemInfo.value?.errorBoundary) {
+      widgetPlugins.systemInfo.value.errorBoundary.registerError(props.instanceId, error, {
+        widgetId: props.widgetId,
+        timestamp: Date.now()
+      })
+    }
   }
   
   emit('error', error)
@@ -74,7 +76,9 @@ const retry = async () => {
   // If using widget system, attempt recovery
   if (props.instanceId) {
     try {
-      await widgetSystem.errorBoundary.recoverInstance(props.instanceId)
+      if (widgetPlugins.systemInfo.value?.errorBoundary) {
+        await widgetPlugins.systemInfo.value.errorBoundary.recoverInstance(props.instanceId)
+      }
     } catch (error) {
       // Recovery failed
       hasError.value = true

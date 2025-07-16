@@ -44,7 +44,7 @@ export interface ParsedWidgetInstance<TConfig extends BaseWidgetConfig = BaseWid
   options: TConfig // Override to parsed type
 }
 
-// Note: Widget definitions are now handled by the new WidgetPluginManifest system
+// Note: Widget definitions are now handled by the new WidgetPlugin system
 // See lib/widgets/interfaces.ts for the new plugin architecture
 
 // API request/response types

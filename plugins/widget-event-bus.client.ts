@@ -1,19 +1,10 @@
 import { getWidgetEventBus } from '~/lib/events/widget-event-bus'
-import { getDefaultMiddleware } from '~/lib/events/widget-event-middleware'
 
 export default defineNuxtPlugin(() => {
   // Only initialize on client side
   if (process.server) return
   
   const eventBus = getWidgetEventBus()
-  
-  // Add default middleware
-  const middleware = getDefaultMiddleware()
-  middleware.forEach(m => {
-    if ('addMiddleware' in eventBus) {
-      (eventBus as any).addMiddleware(m.handler)
-    }
-  })
   
   // Subscribe to theme changes by watching the HTML class
   if (typeof document !== 'undefined') {
@@ -34,7 +25,7 @@ export default defineNuxtPlugin(() => {
   
   // Log initialization
   if (process.dev) {
-    console.log('[WidgetEventBus] Initialized with middleware:', middleware.map(m => m.name))
+    console.log('[WidgetEventBus] Initialized')
   }
   
   return {
