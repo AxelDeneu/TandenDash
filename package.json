@@ -12,11 +12,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:smoke": "playwright test tests/e2e/specs/smoke.spec.ts",
-    "test:e2e:navigation": "playwright test tests/e2e/specs/navigation.spec.ts",
-    "test:e2e:widgets": "playwright test tests/e2e/specs/widget-management.spec.ts",
-    "test:e2e:darkmode": "playwright test tests/e2e/specs/dark-mode.spec.ts",
-    "test:e2e:chrome": "playwright test --project=chromium",
+    "test:e2e:db:reset": "rm -f test.db && npx drizzle-kit generate && npx drizzle-kit push:sqlite --config=drizzle.config.ts",
+    "test:e2e:clean": "rm -f test.db && rm -rf test-results playwright-report",
     "test:install": "playwright install"
   },
   "dependencies": {

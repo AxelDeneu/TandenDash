@@ -17,7 +17,6 @@ export interface ApiHandler<TResult = unknown> {
 }
 
 export interface ApiHandlerOptions {
-  rateLimit?: boolean
   cache?: {
     ttl?: number
     key?: (event: H3Event) => string

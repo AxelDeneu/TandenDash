@@ -1,32 +1,36 @@
 import { chromium, FullConfig } from '@playwright/test'
-import { copyFileSync, existsSync } from 'fs'
+import { rm } from 'fs/promises'
 import { join } from 'path'
+import { setupTestDatabase, cleanupTestDatabase } from './setup/db-setup'
 
 async function globalSetup(config: FullConfig) {
-  // Create a test database copy to avoid modifying production data
-  const originalDb = join(process.cwd(), 'data.db')
-  const testDb = join(process.cwd(), 'data.test.db')
+  console.log('🎭 Starting global setup for e2e tests...')
   
-  if (existsSync(originalDb)) {
-    copyFileSync(originalDb, testDb)
-    process.env.DATABASE_URL = `file:${testDb}`
-  }
-
-  // Pre-warm the browser context
-  const browser = await chromium.launch()
-  const page = await browser.newPage()
-  
+  // Nettoyer les résultats de tests précédents
   try {
-    await page.goto(config.projects[0].use.baseURL!)
-    await page.waitForLoadState('networkidle')
+    await rm(join(process.cwd(), 'test-results'), { recursive: true, force: true })
   } catch (error) {
-    console.warn('Failed to pre-warm browser:', error)
-  } finally {
-    await browser.close()
+    // Ignorer si le dossier n'existe pas
   }
-
+  
+  // Configurer la base de données de test
+  try {
+    await setupTestDatabase()
+  } catch (error) {
+    console.error('Failed to setup test database:', error)
+    throw error
+  }
+  
+  console.log('✅ Global setup completed')
+  
+  // Retourner une fonction de nettoyage qui sera appelée après tous les tests
   return async () => {
-    // Cleanup can be performed here
+    console.log('🧹 Running global cleanup...')
+    
+    // Nettoyer la base de données de test
+    await cleanupTestDatabase()
+    
+    console.log('✅ Global cleanup completed')
   }
 }
 

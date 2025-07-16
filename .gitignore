@@ -27,3 +27,7 @@ logs
 *.db
 *.db-shm
 *.db-wal
+
+# Tests
+test-results
+playwright-report

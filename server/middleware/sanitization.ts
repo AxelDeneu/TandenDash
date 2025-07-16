@@ -1,6 +1,14 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import DOMPurify from 'isomorphic-dompurify'
-import { getClientIP } from '../utils/rate-limit'
+
+// Simple function to get client IP
+function getClientIP(event: any): string {
+  const headers = event.node.req.headers
+  return (headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+         headers['x-real-ip'] as string || 
+         event.node.req.socket?.remoteAddress || 
+         'unknown'
+}
 
 // Configuration for different content types
 const SANITIZATION_CONFIG = {
