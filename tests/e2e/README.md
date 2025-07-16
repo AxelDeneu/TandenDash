@@ -51,7 +51,7 @@ npm run test:e2e:debug
 # Exécuter un test spécifique
 npx playwright test tests/e2e/specs/smoke/basic-load.spec.ts
 
-# Exécuter avec un projet spécifique (chromium, firefox, webkit, mobile-chrome, mobile-safari)
+# Exécuter avec un projet spécifique (chromium, firefox, webkit)
 npx playwright test --project=chromium
 
 # Nettoyer la base de données de test et les résultats
