@@ -1,7 +1,38 @@
-import { ref, computed, readonly } from 'vue'
-import type { UseWidgetUI } from '../core/interfaces'
+import { ref, computed, readonly, type Ref, type ComputedRef } from 'vue'
 import type { WidgetInstance } from '@/types/widget'
 import { useComposableContext } from '../core/ComposableContext'
+
+export interface UseWidgetUI {
+  selectedWidgets: Ref<Set<number>>
+  dragState: Ref<{
+    isDragging: boolean
+    draggedWidget: WidgetInstance | null
+    startPosition: { x: number; y: number } | null
+  }>
+  resizeState: Ref<{
+    isResizing: boolean
+    resizedWidget: WidgetInstance | null
+    startSize: { width: number; height: number } | null
+  }>
+  hasSelection: ComputedRef<boolean>
+  selectionCount: ComputedRef<number>
+  isDragging: ComputedRef<boolean>
+  isResizing: ComputedRef<boolean>
+  isInteracting: ComputedRef<boolean>
+  
+  selectWidget(id: number): void
+  deselectWidget(id: number): void
+  clearSelection(): void
+  isSelected(id: number): boolean
+  startDrag(widget: WidgetInstance, position: { x: number; y: number }): void
+  updateDrag(position: { x: number; y: number }): void
+  endDrag(): void
+  cancelDrag(): void
+  startResize(widget: WidgetInstance, size: { width: number; height: number }): void
+  updateResize(size: { width: number; height: number }): void
+  endResize(): void
+  cancelResize(): void
+}
 
 export function useWidgetUI(): UseWidgetUI {
   const context = useComposableContext()
@@ -10,17 +41,13 @@ export function useWidgetUI(): UseWidgetUI {
   const dragState = ref({
     isDragging: false,
     draggedWidget: null as WidgetInstance | null,
-    startPosition: null as { x: number; y: number } | null,
-    currentPosition: null as { x: number; y: number } | null,
-    offset: null as { x: number; y: number } | null
+    startPosition: null as { x: number; y: number } | null
   })
   
   const resizeState = ref({
     isResizing: false,
     resizedWidget: null as WidgetInstance | null,
-    startSize: null as { width: number; height: number } | null,
-    currentSize: null as { width: number; height: number } | null,
-    resizeHandle: null as string | null
+    startSize: null as { width: number; height: number } | null
   })
 
   // Selection methods
@@ -48,10 +75,6 @@ export function useWidgetUI(): UseWidgetUI {
     context.events.emit('widget:selection-cleared', previousSelection)
   }
 
-  function selectMultiple(ids: number[]): void {
-    clearSelection()
-    ids.forEach(id => selectWidget(id))
-  }
 
   function isSelected(id: number): boolean {
     return selectedWidgets.value.has(id)
@@ -64,9 +87,7 @@ export function useWidgetUI(): UseWidgetUI {
     dragState.value = {
       isDragging: true,
       draggedWidget: widget,
-      startPosition: { ...position },
-      currentPosition: { ...position },
-      offset: { x: 0, y: 0 }
+      startPosition: { ...position }
     }
 
     // Auto-select dragged widget
@@ -85,32 +106,27 @@ export function useWidgetUI(): UseWidgetUI {
   function updateDrag(position: { x: number; y: number }): void {
     if (!dragState.value.isDragging || !dragState.value.startPosition) return
 
-    dragState.value.currentPosition = { ...position }
-    dragState.value.offset = {
+    const offset = {
       x: position.x - dragState.value.startPosition.x,
       y: position.y - dragState.value.startPosition.y
     }
 
-    context.events.emit('widget:drag-update', dragState.value.draggedWidget, position, dragState.value.offset)
+    context.events.emit('widget:drag-update', dragState.value.draggedWidget, position, offset)
   }
 
   function endDrag(): void {
     if (!dragState.value.isDragging) return
 
     const draggedWidget = dragState.value.draggedWidget
-    const finalPosition = dragState.value.currentPosition
-    const offset = dragState.value.offset
 
     // Reset drag state
     dragState.value = {
       isDragging: false,
       draggedWidget: null,
-      startPosition: null,
-      currentPosition: null,
-      offset: null
+      startPosition: null
     }
 
-    context.events.emit('widget:drag-end', draggedWidget, finalPosition, offset)
+    context.events.emit('widget:drag-end', draggedWidget, null, null)
     
     // Remove global drag class
     if (typeof document !== 'undefined') {
@@ -126,9 +142,7 @@ export function useWidgetUI(): UseWidgetUI {
     dragState.value = {
       isDragging: false,
       draggedWidget: null,
-      startPosition: null,
-      currentPosition: null,
-      offset: null
+      startPosition: null
     }
 
     context.events.emit('widget:drag-cancelled', draggedWidget)
@@ -139,15 +153,13 @@ export function useWidgetUI(): UseWidgetUI {
   }
 
   // Resize operations
-  function startResize(widget: WidgetInstance, size: { width: number; height: number }, handle = 'se'): void {
+  function startResize(widget: WidgetInstance, size: { width: number; height: number }): void {
     if (resizeState.value.isResizing) return
 
     resizeState.value = {
       isResizing: true,
       resizedWidget: widget,
-      startSize: { ...size },
-      currentSize: { ...size },
-      resizeHandle: handle
+      startSize: { ...size }
     }
 
     // Auto-select resized widget
@@ -155,7 +167,7 @@ export function useWidgetUI(): UseWidgetUI {
       selectWidget(widget.id)
     }
 
-    context.events.emit('widget:resize-start', widget, size, handle)
+    context.events.emit('widget:resize-start', widget, size)
     
     // Add global resize class
     if (typeof document !== 'undefined') {
@@ -166,7 +178,6 @@ export function useWidgetUI(): UseWidgetUI {
   function updateResize(size: { width: number; height: number }): void {
     if (!resizeState.value.isResizing) return
 
-    resizeState.value.currentSize = { ...size }
     context.events.emit('widget:resize-update', resizeState.value.resizedWidget, size)
   }
 
@@ -174,18 +185,15 @@ export function useWidgetUI(): UseWidgetUI {
     if (!resizeState.value.isResizing) return
 
     const resizedWidget = resizeState.value.resizedWidget
-    const finalSize = resizeState.value.currentSize
 
     // Reset resize state
     resizeState.value = {
       isResizing: false,
       resizedWidget: null,
-      startSize: null,
-      currentSize: null,
-      resizeHandle: null
+      startSize: null
     }
 
-    context.events.emit('widget:resize-end', resizedWidget, finalSize)
+    context.events.emit('widget:resize-end', resizedWidget, null)
     
     // Remove global resize class
     if (typeof document !== 'undefined') {
@@ -201,9 +209,7 @@ export function useWidgetUI(): UseWidgetUI {
     resizeState.value = {
       isResizing: false,
       resizedWidget: null,
-      startSize: null,
-      currentSize: null,
-      resizeHandle: null
+      startSize: null
     }
 
     context.events.emit('widget:resize-cancelled', resizedWidget)
@@ -220,39 +226,6 @@ export function useWidgetUI(): UseWidgetUI {
   const isResizing = computed(() => resizeState.value.isResizing)
   const isInteracting = computed(() => isDragging.value || isResizing.value)
 
-  // Keyboard shortcuts for widget operations
-  function setupKeyboardShortcuts(): () => void {
-    if (typeof document === 'undefined') return () => {}
-
-    function handleKeydown(event: KeyboardEvent): void {
-      // Delete selected widgets with Delete key
-      if (event.key === 'Delete' && hasSelection.value) {
-        event.preventDefault()
-        const selectedIds = Array.from(selectedWidgets.value)
-        context.events.emit('widget:delete-selected', selectedIds)
-      }
-      
-      // Select all widgets with Ctrl/Cmd + A
-      if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
-        event.preventDefault()
-        context.events.emit('widget:select-all')
-      }
-      
-      // Cancel current operation with Escape
-      if (event.key === 'Escape') {
-        if (isDragging.value) {
-          cancelDrag()
-        } else if (isResizing.value) {
-          cancelResize()
-        } else if (hasSelection.value) {
-          clearSelection()
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeydown)
-    return () => document.removeEventListener('keydown', handleKeydown)
-  }
 
   return {
     selectedWidgets: readonly(selectedWidgets),
@@ -265,9 +238,7 @@ export function useWidgetUI(): UseWidgetUI {
     isInteracting,
     selectWidget,
     deselectWidget,
-    toggleSelection,
     clearSelection,
-    selectMultiple,
     isSelected,
     startDrag,
     updateDrag,
@@ -276,7 +247,6 @@ export function useWidgetUI(): UseWidgetUI {
     startResize,
     updateResize,
     endResize,
-    cancelResize,
-    setupKeyboardShortcuts
+    cancelResize
   }
 }

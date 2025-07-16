@@ -1,7 +1,34 @@
-import { ref, computed, readonly } from 'vue'
-import type { UsePageUI } from '../core/interfaces'
+import { ref, computed, readonly, type Ref, type ComputedRef } from 'vue'
 import type { Page } from '@/types'
 import { useComposableContext } from '../core/ComposableContext'
+
+export interface UsePageUI {
+  dialogState: Ref<{
+    showAddPage: boolean
+    showRenamePage: boolean
+    pageToEdit: Page | null
+    newPageName: string
+    newPageSnapping: boolean
+    newPageGridRows: number
+    newPageGridCols: number
+  }>
+  showAddPage: ComputedRef<boolean>
+  showRenamePage: ComputedRef<boolean>
+  pageToEdit: ComputedRef<Page | null>
+  newPageName: ComputedRef<string>
+  newPageSnapping: ComputedRef<boolean>
+  newPageGridRows: ComputedRef<number>
+  newPageGridCols: ComputedRef<number>
+  
+  openAddPageDialog(): void
+  closeAddPageDialog(): void
+  openRenamePageDialog(page: Page): void
+  closeRenamePageDialog(): void
+  updateNewPageName(value: string): void
+  updateNewPageSnapping(value: boolean): void
+  updateNewPageGridRows(value: number): void
+  updateNewPageGridCols(value: number): void
+}
 
 export function usePageUI(): UsePageUI {
   const context = useComposableContext()

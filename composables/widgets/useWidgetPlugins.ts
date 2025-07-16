@@ -1,9 +1,9 @@
 import { ref, computed, readonly, onMounted, type Ref, type ComputedRef } from 'vue'
-import { widgetSystem } from '@/lib/widgets/WidgetSystem'
-import type { WidgetPluginManifest, IWidgetPlugin } from '@/lib/widgets/interfaces'
+import { widgetCore, type WidgetPlugin } from '@/lib/widgets'
 import { useComposableContext } from '../core/ComposableContext'
 import { useLoadingState } from '../core/useLoadingState'
 import { useErrorHandler } from '../core/useErrorHandler'
+import { useLogger } from '../core/useLogger'
 
 // Singleton initialization state
 const systemInitialized = ref(false)
@@ -21,9 +21,9 @@ export interface UseWidgetPlugins {
     errorCount: number
   }>
   initialize(): Promise<boolean>
-  getPlugin(widgetId: string): IWidgetPlugin | null
-  getAllPlugins(): IWidgetPlugin[]
-  registerPlugin(manifest: WidgetPluginManifest<any>): Promise<boolean>
+  getPlugin(widgetId: string): WidgetPlugin | null
+  getAllPlugins(): WidgetPlugin[]
+  registerPlugin(plugin: WidgetPlugin): Promise<boolean>
   createInstance(widgetId: string, containerId: string, config?: Record<string, any>): Promise<string>
   destroyInstance(instanceId: string): Promise<void>
   validatePlugin(widgetId: string, config?: Record<string, any>): Promise<boolean>
@@ -33,6 +33,7 @@ export function useWidgetPlugins(): UseWidgetPlugins {
   const context = useComposableContext()
   const loadingState = useLoadingState()
   const errorHandler = useErrorHandler()
+  const logger = useLogger({ module: 'useWidgetPlugins' })
 
   const loading = computed(() => loadingState.isLoading.value)
   const error = computed(() => errorHandler.error.value)
@@ -64,7 +65,7 @@ export function useWidgetPlugins(): UseWidgetPlugins {
 
   async function performInitialization(): Promise<boolean> {
     const operation = async () => {
-      await widgetSystem.initialize()
+      await widgetCore.initialize()
       systemInitialized.value = true
       context.events.emit('widgets:system-initialized')
       return true
@@ -82,30 +83,30 @@ export function useWidgetPlugins(): UseWidgetPlugins {
     }
   }
 
-  function getPlugin(widgetId: string): IWidgetPlugin | null {
+  function getPlugin(widgetId: string): WidgetPlugin | null {
     if (!systemInitialized.value) {
-      console.warn('Widget system not initialized')
+      logger.warn('Widget system not initialized')
       return null
     }
 
-    return widgetSystem.registry.getPlugin(widgetId)
+    return widgetCore.getPlugin(widgetId) as any
   }
 
-  function getAllPlugins(): IWidgetPlugin[] {
+  function getAllPlugins(): WidgetPlugin[] {
     if (!systemInitialized.value) {
-      console.warn('Widget system not initialized')
+      logger.warn('Widget system not initialized')
       return []
     }
 
-    return widgetSystem.registry.getAllPlugins()
+    return widgetCore.getAllPlugins() as any[]
   }
 
-  async function registerPlugin(manifest: WidgetPluginManifest<any>): Promise<boolean> {
+  async function registerPlugin(plugin: WidgetPlugin): Promise<boolean> {
     await initialize()
 
     const operation = async () => {
-      await widgetSystem.registry.registerPlugin(manifest)
-      context.events.emit('widgets:plugin-registered', manifest.metadata.id)
+      await widgetCore.register(plugin)
+      context.events.emit('widgets:plugin-registered', plugin.id)
       return true
     }
 
@@ -116,7 +117,7 @@ export function useWidgetPlugins(): UseWidgetPlugins {
     } catch (err) {
       const error = err as Error
       errorHandler.handleError(error)
-      context.events.emit('widgets:registration-failed', manifest.metadata.id, error)
+      context.events.emit('widgets:registration-failed', plugin.id, error)
       return false
     }
   }
@@ -129,9 +130,8 @@ export function useWidgetPlugins(): UseWidgetPlugins {
     await initialize()
 
     const operation = async () => {
-      const instanceId = await widgetSystem.instanceManager.createInstance(
+      const instanceId = await widgetCore.createInstance(
         widgetId,
-        containerId,
         config
       )
       context.events.emit('widgets:instance-created', instanceId, widgetId)
@@ -152,12 +152,12 @@ export function useWidgetPlugins(): UseWidgetPlugins {
 
   async function destroyInstance(instanceId: string): Promise<void> {
     if (!systemInitialized.value) {
-      console.warn('Widget system not initialized')
+      logger.warn('Widget system not initialized')
       return
     }
 
     const operation = async () => {
-      await widgetSystem.instanceManager.destroyInstance(instanceId)
+      await widgetCore.destroyInstance(instanceId)
       context.events.emit('widgets:instance-destroyed', instanceId)
     }
 
@@ -204,7 +204,7 @@ export function useWidgetPlugins(): UseWidgetPlugins {
       }
     }
 
-    return widgetSystem.getSystemInfo()
+    return widgetCore.getSystemInfo()
   })
 
   // Auto-initialize on first use

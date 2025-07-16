@@ -1,10 +1,4 @@
-import type { Page, PageMargins } from '@/types/page'
-
-export interface GridConfig {
-  rows: number
-  cols: number
-  snapping: boolean
-}
+import type { Page, PageMargins, GridConfig as PageGridConfig } from '@/types/page'
 
 export interface ContainerDimensions {
   width: number
@@ -18,6 +12,11 @@ export interface GridPosition {
   h: number
 }
 
+// Extend PageGridConfig to include snapping for internal use
+interface GridConfig extends PageGridConfig {
+  snapping: boolean
+}
+
 /**
  * Get grid configuration from a page
  */
@@ -29,79 +28,14 @@ export function getGridConfig(page: Page): GridConfig {
   }
 }
 
-/**
- * Snap position to grid based on page configuration
- */
-export function snapToGrid(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  page: Page,
-  containerWidth: number = window.innerWidth,
-  containerHeight: number = window.innerHeight
-): GridPosition {
-  const grid = getGridConfig(page)
-  
-  if (!grid.snapping) {
-    return { x, y, w, h }
-  }
-  
-  const cellWidth = containerWidth / grid.cols
-  const cellHeight = containerHeight / grid.rows
-  
-  return {
-    x: Math.round(x / cellWidth) * cellWidth,
-    y: Math.round(y / cellHeight) * cellHeight,
-    w: Math.max(cellWidth, Math.round(w / cellWidth) * cellWidth),
-    h: Math.max(cellHeight, Math.round(h / cellHeight) * cellHeight)
-  }
-}
 
-/**
- * Get grid cell position from pixel coordinates
- */
-export function pixelsToGridCell(
-  x: number,
-  y: number,
-  page: Page,
-  containerWidth: number = window.innerWidth,
-  containerHeight: number = window.innerHeight
-): { col: number; row: number } {
-  const grid = getGridConfig(page)
-  const cellWidth = containerWidth / grid.cols
-  const cellHeight = containerHeight / grid.rows
-  
-  return {
-    col: Math.floor(x / cellWidth),
-    row: Math.floor(y / cellHeight)
-  }
-}
 
-/**
- * Convert grid cell position to pixel coordinates
- */
-export function gridCellToPixels(
-  col: number,
-  row: number,
-  page: Page,
-  containerWidth: number = window.innerWidth,
-  containerHeight: number = window.innerHeight
-): { x: number; y: number } {
-  const grid = getGridConfig(page)
-  const cellWidth = containerWidth / grid.cols
-  const cellHeight = containerHeight / grid.rows
-  
-  return {
-    x: col * cellWidth,
-    y: row * cellHeight
-  }
-}
 
 /**
  * Get available space after accounting for margins
+ * @internal
  */
-export function getAvailableSpace(
+function getAvailableSpace(
   page: Page,
   containerDimensions: ContainerDimensions
 ): {
@@ -120,8 +54,9 @@ export function getAvailableSpace(
 
 /**
  * Constrain widget position to respect page margins
+ * @internal
  */
-export function constrainToMargins(
+function constrainToMargins(
   x: number,
   y: number,
   width: number,

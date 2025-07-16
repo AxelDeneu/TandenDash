@@ -94,118 +94,120 @@ export const BatchUpdateTodoItemsRequestSchema = z.object({
   })).min(1)
 })
 
-// Widget-specific config schemas
-export const ClockWidgetConfigSchema = z.object({
-  showSeconds: z.boolean(),
-  format: z.enum(['12', '24']),
-  showDate: z.boolean(),
-  hourSize: z.union([z.string(), z.number()]),
-  minuteSize: z.union([z.string(), z.number()]),
-  secondSize: z.union([z.string(), z.number()]),
-  alignment: z.enum(['vertical', 'horizontal']),
-  separator: z.string(),
-  animateSeparator: z.boolean(),
-  hourColor: z.string(),
-  minuteColor: z.string(),
-  secondColor: z.string(),
-  backgroundColor: z.string(),
-  separatorSize: z.union([z.string(), z.number()]),
-  dateSpacing: z.string(),
-  secondsAnimation: z.enum(['bounce', 'spin', 'fade']),
-  animateSeconds: z.boolean(),
-  timeSeparatorSpacing: z.string(),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
+// Widget-specific config schemas are now defined in individual widget definition files
+// This eliminates duplication and ensures single source of truth for each widget's configuration
 
-export const WeatherWidgetConfigSchema = z.object({
-  showTemperature: z.boolean(),
-  showCondition: z.boolean(),
-  showIcon: z.boolean(),
-  showLocation: z.boolean(),
-  temperatureSize: z.union([z.string(), z.number()]),
-  locationSize: z.union([z.string(), z.number()]),
-  conditionSize: z.union([z.string(), z.number()]),
-  iconSize: z.string(),
-  location: z.string(),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
+/**
+ * Dynamic validation registry for widget configurations
+ * Allows plugins to register their validation schemas without modifying core files
+ */
+export class WidgetValidationRegistry {
+  private static instance: WidgetValidationRegistry
+  private validationSchemas = new Map<string, z.ZodSchema<any>>()
 
-export const CalendarWidgetConfigSchema = z.object({
-  showWeekNumbers: z.boolean(),
-  firstDayOfWeek: z.enum(['sunday', 'monday']),
-  highlightToday: z.boolean(),
-  todayColor: z.string(),
-  weekendColor: z.string(),
-  fontSize: z.number().min(10).max(24),
-  compactMode: z.boolean(),
-  showMonthYear: z.boolean(),
-  navigationButtons: z.boolean(),
-  backgroundColor: z.string(),
-  textColor: z.string(),
-  borderColor: z.string(),
-  headerColor: z.string(),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
+  private constructor() {}
 
-export const NoteWidgetConfigSchema = z.object({
-  content: z.string(),
-  fontSize: z.number().min(10).max(32),
-  fontFamily: z.string(),
-  textColor: z.string(),
-  backgroundColor: z.string(),
-  padding: z.number().min(0).max(48),
-  borderRadius: z.number().min(0).max(24),
-  showBorder: z.boolean(),
-  borderColor: z.string(),
-  borderWidth: z.number().min(0).max(8),
-  textAlign: z.enum(['left', 'center', 'right', 'justify']),
-  enableMarkdown: z.boolean(),
-  shadowStyle: z.enum(['none', 'sm', 'md', 'lg', 'xl']),
-  lineHeight: z.number().min(1).max(3),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
+  static getInstance(): WidgetValidationRegistry {
+    if (!WidgetValidationRegistry.instance) {
+      WidgetValidationRegistry.instance = new WidgetValidationRegistry()
+    }
+    return WidgetValidationRegistry.instance
+  }
 
-export const TimerWidgetConfigSchema = z.object({
-  defaultDuration: z.number().min(1).max(86400), // 1 second to 24 hours
-  showHours: z.boolean(),
-  showMilliseconds: z.boolean(),
-  fontSize: z.number().min(16).max(72),
-  timerColor: z.string(),
-  buttonColor: z.string(),
-  backgroundColor: z.string(),
-  borderRadius: z.number().min(0).max(32),
-  showBorder: z.boolean(),
-  borderColor: z.string(),
-  enableSound: z.boolean(),
-  soundVolume: z.number().min(0).max(1),
-  autoRepeat: z.boolean(),
-  showProgressBar: z.boolean(),
-  progressBarColor: z.string(),
-  progressBarHeight: z.number().min(1).max(20),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
+  /**
+   * Register a validation schema for a widget type
+   */
+  registerSchema<T>(widgetType: string, schema: z.ZodSchema<T>): void {
+    if (this.validationSchemas.has(widgetType)) {
+      console.warn(`Validation schema for widget type "${widgetType}" is already registered. Overwriting...`)
+    }
+    
+    this.validationSchemas.set(widgetType, schema)
+  }
+
+  /**
+   * Unregister a validation schema
+   */
+  unregisterSchema(widgetType: string): boolean {
+    return this.validationSchemas.delete(widgetType)
+  }
+
+  /**
+   * Get validation schema for a widget type
+   */
+  getSchema(widgetType: string): z.ZodSchema<any> | undefined {
+    return this.validationSchemas.get(widgetType)
+  }
+
+  /**
+   * Check if a validation schema is registered
+   */
+  hasSchema(widgetType: string): boolean {
+    return this.validationSchemas.has(widgetType)
+  }
+
+  /**
+   * Get all registered widget types
+   */
+  getRegisteredTypes(): string[] {
+    return Array.from(this.validationSchemas.keys())
+  }
+
+  /**
+   * Validate widget configuration using registered schema
+   */
+  validateConfig(widgetType: string, config: unknown): any {
+    const schema = this.getSchema(widgetType)
+    
+    if (!schema) {
+      throw new Error(`No validation schema registered for widget type: ${widgetType}`)
+    }
+
+    try {
+      return schema.parse(config)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessages = error.errors.map(err => 
+          `${err.path.join('.')}: ${err.message}`
+        ).join(', ')
+        throw new Error(`Widget configuration validation failed for "${widgetType}": ${errorMessages}`)
+      }
+      throw error
+    }
+  }
+
+  /**
+   * Clear all registered schemas
+   */
+  clear(): void {
+    this.validationSchemas.clear()
+  }
+
+  /**
+   * Get registry status for debugging
+   */
+  getStatus(): {
+    registeredTypes: string[]
+    count: number
+  } {
+    return {
+      registeredTypes: this.getRegisteredTypes(),
+      count: this.validationSchemas.size
+    }
+  }
+}
+
+// Export singleton instance
+export const widgetValidationRegistry = WidgetValidationRegistry.getInstance()
 
 // Validation helper functions
 export function validateWidgetConfig(type: string, config: unknown) {
-  switch (type) {
-    case 'clock':
-      return ClockWidgetConfigSchema.parse(config)
-    case 'weather':
-      return WeatherWidgetConfigSchema.parse(config)
-    case 'calendar':
-      return CalendarWidgetConfigSchema.parse(config)
-    case 'note':
-      return NoteWidgetConfigSchema.parse(config)
-    case 'timer':
-      return TimerWidgetConfigSchema.parse(config)
-    default:
-      throw new Error(`Unknown widget type: ${type}`)
-  }
+  return widgetValidationRegistry.validateConfig(type, config)
+}
+
+// Helper function to register validation schema for custom widgets
+export function registerWidgetValidationSchema<T>(widgetType: string, schema: z.ZodSchema<T>) {
+  widgetValidationRegistry.registerSchema(widgetType, schema)
 }
 
 export function safeParseJson<T>(jsonString: string, schema: z.ZodSchema<T>): T {

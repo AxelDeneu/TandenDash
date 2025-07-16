@@ -19,11 +19,6 @@ export const TAILWIND_TO_PIXELS: Record<string, number> = {
   'text-9xl': 128
 }
 
-// Reverse mapping for backward compatibility
-export const PIXELS_TO_TAILWIND: Record<number, string> = Object.entries(TAILWIND_TO_PIXELS).reduce(
-  (acc, [className, pixels]) => ({ ...acc, [pixels]: className }),
-  {}
-)
 
 /**
  * Convert a font size value to pixels
@@ -62,70 +57,4 @@ export function fontSizeStyle(value: string | number | undefined): { fontSize: s
   return { fontSize: `${pixels}px` }
 }
 
-/**
- * Create a combined style object with font size and other properties
- */
-export function createTextStyle(options: {
-  size?: string | number
-  weight?: string | number
-  color?: string
-  lineHeight?: string | number
-  letterSpacing?: string | number
-}): Record<string, string | number> {
-  const style: Record<string, string | number> = {}
 
-  if (options.size !== undefined) {
-    style.fontSize = `${toPixels(options.size)}px`
-  }
-
-  if (options.weight !== undefined) {
-    style.fontWeight = options.weight
-  }
-
-  if (options.color !== undefined) {
-    style.color = options.color
-  }
-
-  if (options.lineHeight !== undefined) {
-    style.lineHeight = typeof options.lineHeight === 'number' 
-      ? options.lineHeight 
-      : options.lineHeight
-  }
-
-  if (options.letterSpacing !== undefined) {
-    style.letterSpacing = typeof options.letterSpacing === 'number'
-      ? `${options.letterSpacing}px`
-      : options.letterSpacing
-  }
-
-  return style
-}
-
-/**
- * Get a user-friendly label for a font size
- */
-export function getFontSizeLabel(pixels: number): string {
-  const labels: Record<number, string> = {
-    12: 'Extra Small',
-    14: 'Small',
-    16: 'Medium',
-    18: 'Large',
-    20: 'Extra Large',
-    24: '2X Large',
-    30: '3X Large',
-    36: '4X Large',
-    48: '5X Large',
-    60: '6X Large',
-    72: '7X Large',
-    96: '8X Large'
-  }
-
-  // Find closest match
-  const closest = Object.keys(labels)
-    .map(Number)
-    .reduce((prev, curr) => 
-      Math.abs(curr - pixels) < Math.abs(prev - pixels) ? curr : prev
-    )
-
-  return labels[closest] || `${pixels}px`
-}

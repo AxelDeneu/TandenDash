@@ -1,4 +1,4 @@
-import type { WidgetInstance, WidgetDefinition } from '~/types/widgets'
+import type { WidgetInstance } from '@/types'
 
 export interface WidgetEvents {
   // Widget lifecycle events
@@ -39,14 +39,6 @@ export interface WidgetEvents {
   // Grid events
   'grid:snappingChanged': [isSnapping: boolean]
   'grid:sizeChanged': [rows: number, cols: number]
-}
-
-export interface WidgetEventPayload<T = unknown> {
-  widgetId: number
-  widgetType: string
-  pageId: number
-  timestamp: number
-  data: T
 }
 
 export interface WidgetEventBus {
