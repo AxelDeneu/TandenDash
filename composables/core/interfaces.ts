@@ -1,6 +1,6 @@
 import type { Ref, ComputedRef } from 'vue'
 import type { IServiceFactory } from '@/lib/services/interfaces'
-import type { IWidgetSystem } from '@/lib/widgets/interfaces'
+import type { IWidgetCore } from '@/lib/widgets/interfaces'
 
 // Base composable state
 export interface BaseComposableState {
@@ -76,7 +76,7 @@ export interface EventEmitter<TEvents = Record<string, unknown[]>> {
 // Dependency injection context
 export interface ComposableContext {
   services: IServiceFactory
-  widgets: IWidgetSystem
+  widgets: IWidgetCore
   events: EventEmitter
 }
 
@@ -94,32 +94,6 @@ export interface ComposableFactory {
 }
 
 // Specific composable interfaces
-export interface UseWidgetOperations {
-  widgets: Ref<import('@/types/widget').WidgetInstance[]>
-  loading: Ref<boolean>
-  error: Ref<Error | null>
-  
-  fetchWidgets(pageId?: number): Promise<void>
-  createWidget(data: import('@/types/widget').CreateWidgetRequest): Promise<import('@/types/widget').WidgetInstance>
-  updateWidget(id: number, data: import('@/types/widget').UpdateWidgetRequest): Promise<import('@/types/widget').WidgetInstance>
-  deleteWidget(id: number): Promise<boolean>
-  findWidgetById(id: number): import('@/types/widget').WidgetInstance | undefined
-}
-
-export interface UsePageOperations {
-  pages: Ref<import('@/types/page').Page[]>
-  currentPage: Ref<import('@/types/page').Page | null>
-  loading: Ref<boolean>
-  error: Ref<Error | null>
-  
-  fetchPages(): Promise<void>
-  fetchPage(id: number): Promise<void>
-  createPage(data: import('@/types/page').CreatePageRequest): Promise<import('@/types/page').Page>
-  updatePage(id: number, data: import('@/types/page').UpdatePageRequest): Promise<import('@/types/page').Page>
-  deletePage(id: number): Promise<boolean>
-  setCurrentPage(page: import('@/types/page').Page): void
-}
-
 export interface UseTodoOperations {
   todoLists: Ref<import('@/types/todo').TodoListWithItems[]>
   loading: Ref<boolean>
@@ -134,63 +108,4 @@ export interface UseTodoOperations {
   updateTodoItem(id: number, data: import('@/types/todo').UpdateTodoItemRequest): Promise<import('@/types/todo').TodoItem>
   deleteTodoItem(id: number): Promise<boolean>
   toggleTodoItem(id: number): Promise<import('@/types/todo').TodoItem>
-}
-
-export interface UseWidgetUI {
-  selectedWidgets: Ref<Set<number>>
-  dragState: Ref<{
-    isDragging: boolean
-    draggedWidget: import('@/types/widget').WidgetInstance | null
-    startPosition: { x: number; y: number } | null
-  }>
-  resizeState: Ref<{
-    isResizing: boolean
-    resizedWidget: import('@/types/widget').WidgetInstance | null
-    startSize: { width: number; height: number } | null
-  }>
-  
-  selectWidget(id: number): void
-  deselectWidget(id: number): void
-  clearSelection(): void
-  startDrag(widget: import('@/types/widget').WidgetInstance, position: { x: number; y: number }): void
-  endDrag(): void
-  startResize(widget: import('@/types/widget').WidgetInstance, size: { width: number; height: number }): void
-  endResize(): void
-}
-
-export interface UseEditMode {
-  isEditMode: Ref<boolean>
-  canEdit: ComputedRef<boolean>
-  
-  enableEditMode(): void
-  disableEditMode(): void
-  toggleEditMode(): void
-}
-
-export interface UsePageUI {
-  dialogState: Ref<{
-    showAddPage: boolean
-    showRenamePage: boolean
-    pageToEdit: import('@/types/page').Page | null
-    newPageName: string
-    newPageSnapping: boolean
-    newPageGridRows: number
-    newPageGridCols: number
-  }>
-  showAddPage: ComputedRef<boolean>
-  showRenamePage: ComputedRef<boolean>
-  pageToEdit: ComputedRef<import('@/types/page').Page | null>
-  newPageName: ComputedRef<string>
-  newPageSnapping: ComputedRef<boolean>
-  newPageGridRows: ComputedRef<number>
-  newPageGridCols: ComputedRef<number>
-  
-  openAddPageDialog(): void
-  closeAddPageDialog(): void
-  openRenamePageDialog(page: import('@/types/page').Page): void
-  closeRenamePageDialog(): void
-  updateNewPageName(value: string): void
-  updateNewPageSnapping(value: boolean): void
-  updateNewPageGridRows(value: number): void
-  updateNewPageGridCols(value: number): void
 }

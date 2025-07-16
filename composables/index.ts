@@ -2,8 +2,6 @@
 export { useComposableContext, provideComposableContext, initializeComposableContext } from './core/ComposableContext'
 export { useErrorHandler } from './core/useErrorHandler'
 export { useLoadingState } from './core/useLoadingState'
-export { useDialogState } from './core/useDialogState'
-export { useUIState } from './core/useUIState'
 export { createEventEmitter } from './core/EventEmitter'
 export { useLogger } from './core/useLogger'
 
@@ -18,18 +16,16 @@ export { usePageUI } from './ui/usePageUI'
 export { useToolbarVisibility } from './ui/useToolbarVisibility'
 
 // Interaction composables
+export { useSwipeGesture } from './interaction/useSwipeGesture'
 
 // Widget composables
-export { useWidgetRegistry } from './widgets/useWidgetRegistry'
 export { useWidgetPlugins } from './widgets/useWidgetPlugins'
 
-// Backward compatibility exports - will re-export from new locations
-export { usePages } from './usePages'
-export { useSwipeGesture } from './useSwipeGesture'
-export { useWidgetSystem } from './useWidgetSystem'
+// Event composables
+export { useWidgetEventBus } from './events/useWidgetEventBus'
+
 
 // Types
 export type * from './core/interfaces'
-export type { SwipeOptions } from './useSwipeGesture'
-export type { WidgetDefinitionCompat } from './widgets/useWidgetRegistry'
+export type { SwipeOptions } from './interaction/useSwipeGesture'
 export type { UseWidgetPlugins } from './widgets/useWidgetPlugins'

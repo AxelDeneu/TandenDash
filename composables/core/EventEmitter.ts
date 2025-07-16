@@ -5,9 +5,18 @@ type EventValidator<TEvents> = <K extends keyof TEvents>(
   args: TEvents[K]
 ) => { success: true; data: TEvents[K] } | { success: false; error: string }
 
-export function createEventEmitter<TEvents = Record<string, unknown[]>>(
+export interface EventEmitterOptions<TEvents> {
   validator?: EventValidator<TEvents>
+  logger?: {
+    error: (message: string, ...args: any[]) => void
+    warn: (message: string, ...args: any[]) => void
+  }
+}
+
+export function createEventEmitter<TEvents = Record<string, unknown[]>>(
+  options: EventEmitterOptions<TEvents> = {}
 ): EventEmitter<TEvents> {
+  const { validator, logger } = options
   type EventHandler<K extends keyof TEvents> = (...args: TEvents[K]) => void
   const listeners = new Map<keyof TEvents, Set<EventHandler<keyof TEvents>>>()
 
@@ -16,9 +25,17 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
     if (validator) {
       const validationResult = validator(event, args)
       if (!validationResult.success) {
-        console.error(`Event validation failed for '${String(event)}': ${validationResult.error}`)
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Event payload:', args)
+        const errorMsg = `Event validation failed for '${String(event)}': ${validationResult.error}`
+        if (logger) {
+          logger.error(errorMsg)
+          if (process.env.NODE_ENV === 'development') {
+            logger.warn('Event payload:', args)
+          }
+        } else {
+          console.error(errorMsg)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Event payload:', args)
+          }
         }
         return // Don't emit invalid events
       }
@@ -32,7 +49,12 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
         try {
           handler(...args)
         } catch (error) {
-          console.error(`Error in event handler for '${String(event)}':`, error)
+          const errorMsg = `Error in event handler for '${String(event)}':`
+          if (logger) {
+            logger.error(errorMsg, error)
+          } else {
+            console.error(errorMsg, error)
+          }
           // Emit error event for global error handling if available
           if (event !== 'error' && listeners.has('error' as keyof TEvents)) {
             const errorListeners = listeners.get('error' as keyof TEvents)
@@ -41,7 +63,11 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
                 try {
                   errorHandler(error as any, event as any)
                 } catch (errorHandlerError) {
-                  console.error('Error in error handler:', errorHandlerError)
+                  if (logger) {
+                    logger.error('Error in error handler:', errorHandlerError)
+                  } else {
+                    console.error('Error in error handler:', errorHandlerError)
+                  }
                 }
               }
             }
