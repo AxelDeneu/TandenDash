@@ -1,17 +1,14 @@
 import type { Component } from 'vue'
-import type { 
-  IWidgetRenderer,
-  WidgetPluginManifest
-} from './interfaces'
 import type { BaseWidgetConfig } from '@/types/widget'
+import type { WidgetPlugin } from './WidgetCore'
 
-export class WidgetRenderer<TConfig extends BaseWidgetConfig> implements IWidgetRenderer<TConfig> {
+export class WidgetRenderer<TConfig extends BaseWidgetConfig> {
   public readonly component: Component
   public props: TConfig
   private mountedElement?: HTMLElement
 
   constructor(
-    private readonly plugin: WidgetPluginManifest<TConfig>,
+    private readonly plugin: WidgetPlugin<TConfig>,
     config: TConfig
   ) {
     this.component = plugin.component
@@ -24,11 +21,6 @@ export class WidgetRenderer<TConfig extends BaseWidgetConfig> implements IWidget
     }
 
     this.mountedElement = element
-    
-    // Execute lifecycle hook
-    if (this.plugin.lifecycle?.onMount) {
-      this.plugin.lifecycle.onMount()
-    }
   }
 
   unmount(): void {
@@ -36,29 +28,11 @@ export class WidgetRenderer<TConfig extends BaseWidgetConfig> implements IWidget
       return
     }
 
-    // Execute lifecycle hook
-    if (this.plugin.lifecycle?.onUnmount) {
-      this.plugin.lifecycle.onUnmount()
-    }
-
     this.mountedElement = undefined
   }
 
   update(newProps: TConfig): void {
-    const oldProps = this.props
     this.props = newProps
-
-    // Execute lifecycle hook
-    if (this.plugin.lifecycle?.onUpdate) {
-      this.plugin.lifecycle.onUpdate(newProps)
-    }
-
-    // Check if config changed
-    if (JSON.stringify(oldProps) !== JSON.stringify(newProps)) {
-      if (this.plugin.lifecycle?.onConfigChange) {
-        this.plugin.lifecycle.onConfigChange(newProps)
-      }
-    }
   }
 
   // Additional methods
@@ -71,18 +45,14 @@ export class WidgetRenderer<TConfig extends BaseWidgetConfig> implements IWidget
   }
 
   getPluginId(): string {
-    return this.plugin.metadata.id
+    return this.plugin.id
   }
 
   handleResize(width: number, height: number): void {
-    if (this.plugin.lifecycle?.onResize) {
-      this.plugin.lifecycle.onResize(width, height)
-    }
+    // Hook for future implementation if needed
   }
 
   handleError(error: Error): void {
-    if (this.plugin.lifecycle?.onError) {
-      this.plugin.lifecycle.onError(error)
-    }
+    // Hook for future implementation if needed
   }
 }

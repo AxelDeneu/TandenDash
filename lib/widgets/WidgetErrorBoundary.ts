@@ -1,5 +1,3 @@
-import type { IWidgetErrorBoundary } from './interfaces'
-
 interface ErrorInfo {
   error: Error
   timestamp: Date
@@ -8,7 +6,7 @@ interface ErrorInfo {
   stackTrace?: string
 }
 
-export class WidgetErrorBoundary implements IWidgetErrorBoundary {
+export class WidgetErrorBoundary {
   private errorMap = new Map<string, ErrorInfo>()
   private maxRecoveryAttempts = 3
   private recoveryDelay = 1000 // 1 second

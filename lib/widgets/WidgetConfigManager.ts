@@ -1,15 +1,11 @@
-import type { ZodSchema } from 'zod'
-import type { 
-  IWidgetConfigManager,
-  WidgetPluginManifest
-} from './interfaces'
 import type { BaseWidgetConfig } from '@/types/widget'
+import type { WidgetPlugin } from './WidgetCore'
 
-export class WidgetConfigManager<TConfig extends BaseWidgetConfig> implements IWidgetConfigManager<TConfig> {
+export class WidgetConfigManager<TConfig extends BaseWidgetConfig> {
   private config: TConfig
 
   constructor(
-    private readonly plugin: WidgetPluginManifest<TConfig>,
+    private readonly plugin: WidgetPlugin<TConfig>,
     initialConfig?: Partial<TConfig>
   ) {
     // Merge initial config with defaults

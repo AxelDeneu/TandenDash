@@ -1,21 +1,20 @@
-// Widget system exports
+// New simplified widget system exports
 export * from './interfaces'
-export { WidgetSystem, widgetSystem } from './WidgetSystem'
-export { WidgetPluginRegistry } from './WidgetPluginRegistry'
-export { WidgetInstanceManager } from './WidgetInstanceManager'
-export { WidgetFactory } from './WidgetFactory'
+export { WidgetCore, widgetCore } from './WidgetCore'
+export type { WidgetPlugin, IDataProvider, WidgetInstance } from './WidgetCore'
+
+// Import widgetCore for internal use in helper functions
+import { widgetCore } from './WidgetCore'
+
+// Export supporting classes that are still used
 export { WidgetRenderer } from './WidgetRenderer'
 export { WidgetConfigManager } from './WidgetConfigManager'
 export { WidgetErrorBoundary } from './WidgetErrorBoundary'
-export { WidgetPluginLoader } from './WidgetPluginLoader'
-export { WidgetValidationSystem } from './WidgetValidationSystem'
 
-// Built-in widget plugins
-export { ClockWidgetPlugin } from './plugins/ClockWidgetPlugin'
-export { WeatherWidgetPlugin } from './plugins/WeatherWidgetPlugin'
-export { CalendarWidgetPlugin } from './plugins/CalendarWidgetPlugin'
-export { NoteWidgetPlugin } from './plugins/NoteWidgetPlugin'
-export { TimerWidgetPlugin } from './plugins/TimerWidgetPlugin'
+// Export singleton getter for compatibility
+export function getWidgetSystemInstance() {
+  return widgetCore
+}
 
 // Helper functions
 export function createWidgetInstance(
@@ -23,47 +22,76 @@ export function createWidgetInstance(
   config: unknown,
   position?: { x: number; y: number; width: number; height: number }
 ) {
-  return widgetSystem.instanceManager.createInstance(pluginId, config, position)
+  return widgetCore.createInstance(pluginId, config, position)
 }
 
 export function destroyWidgetInstance(instanceId: string) {
-  return widgetSystem.instanceManager.destroyInstance(instanceId)
+  return widgetCore.destroyInstance(instanceId)
 }
 
 export function getWidgetInstance(instanceId: string) {
-  return widgetSystem.instanceManager.getInstance(instanceId)
+  return widgetCore.getInstance(instanceId)
 }
 
 export function getAllWidgetInstances() {
-  return widgetSystem.instanceManager.getAllInstances()
+  return widgetCore.getAllInstances()
 }
 
 export function getAvailableWidgets() {
-  return widgetSystem.registry.getAllPlugins()
+  return widgetCore.getAllPlugins()
 }
 
 export function getWidgetsByCategory(category: string) {
-  return widgetSystem.registry.getPluginsByCategory(category)
+  return widgetCore.getPluginsByCategory(category)
 }
 
 export function searchWidgets(query: string) {
-  return widgetSystem.registry.searchPlugins(query)
+  return widgetCore.searchPlugins(query)
 }
 
 export function isWidgetSystemInitialized() {
-  return widgetSystem.getSystemInfo().initialized
+  try {
+    return widgetCore.getSystemInfo().initialized
+  } catch (error) {
+    console.warn('Widget system not ready for initialization check:', error)
+    return false
+  }
 }
 
 export async function initializeWidgetSystem() {
-  if (!isWidgetSystemInitialized()) {
-    await widgetSystem.initialize()
+  try {
+    if (!isWidgetSystemInitialized()) {
+      await widgetCore.initialize()
+    }
+  } catch (error) {
+    console.error('Failed to initialize widget system:', error)
+    throw error
   }
 }
 
 export function getWidgetSystemInfo() {
-  return widgetSystem.getSystemInfo()
+  try {
+    return widgetCore.getSystemInfo()
+  } catch (error) {
+    console.warn('Failed to get widget system info:', error)
+    return {
+      initialized: false,
+      pluginCount: 0,
+      instanceCount: 0,
+      errorCount: 0
+    }
+  }
 }
 
 export function performWidgetSystemHealthCheck() {
-  return widgetSystem.performHealthCheck()
+  try {
+    return widgetCore.performHealthCheck()
+  } catch (error) {
+    console.error('Failed to perform widget system health check:', error)
+    return Promise.resolve({
+      healthy: false,
+      issues: ['Widget system not accessible'],
+      recommendations: ['Initialize widget system first']
+    })
+  }
 }
