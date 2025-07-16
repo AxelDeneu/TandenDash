@@ -81,7 +81,6 @@ export interface IWidgetService {
   deleteWidget(id: number): Promise<ServiceResult<boolean>>
   getWidgetsByType(type: string): Promise<ServiceListResult<WidgetInstance>>
   bulkUpdateWidgets(widgets: Array<{ id: number; position?: string; options?: string }>): Promise<ServiceListResult<WidgetInstance>>
-  validateWidgetConfig(type: string, config: unknown): Promise<ServiceResult<boolean>>
   parseWidgetInstance(widget: WidgetInstance): ParsedWidgetInstance
 }
 

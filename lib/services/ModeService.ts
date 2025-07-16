@@ -1,57 +1,58 @@
-import type { IModeService, ServiceResult } from './interfaces'
+import type { IModeService, ServiceResult, ILoggerService } from './interfaces'
 import type { IModeStateRepository } from '@/lib/repositories/interfaces'
+import { BaseService } from './BaseService'
 
-export class ModeService implements IModeService {
-  constructor(private readonly modeStateRepository: IModeStateRepository) {}
+export class ModeService extends BaseService implements IModeService {
+  protected readonly entityName = 'Mode'
+  
+  constructor(
+    private readonly modeStateRepository: IModeStateRepository,
+    logger?: ILoggerService
+  ) {
+    super(logger)
+  }
 
   async getCurrentMode(): Promise<ServiceResult<'light' | 'dark'>> {
     try {
+      this.logOperation('getCurrentMode')
+      
       const mode = await this.modeStateRepository.getCurrentMode()
       
-      return {
-        success: true,
-        data: mode
-      }
+      return this.success(mode)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get current mode'
-      }
+      return this.handleError(error, 'get current mode')
     }
   }
 
   async setMode(mode: 'light' | 'dark'): Promise<ServiceResult<void>> {
     try {
+      this.logOperation('setMode', { mode })
+      
       await this.modeStateRepository.setMode(mode)
       
-      return {
-        success: true,
-        data: undefined
-      }
+      return this.success(undefined)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to set mode'
-      }
+      return this.handleError(error, 'set mode')
     }
   }
 
   async toggleMode(): Promise<ServiceResult<'light' | 'dark'>> {
     try {
+      this.logOperation('toggleMode')
+      
       const currentMode = await this.modeStateRepository.getCurrentMode()
       const newMode = currentMode === 'dark' ? 'light' : 'dark'
       
       await this.modeStateRepository.setMode(newMode)
       
-      return {
-        success: true,
-        data: newMode
-      }
+      this.logger?.info('Mode toggled', { from: currentMode, to: newMode }, {
+        module: 'mode',
+        method: 'toggleMode'
+      })
+      
+      return this.success(newMode)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to toggle mode'
-      }
+      return this.handleError(error, 'toggle mode')
     }
   }
 }

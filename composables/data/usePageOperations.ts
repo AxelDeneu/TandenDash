@@ -1,9 +1,25 @@
-import { ref, computed, readonly } from 'vue'
-import type { UsePageOperations } from '../core/interfaces'
+import { ref, computed, readonly, type Ref } from 'vue'
 import type { Page, CreatePageRequest, UpdatePageRequest } from '@/types/page'
 import { useComposableContext } from '../core/ComposableContext'
 import { useErrorHandler } from '../core/useErrorHandler'
 import { useLoadingState } from '../core/useLoadingState'
+
+export interface UsePageOperations {
+  pages: Ref<Page[]>
+  currentPage: Ref<Page | null>
+  loading: Ref<boolean>
+  error: Ref<Error | null>
+  
+  fetchPages(): Promise<void>
+  fetchPage(id: number): Promise<void>
+  createPage(data: CreatePageRequest): Promise<Page>
+  updatePage(id: number, data: UpdatePageRequest): Promise<Page>
+  deletePage(id: number): Promise<boolean>
+  setCurrentPage(page: Page): void
+  findPageById(id: number): Page | undefined
+  getNextPage(): Page | null
+  getPreviousPage(): Page | null
+}
 
 export function usePageOperations(): UsePageOperations {
   const context = useComposableContext()
@@ -101,7 +117,6 @@ export function usePageOperations(): UsePageOperations {
   async function updatePage(id: number, data: UpdatePageRequest): Promise<Page> {
     const operation = async () => {
       const body = { id, ...data }
-      console.log('[usePageOperations] updatePage - sending to API:', body)
       const updatedPage = await $fetch('/api/pages', {
         method: 'PUT',
         body

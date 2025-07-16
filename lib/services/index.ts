@@ -1,7 +1,11 @@
 // Service exports
 export * from './interfaces'
+export { BaseService } from './BaseService'
+export { ServiceResponseBuilder } from './ServiceResponseBuilder'
 export { WidgetService } from './WidgetService'
 export { PageService } from './PageService'
-export { TodoListService, TodoItemService } from './TodoService'
+export { TodoListService } from './TodoListService'
+export { TodoItemService } from './TodoItemService'
 export { ModeService } from './ModeService'
+export { LoggerService } from './LoggerService'
 export { ServiceFactory } from './ServiceFactory'

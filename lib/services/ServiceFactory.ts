@@ -2,16 +2,14 @@ import type { IServiceFactory, ILoggerService } from './interfaces'
 import type { IRepositoryFactory } from '@/lib/repositories/interfaces'
 import { WidgetService } from './WidgetService'
 import { PageService } from './PageService'
-// import { WidgetServiceWithCache } from './WidgetServiceWithCache'
-// import { PageServiceWithCache } from './PageServiceWithCache'
-import { TodoListService, TodoItemService } from './TodoService'
+import { TodoListService } from './TodoListService'
+import { TodoItemService } from './TodoItemService'
 import { ModeService } from './ModeService'
 import { LoggerService } from './LoggerService'
 
 export class ServiceFactory implements IServiceFactory {
   constructor(
     private readonly repositoryFactory: IRepositoryFactory,
-    private readonly useCache: boolean = false // Temporarily disabled due to decorator issue
   ) {}
 
   // Singleton instances for service reuse
@@ -25,7 +23,8 @@ export class ServiceFactory implements IServiceFactory {
   createWidgetService() {
     if (!this.widgetService) {
       const widgetRepository = this.repositoryFactory.createWidgetRepository()
-      this.widgetService = new WidgetService(widgetRepository)
+      const logger = this.createLoggerService()
+      this.widgetService = new WidgetService(widgetRepository, logger)
     }
     return this.widgetService
   }
@@ -34,7 +33,8 @@ export class ServiceFactory implements IServiceFactory {
     if (!this.pageService) {
       const pageRepository = this.repositoryFactory.createPageRepository()
       const widgetRepository = this.repositoryFactory.createWidgetRepository()
-      this.pageService = new PageService(pageRepository, widgetRepository)
+      const logger = this.createLoggerService()
+      this.pageService = new PageService(pageRepository, widgetRepository, logger)
     }
     return this.pageService
   }
@@ -42,7 +42,8 @@ export class ServiceFactory implements IServiceFactory {
   createTodoListService() {
     if (!this.todoListService) {
       const todoListRepository = this.repositoryFactory.createTodoListRepository()
-      this.todoListService = new TodoListService(todoListRepository)
+      const logger = this.createLoggerService()
+      this.todoListService = new TodoListService(todoListRepository, logger)
     }
     return this.todoListService
   }
@@ -50,7 +51,8 @@ export class ServiceFactory implements IServiceFactory {
   createTodoItemService() {
     if (!this.todoItemService) {
       const todoItemRepository = this.repositoryFactory.createTodoItemRepository()
-      this.todoItemService = new TodoItemService(todoItemRepository)
+      const logger = this.createLoggerService()
+      this.todoItemService = new TodoItemService(todoItemRepository, logger)
     }
     return this.todoItemService
   }
@@ -58,7 +60,8 @@ export class ServiceFactory implements IServiceFactory {
   createModeService() {
     if (!this.modeService) {
       const modeStateRepository = this.repositoryFactory.createModeStateRepository()
-      this.modeService = new ModeService(modeStateRepository)
+      const logger = this.createLoggerService()
+      this.modeService = new ModeService(modeStateRepository, logger)
     }
     return this.modeService
   }
@@ -69,15 +72,5 @@ export class ServiceFactory implements IServiceFactory {
       this.loggerService = new LoggerService(logLevel)
     }
     return this.loggerService
-  }
-
-  // Method to clear singleton instances (useful for testing)
-  clearInstances() {
-    this.widgetService = undefined
-    this.pageService = undefined
-    this.todoListService = undefined
-    this.todoItemService = undefined
-    this.modeService = undefined
-    this.loggerService = undefined
   }
 }

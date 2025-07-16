@@ -1,4 +1,4 @@
-import type { IPageService, ServiceResult, ServiceListResult } from './interfaces'
+import type { IPageService, ServiceResult, ServiceListResult, ILoggerService } from './interfaces'
 import type { IPageRepository, IWidgetRepository } from '@/lib/repositories/interfaces'
 import type { 
   Page, 
@@ -6,61 +6,54 @@ import type {
   CreatePageRequest, 
   UpdatePageRequest 
 } from '@/types/page'
+import { BaseService } from './BaseService'
 
-export class PageService implements IPageService {
+export class PageService extends BaseService implements IPageService {
+  protected readonly entityName = 'Page'
+  
   constructor(
     private readonly pageRepository: IPageRepository,
-    private readonly widgetRepository: IWidgetRepository
-  ) {}
+    private readonly widgetRepository: IWidgetRepository,
+    logger?: ILoggerService
+  ) {
+    super(logger)
+  }
 
   async getAllPages(): Promise<ServiceListResult<Page>> {
     try {
+      this.logOperation('getAllPages')
+      
       const pages = await this.pageRepository.findAll()
       
-      return {
-        success: true,
-        data: pages,
-        total: pages.length
-      }
+      return this.successList(pages)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch pages'
-      }
+      return this.handleListError(error, 'fetch pages')
     }
   }
 
   async getPageById(id: number): Promise<ServiceResult<Page>> {
     try {
+      this.logOperation('getPageById', { id })
+      
       const page = await this.pageRepository.findById(id)
       
       if (!page) {
-        return {
-          success: false,
-          error: `Page with id ${id} not found`
-        }
+        return this.notFound(id)
       }
 
-      return {
-        success: true,
-        data: page
-      }
+      return this.success(page)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch page'
-      }
+      return this.handleError(error, 'fetch page')
     }
   }
 
   async getPageWithWidgets(id: number): Promise<ServiceResult<PageWithWidgets>> {
     try {
+      this.logOperation('getPageWithWidgets', { id })
+      
       const page = await this.pageRepository.findById(id)
       if (!page) {
-        return {
-          success: false,
-          error: `Page with id ${id} not found`
-        }
+        return this.notFound(id)
       }
 
       const widgets = await this.widgetRepository.findByPageId(id)
@@ -70,41 +63,34 @@ export class PageService implements IPageService {
         widgets
       }
 
-      return {
-        success: true,
-        data: pageWithWidgets
-      }
+      return this.success(pageWithWidgets)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch page with widgets'
-      }
+      return this.handleError(error, 'fetch page with widgets')
     }
   }
 
   async createPage(data: CreatePageRequest): Promise<ServiceResult<Page>> {
     try {
+      this.logOperation('createPage', data)
+      
       // Additional business logic validation
       await this.validatePageName(data.name)
       
       const page = await this.pageRepository.create(data)
       
-      return {
-        success: true,
-        data: page
-      }
+      return this.success(page)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create page'
-      }
+      return this.handleError(error, 'create page')
     }
   }
 
   async updatePage(id: number, data: UpdatePageRequest): Promise<ServiceResult<Page>> {
     try {
-      console.log('[PageService] updatePage - id:', id, 'data:', JSON.stringify(data))
-      console.log('[PageService] snapping value specifically:', data.snapping)
+      this.logOperation('updatePage', { id, ...data })
+      this.logger?.debug('PageService updatePage - snapping value', { snapping: data.snapping }, {
+        module: 'page',
+        method: 'updatePage'
+      })
       
       // Validate name if it's being updated
       if (data.name) {
@@ -115,22 +101,21 @@ export class PageService implements IPageService {
       }
       
       const page = await this.pageRepository.update(id, data)
-      console.log('[PageService] Updated page from repository:', JSON.stringify(page))
+      this.logger?.debug('Updated page from repository', page, {
+        module: 'page',
+        method: 'updatePage'
+      })
       
-      return {
-        success: true,
-        data: page
-      }
+      return this.success(page)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update page'
-      }
+      return this.handleError(error, 'update page')
     }
   }
 
   async deletePage(id: number): Promise<ServiceResult<boolean>> {
     try {
+      this.logOperation('deletePage', { id })
+      
       // Business logic: Check if this is the last page
       const allPages = await this.pageRepository.findAll()
       if (allPages.length <= 1) {
@@ -143,21 +128,12 @@ export class PageService implements IPageService {
       const deleted = await this.pageRepository.delete(id)
       
       if (!deleted) {
-        return {
-          success: false,
-          error: `Page with id ${id} not found`
-        }
+        return this.notFound(id)
       }
 
-      return {
-        success: true,
-        data: true
-      }
+      return this.success(true)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete page'
-      }
+      return this.handleError(error, 'delete page')
     }
   }
 
@@ -168,22 +144,20 @@ export class PageService implements IPageService {
     snapping: boolean
   ): Promise<ServiceResult<Page>> {
     try {
+      this.logOperation('updateGridSettings', { id, gridRows, gridCols, snapping })
+      
       const page = await this.pageRepository.updateGridSettings(id, gridRows, gridCols, snapping)
       
-      return {
-        success: true,
-        data: page
-      }
+      return this.success(page)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update grid settings'
-      }
+      return this.handleError(error, 'update grid settings')
     }
   }
 
   async validatePageName(name: string, excludeId?: number): Promise<ServiceResult<boolean>> {
     try {
+      this.logOperation('validatePageName', { name, excludeId })
+      
       // Validate name format
       if (!name || name.trim().length === 0) {
         return {
@@ -208,15 +182,9 @@ export class PageService implements IPageService {
         }
       }
 
-      return {
-        success: true,
-        data: true
-      }
+      return this.success(true)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to validate page name'
-      }
+      return this.handleError(error, 'validate page name')
     }
   }
 }

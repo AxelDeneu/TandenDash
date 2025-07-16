@@ -1,4 +1,4 @@
-import type { IWidgetService, ServiceResult, ServiceListResult } from './interfaces'
+import type { IWidgetService, ServiceResult, ServiceListResult, ILoggerService } from './interfaces'
 import type { IWidgetRepository } from '@/lib/repositories/interfaces'
 import type { 
   WidgetInstance, 
@@ -7,158 +7,113 @@ import type {
   UpdateWidgetRequest,
   WidgetPosition
 } from '@/types/widget'
-import { validateWidgetConfig, safeParseJson, WidgetPositionDBSchema } from '@/lib/validation'
+import { safeParseJson, WidgetPositionDBSchema } from '@/lib/validation'
+import { BaseService } from './BaseService'
 
-export class WidgetService implements IWidgetService {
-  constructor(private readonly widgetRepository: IWidgetRepository) {}
+export class WidgetService extends BaseService implements IWidgetService {
+  protected readonly entityName = 'Widget'
+  
+  constructor(
+    private readonly widgetRepository: IWidgetRepository,
+    logger?: ILoggerService
+  ) {
+    super(logger)
+  }
 
   async getAllWidgets(pageId?: number): Promise<ServiceListResult<WidgetInstance>> {
     try {
+      this.logOperation('getAllWidgets', { pageId })
+      
       const widgets = pageId 
         ? await this.widgetRepository.findByPageId(pageId)
         : await this.widgetRepository.findAll()
       
-      return {
-        success: true,
-        data: widgets,
-        total: widgets.length
-      }
+      return this.successList(widgets)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch widgets'
-      }
+      return this.handleListError(error, 'fetch widgets')
     }
   }
 
   async getWidgetById(id: number): Promise<ServiceResult<WidgetInstance>> {
     try {
+      this.logOperation('getWidgetById', { id })
+      
       const widget = await this.widgetRepository.findById(id)
       
       if (!widget) {
-        return {
-          success: false,
-          error: `Widget with id ${id} not found`
-        }
+        return this.notFound(id)
       }
 
-      return {
-        success: true,
-        data: widget
-      }
+      return this.success(widget)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch widget'
-      }
+      return this.handleError(error, 'fetch widget')
     }
   }
 
   async createWidget(data: CreateWidgetRequest): Promise<ServiceResult<WidgetInstance>> {
     try {
-      // Additional business logic validation can go here
+      this.logOperation('createWidget', data)
+      
       const widget = await this.widgetRepository.create(data)
       
-      return {
-        success: true,
-        data: widget
-      }
+      return this.success(widget)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create widget'
-      }
+      return this.handleError(error, 'create widget')
     }
   }
 
   async updateWidget(id: number, data: UpdateWidgetRequest): Promise<ServiceResult<WidgetInstance>> {
     try {
+      this.logOperation('updateWidget', { id, ...data })
+      
       const widget = await this.widgetRepository.update(id, data)
       
-      return {
-        success: true,
-        data: widget
-      }
+      return this.success(widget)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update widget'
-      }
+      return this.handleError(error, 'update widget')
     }
   }
 
   async deleteWidget(id: number): Promise<ServiceResult<boolean>> {
     try {
+      this.logOperation('deleteWidget', { id })
+      
       const deleted = await this.widgetRepository.delete(id)
       
       if (!deleted) {
-        return {
-          success: false,
-          error: `Widget with id ${id} not found`
-        }
+        return this.notFound(id)
       }
 
-      return {
-        success: true,
-        data: true
-      }
+      return this.success(true)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete widget'
-      }
+      return this.handleError(error, 'delete widget')
     }
   }
 
   async getWidgetsByType(type: string): Promise<ServiceListResult<WidgetInstance>> {
     try {
+      this.logOperation('getWidgetsByType', { type })
+      
       const widgets = await this.widgetRepository.findByType(type)
       
-      return {
-        success: true,
-        data: widgets,
-        total: widgets.length
-      }
+      return this.successList(widgets)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch widgets by type'
-      }
+      return this.handleListError(error, 'fetch widgets by type')
     }
   }
 
   async bulkUpdateWidgets(widgets: Array<{ id: number; position?: string; options?: string }>): Promise<ServiceListResult<WidgetInstance>> {
     try {
+      this.logOperation('bulkUpdateWidgets', { count: widgets.length })
+      
       const updatedWidgets = await this.widgetRepository.bulkUpdate(widgets)
       
-      return {
-        success: true,
-        data: updatedWidgets,
-        total: updatedWidgets.length
-      }
+      return this.successList(updatedWidgets)
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to bulk update widgets'
-      }
+      return this.handleListError(error, 'bulk update widgets')
     }
   }
 
-  async validateWidgetConfig(type: string, config: unknown): Promise<ServiceResult<boolean>> {
-    try {
-      validateWidgetConfig(type, config)
-      
-      return {
-        success: true,
-        data: true
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Widget configuration validation failed'
-      }
-    }
-  }
 
   parseWidgetInstance(widget: WidgetInstance): ParsedWidgetInstance {
     try {
@@ -181,7 +136,11 @@ export class WidgetService implements IWidgetService {
       }
     } catch (error) {
       // Return widget with default values if parsing fails
-      console.error('Failed to parse widget instance:', error)
+      this.logger?.error('Failed to parse widget instance', error, {
+        module: 'widget',
+        method: 'parseWidgetInstance',
+        widgetId: widget.id
+      })
       return {
         ...widget,
         position: { x: 0, y: 0, width: 200, height: 150 },

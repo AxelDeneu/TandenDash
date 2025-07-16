@@ -19,36 +19,47 @@ import type {
   BatchUpdateTodoItemsRequest
 } from '@/types/todo'
 
-// Base repository interface
-export interface BaseRepository<TEntity, TCreateRequest, TUpdateRequest> {
-  findById(id: number): Promise<TEntity | null>
-  findAll(): Promise<TEntity[]>
-  create(data: TCreateRequest): Promise<TEntity>
-  update(id: number, data: TUpdateRequest): Promise<TEntity>
-  delete(id: number): Promise<boolean>
-}
-
 // Widget repository interface
-export interface IWidgetRepository extends BaseRepository<WidgetInstance, CreateWidgetRequest, UpdateWidgetRequest> {
+export interface IWidgetRepository {
+  findById(id: number): Promise<WidgetInstance | null>
+  findAll(): Promise<WidgetInstance[]>
+  create(data: CreateWidgetRequest): Promise<WidgetInstance>
+  update(id: number, data: UpdateWidgetRequest): Promise<WidgetInstance>
+  delete(id: number): Promise<boolean>
   findByPageId(pageId: number): Promise<WidgetInstance[]>
   findByType(type: string): Promise<WidgetInstance[]>
   bulkUpdate(widgets: Array<{ id: number; position?: string; options?: string }>): Promise<WidgetInstance[]>
 }
 
 // Page repository interface
-export interface IPageRepository extends BaseRepository<Page, CreatePageRequest, UpdatePageRequest> {
+export interface IPageRepository {
+  findById(id: number): Promise<Page | null>
+  findAll(): Promise<Page[]>
+  create(data: CreatePageRequest): Promise<Page>
+  update(id: number, data: UpdatePageRequest): Promise<Page>
+  delete(id: number): Promise<boolean>
   findByName(name: string): Promise<Page | null>
   findWithWidgets(id: number): Promise<Page & { widgets: WidgetInstance[] } | null>
   updateGridSettings(id: number, gridRows: number, gridCols: number, snapping: boolean): Promise<Page>
 }
 
 // Todo repository interfaces
-export interface ITodoListRepository extends BaseRepository<TodoList, CreateTodoListRequest, UpdateTodoListRequest> {
+export interface ITodoListRepository {
+  findById(id: number): Promise<TodoList | null>
+  findAll(): Promise<TodoList[]>
+  create(data: CreateTodoListRequest): Promise<TodoList>
+  update(id: number, data: UpdateTodoListRequest): Promise<TodoList>
+  delete(id: number): Promise<boolean>
   findWithItems(id: number): Promise<TodoListWithItems | null>
   findAllWithItems(): Promise<TodoListWithItems[]>
 }
 
-export interface ITodoItemRepository extends BaseRepository<TodoItem, CreateTodoItemRequest, UpdateTodoItemRequest> {
+export interface ITodoItemRepository {
+  findById(id: number): Promise<TodoItem | null>
+  findAll(): Promise<TodoItem[]>
+  create(data: CreateTodoItemRequest): Promise<TodoItem>
+  update(id: number, data: UpdateTodoItemRequest): Promise<TodoItem>
+  delete(id: number): Promise<boolean>
   findByListId(listId: number): Promise<TodoItem[]>
   updatePositions(items: Array<{ id: number; position: number }>): Promise<TodoItem[]>
   batchUpdate(updates: BatchUpdateTodoItemsRequest): Promise<TodoItem[]>

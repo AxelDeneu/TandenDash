@@ -1,10 +1,21 @@
-import { ref, computed, readonly } from 'vue'
-import type { UseWidgetOperations } from '../core/interfaces'
+import { ref, computed, readonly, type Ref } from 'vue'
 import type { WidgetInstance, CreateWidgetRequest, UpdateWidgetRequest } from '@/types/widget'
 import { useComposableContext } from '../core/ComposableContext'
 import { useErrorHandler } from '../core/useErrorHandler'
 import { useLoadingState } from '../core/useLoadingState'
 import { useWidgetEventBus } from '../events/useWidgetEventBus'
+
+export interface UseWidgetOperations {
+  widgets: Ref<WidgetInstance[]>
+  loading: Ref<boolean>
+  error: Ref<Error | null>
+  
+  fetchWidgets(pageId?: number): Promise<void>
+  createWidget(data: CreateWidgetRequest): Promise<WidgetInstance>
+  updateWidget(id: number, data: UpdateWidgetRequest): Promise<WidgetInstance>
+  deleteWidget(id: number): Promise<boolean>
+  findWidgetById(id: number): WidgetInstance | undefined
+}
 
 export function useWidgetOperations(): UseWidgetOperations {
   const context = useComposableContext()
@@ -169,10 +180,6 @@ export function useWidgetOperations(): UseWidgetOperations {
   function findWidgetById(id: number): WidgetInstance | undefined {
     return widgets.value.find(w => w.id === id)
   }
-  
-  function clearWidgets(): void {
-    widgets.value = []
-  }
 
   // Subscribe to external widget changes
   context.events.on('widget:external-update', (updatedWidget: WidgetInstance) => {
@@ -197,7 +204,6 @@ export function useWidgetOperations(): UseWidgetOperations {
     createWidget,
     updateWidget,
     deleteWidget,
-    findWidgetById,
-    clearWidgets
+    findWidgetById
   }
 }
