@@ -161,8 +161,9 @@ watch(dock.isVisible, (visible) => {
         
         <!-- Drag handle indicator (optional visual cue) -->
         <div 
-          class="absolute inset-0 rounded-full pointer-events-none"
+          class="absolute inset-0 rounded-full pointer-events-none transition-all"
           :class="{
+            'ring-2 ring-transparent ring-offset-2 ring-offset-background/50': !dock.isDragging.value,
             'ring-2 ring-primary/20 ring-offset-2 ring-offset-background/50': dock.isDragging.value
           }"
         />
