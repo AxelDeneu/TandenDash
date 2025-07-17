@@ -8,15 +8,18 @@ export { useLogger } from './core/useLogger'
 // Data operation composables
 export { useWidgetOperations } from './data/useWidgetOperations'
 export { usePageOperations } from './data/usePageOperations'
+export { useWidgetLoader } from './data/useWidgetLoader'
 
 // UI composables
 export { useEditMode } from './ui/useEditMode'
 export { useWidgetUI } from './ui/useWidgetUI'
 export { usePageUI } from './ui/usePageUI'
 export { useFloatingDock } from './ui/useFloatingDock'
+export { useCarouselNavigation } from './ui/useCarouselNavigation'
 
 // Interaction composables
 export { useSwipeGesture } from './interaction/useSwipeGesture'
+export { useDragAndDrop } from './interaction/useDragAndDrop'
 
 // Widget composables
 export { useWidgetPlugins } from './widgets/useWidgetPlugins'
@@ -28,5 +31,8 @@ export { useWidgetEventBus } from './events/useWidgetEventBus'
 // Types
 export type * from './core/interfaces'
 export type { SwipeOptions } from './interaction/useSwipeGesture'
+export type { UseDragAndDrop } from './interaction/useDragAndDrop'
 export type { UseWidgetPlugins } from './widgets/useWidgetPlugins'
 export type { UseFloatingDock, DockPosition } from './ui/useFloatingDock'
+export type { UseCarouselNavigation } from './ui/useCarouselNavigation'
+export type { UseWidgetLoader } from './data/useWidgetLoader'

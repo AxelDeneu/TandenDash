@@ -17,18 +17,31 @@ export interface UseWidgetOperations {
   findWidgetById(id: number): WidgetInstance | undefined
 }
 
+// Shared state for singleton pattern
+const sharedWidgets = ref<WidgetInstance[]>([])
+let sharedLoadingState: ReturnType<typeof useLoadingState> | null = null
+let sharedErrorHandler: ReturnType<typeof useErrorHandler> | null = null
+
 export function useWidgetOperations(): UseWidgetOperations {
   const context = useComposableContext()
-  const widgets = ref<WidgetInstance[]>([])
+  const widgets = sharedWidgets
   const eventBus = useWidgetEventBus()
   
-  const loadingState = useLoadingState()
-  const errorHandler = useErrorHandler(async () => {
-    // Retry last failed operation
-    if (lastOperation.value) {
-      await lastOperation.value()
-    }
-  })
+  // Use shared instances or create new ones on first call
+  if (!sharedLoadingState) {
+    sharedLoadingState = useLoadingState()
+  }
+  if (!sharedErrorHandler) {
+    sharedErrorHandler = useErrorHandler(async () => {
+      // Retry last failed operation
+      if (lastOperation.value) {
+        await lastOperation.value()
+      }
+    })
+  }
+  
+  const loadingState = sharedLoadingState
+  const errorHandler = sharedErrorHandler
 
   const lastOperation = ref<(() => Promise<void>) | null>(null)
 
@@ -50,15 +63,26 @@ export function useWidgetOperations(): UseWidgetOperations {
       })
       const fetchedWidgets = Array.isArray(result) ? result : []
       
+      console.log('[WidgetOperations] Fetch result:', {
+        url,
+        resultType: typeof result,
+        isArray: Array.isArray(result),
+        fetchedCount: fetchedWidgets.length,
+        fetchedWidgets
+      })
+      
       if (pageId) {
         // Remove existing widgets for this page and add the new ones
+        const before = widgets.value.length
         widgets.value = widgets.value.filter(w => w.pageId !== pageId)
         // Force Vue reactivity by creating new array
         widgets.value = [...widgets.value, ...fetchedWidgets]
+        console.log(`[WidgetOperations] Page ${pageId}: Before=${before}, After=${widgets.value.length}`)
       } else {
         // Fetch all widgets - replace the entire array
         // Force complete replacement to ensure reactivity
         widgets.value = [...fetchedWidgets]
+        console.log(`[WidgetOperations] All widgets: Total=${widgets.value.length}`)
       }
       
       context.events.emit('widgets:fetched', fetchedWidgets, pageId)

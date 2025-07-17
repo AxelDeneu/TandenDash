@@ -1,5 +1,5 @@
 import { ref, computed, readonly, type Ref, type ComputedRef } from 'vue'
-import type { Page } from '@/types'
+import type { Page, WidgetInstance } from '@/types'
 import { useComposableContext } from '../core/ComposableContext'
 
 export interface UsePageUI {
@@ -11,6 +11,11 @@ export interface UsePageUI {
     newPageSnapping: boolean
     newPageGridRows: number
     newPageGridCols: number
+    // Widget dialog states
+    showAddWidget: boolean
+    addWidgetPageId: number | null
+    showEditWidget: boolean
+    editWidgetInstance: WidgetInstance | null
   }>
   showAddPage: ComputedRef<boolean>
   showRenamePage: ComputedRef<boolean>
@@ -19,6 +24,11 @@ export interface UsePageUI {
   newPageSnapping: ComputedRef<boolean>
   newPageGridRows: ComputedRef<number>
   newPageGridCols: ComputedRef<number>
+  // Widget dialog computed properties
+  showAddWidget: ComputedRef<boolean>
+  addWidgetPageId: ComputedRef<number | null>
+  showEditWidget: ComputedRef<boolean>
+  editWidgetInstance: ComputedRef<WidgetInstance | null>
   
   openAddPageDialog(): void
   closeAddPageDialog(): void
@@ -28,6 +38,11 @@ export interface UsePageUI {
   updateNewPageSnapping(value: boolean): void
   updateNewPageGridRows(value: number): void
   updateNewPageGridCols(value: number): void
+  // Widget dialog methods
+  openAddWidgetDialog(pageId?: number, currentPageId?: number): void
+  closeAddWidgetDialog(): void
+  openEditWidgetDialog(widget: WidgetInstance): void
+  closeEditWidgetDialog(): void
 }
 
 export function usePageUI(): UsePageUI {
@@ -41,7 +56,12 @@ export function usePageUI(): UsePageUI {
     newPageName: '',
     newPageSnapping: false,
     newPageGridRows: 6,
-    newPageGridCols: 6
+    newPageGridCols: 6,
+    // Widget dialog states
+    showAddWidget: false,
+    addWidgetPageId: null as number | null,
+    showEditWidget: false,
+    editWidgetInstance: null as WidgetInstance | null
   })
 
   // Open add page dialog
@@ -100,6 +120,37 @@ export function usePageUI(): UsePageUI {
     dialogState.value.newPageGridCols = value
   }
 
+  // Widget dialog methods
+  function openAddWidgetDialog(pageId?: number, currentPageId?: number): void {
+    const targetPageId = pageId !== undefined ? pageId : currentPageId
+    
+    if (!targetPageId) {
+      return
+    }
+    
+    dialogState.value.addWidgetPageId = targetPageId
+    dialogState.value.showAddWidget = true
+    context.events.emit('widget:add-dialog-opened', targetPageId)
+  }
+  
+  function closeAddWidgetDialog(): void {
+    dialogState.value.showAddWidget = false
+    dialogState.value.addWidgetPageId = null
+    context.events.emit('widget:add-dialog-closed')
+  }
+  
+  function openEditWidgetDialog(widget: WidgetInstance): void {
+    dialogState.value.editWidgetInstance = widget
+    dialogState.value.showEditWidget = true
+    context.events.emit('widget:edit-dialog-opened', widget)
+  }
+  
+  function closeEditWidgetDialog(): void {
+    dialogState.value.showEditWidget = false
+    dialogState.value.editWidgetInstance = null
+    context.events.emit('widget:edit-dialog-closed')
+  }
+
   // Computed properties
   const showAddPage = computed(() => dialogState.value.showAddPage)
   const showRenamePage = computed(() => dialogState.value.showRenamePage)
@@ -108,6 +159,11 @@ export function usePageUI(): UsePageUI {
   const newPageSnapping = computed(() => dialogState.value.newPageSnapping)
   const newPageGridRows = computed(() => dialogState.value.newPageGridRows)
   const newPageGridCols = computed(() => dialogState.value.newPageGridCols)
+  // Widget dialog computed properties
+  const showAddWidget = computed(() => dialogState.value.showAddWidget)
+  const addWidgetPageId = computed(() => dialogState.value.addWidgetPageId)
+  const showEditWidget = computed(() => dialogState.value.showEditWidget)
+  const editWidgetInstance = computed(() => dialogState.value.editWidgetInstance)
 
   return {
     dialogState: readonly(dialogState),
@@ -118,6 +174,10 @@ export function usePageUI(): UsePageUI {
     newPageSnapping,
     newPageGridRows,
     newPageGridCols,
+    showAddWidget,
+    addWidgetPageId,
+    showEditWidget,
+    editWidgetInstance,
     openAddPageDialog,
     closeAddPageDialog,
     openRenamePageDialog,
@@ -125,6 +185,10 @@ export function usePageUI(): UsePageUI {
     updateNewPageName,
     updateNewPageSnapping,
     updateNewPageGridRows,
-    updateNewPageGridCols
+    updateNewPageGridCols,
+    openAddWidgetDialog,
+    closeAddWidgetDialog,
+    openEditWidgetDialog,
+    closeEditWidgetDialog
   }
 }

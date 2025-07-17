@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import { 
   useEditMode, 
@@ -10,15 +9,17 @@ import {
   usePageUI,
   useComposableContext,
   useLogger,
-  useFloatingDock
+  useFloatingDock,
+  useDragAndDrop,
+  useCarouselNavigation,
+  useWidgetLoader
 } from '@/composables'
-import { getGridConfig, snapToGridWithMargins } from '~/lib/utils/grid'
-import { useSwipeGesture } from '@/composables'
+import { getGridConfig } from '~/lib/utils/grid'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
 import DialogManager from '@/components/dashboard/DialogManager.vue'
 import LoadingPlaceholder from '@/components/common/LoadingPlaceholder.vue'
 import { FloatingDock, type DockAction } from '@/components/ui/dock'
-import type { Page, WidgetInstance } from '@/types'
+import type { Page, WidgetInstance, WidgetPosition } from '@/types'
 
 // New architecture composables
 const context = useComposableContext()
@@ -26,7 +27,7 @@ const editModeComposable = useEditMode()
 const widgetOperations = useWidgetOperations()
 const widgetUI = useWidgetUI()
 const pageOperations = usePageOperations()
-const pageUI = usePageUI()
+const pageUIComposable = usePageUI()
 const floatingDock = useFloatingDock({
   autoHideDelay: 30000
 })
@@ -34,31 +35,39 @@ const logger = useLogger({ module: 'pages/index' })
 
 // Page state
 const pages = computed(() => pageOperations.pages.value)
-const isLoadingPages = computed(() => pageOperations.loading.value)
-const showAddPage = computed(() => pageUI.showAddPage.value)
-const newPageName = computed(() => pageUI.newPageName.value)
-const showRenamePage = computed(() => pageUI.showRenamePage.value)
-const pageToRename = computed(() => pageUI.pageToEdit.value)
 
-// Page operations
-const fetchPages = () => pageOperations.fetchPages()
-const openRenamePage = (page: Page) => pageUI.openRenamePageDialog(page)
-const closeRenamePageDialog = () => pageUI.closeRenamePageDialog()
-const updateNewPageName = (value: string) => pageUI.updateNewPageName(value)
+// New composables for refactoring (after pages is defined)
+const widgetLoader = useWidgetLoader()
+const { carouselRef, swipeContainer, currentPageIndex, currentPage, setupSwipeHandlers } = useCarouselNavigation(pages)
+const dragAndDrop = useDragAndDrop(updateWidgetPosition)
+const isLoadingPages = computed(() => pageOperations.loading.value)
+const editMode = computed(() => editModeComposable.isEditMode.value)
+
+// Extract page UI values to avoid Ref issues in template
+const showAddWidget = computed(() => pageUIComposable.showAddWidget.value)
+const addWidgetPageId = computed(() => pageUIComposable.addWidgetPageId.value)
+const showEditWidget = computed(() => pageUIComposable.showEditWidget.value)
+const editWidgetInstance = computed(() => pageUIComposable.editWidgetInstance.value)
+const showAddPage = computed(() => pageUIComposable.showAddPage.value)
+const newPageName = computed(() => pageUIComposable.newPageName.value)
+const showRenamePage = computed(() => pageUIComposable.showRenamePage.value)
+
+// Dashboard container ref for snapping calculations
+const dashboardContainer = ref<HTMLElement | null>()
 
 // Add page handler
 const addPage = async () => {
-  if (!pageUI.newPageName.value.trim()) return
+  if (!pageUIComposable.newPageName.value.trim()) return
   
   try {
     await pageOperations.createPage({
-      name: pageUI.newPageName.value,
-      snapping: pageUI.newPageSnapping.value,
-      gridRows: pageUI.newPageGridRows.value,
-      gridCols: pageUI.newPageGridCols.value
+      name: pageUIComposable.newPageName.value,
+      snapping: pageUIComposable.newPageSnapping.value,
+      gridRows: pageUIComposable.newPageGridRows.value,
+      gridCols: pageUIComposable.newPageGridCols.value
     })
     await pageOperations.fetchPages()
-    pageUI.closeAddPageDialog()
+    pageUIComposable.closeAddPageDialog()
   } catch (error) {
     logger.error('Error adding page', error as Error)
   }
@@ -66,7 +75,6 @@ const addPage = async () => {
 
 // Delete page handler
 const deletePage = async (page: Page) => {
-  // TODO: Replace with proper touch-friendly dialog
   if (!confirm('Delete this page?')) return
   
   try {
@@ -77,14 +85,8 @@ const deletePage = async (page: Page) => {
   }
 }
 
-// Temporary positions for drag/resize
-const tempPositions = ref<Record<number, import('@/types').WidgetPosition>>({})
-
-// Dashboard container ref for snapping calculations
-const dashboardContainer = ref<HTMLElement | null>(null)
-
 // Parse widget position from string
-const parseWidgetPosition = (widget: WidgetInstance): import('@/types').WidgetPosition => {
+const parseWidgetPosition = (widget: WidgetInstance): WidgetPosition => {
   try {
     const pos = JSON.parse(widget.position)
     
@@ -106,64 +108,8 @@ const parseWidgetPosition = (widget: WidgetInstance): import('@/types').WidgetPo
   }
 }
 
-// Drag state
-const dragState = ref<{
-  widgetId: number
-  offsetX: number
-  offsetY: number
-} | null>(null)
-
-// Resize state  
-const resizeState = ref<{
-  widgetId: number
-  startX: number
-  startY: number
-  startWidth: number
-  startHeight: number
-} | null>(null)
-
-// Handle drag start
-const handleDragStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, page: Page) => {
-  e.stopPropagation()
-  const event = 'touches' in e ? e.touches[0] : e
-  const position = parseWidgetPosition(widget)
-  
-  dragState.value = {
-    widgetId: widget.id,
-    offsetX: event.clientX - position.x,
-    offsetY: event.clientY - position.y
-  }
-  
-  tempPositions.value[widget.id] = { ...position }
-  widgetUI.startDrag(widget, { x: event.clientX, y: event.clientY })
-  
-  // Update dock interaction time when starting drag
-  floatingDock.updateInteractionTime()
-}
-
-// Handle resize start
-const handleResizeStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, page: Page) => {
-  e.stopPropagation()
-  const event = 'touches' in e ? e.touches[0] : e
-  const position = parseWidgetPosition(widget)
-  
-  resizeState.value = {
-    widgetId: widget.id,
-    startX: event.clientX,
-    startY: event.clientY,
-    startWidth: position.width,
-    startHeight: position.height
-  }
-  
-  tempPositions.value[widget.id] = { ...position }
-  widgetUI.startResize(widget, { width: position.width, height: position.height })
-  
-  // Update dock interaction time when starting resize
-  floatingDock.updateInteractionTime()
-}
-
 // Fonction pour mettre à jour la position d'un widget
-const updateWidgetPosition = async (widgetId: number, position: import('@/types').WidgetPosition) => {
+async function updateWidgetPosition(widgetId: number, position: WidgetPosition): Promise<void> {
   try {
     await widgetOperations.updateWidget({
       id: widgetId,
@@ -174,206 +120,18 @@ const updateWidgetPosition = async (widgetId: number, position: import('@/types'
   }
 }
 
-// Helper function to apply snapping and margin constraints to position
-const applySnapping = (position: import('@/types').WidgetPosition): import('@/types').WidgetPosition => {
-  if (!currentPage.value || !dashboardContainer.value) {
-    return position
-  }
-  
-  const containerRect = dashboardContainer.value.getBoundingClientRect()
-  const snapped = snapToGridWithMargins(
-    position.x,
-    position.y,
-    position.width,
-    position.height,
-    currentPage.value,
-    containerRect.width,
-    containerRect.height
-  )
-  
-  return {
-    x: snapped.x,
-    y: snapped.y,
-    width: snapped.w,
-    height: snapped.h
-  }
+// Handle drag start
+const handleDragStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, page: Page) => {
+  const position = parseWidgetPosition(widget)
+  dragAndDrop.handleDragStart(e, widget, page, position)
 }
 
-// Listeners globaux pour mouse/touch events
-const setupEventListeners = () => {
-  // Mouse events
-  const handleMouseMove = (e: MouseEvent) => {
-    if (dragState.value) {
-      const { widgetId, offsetX, offsetY } = dragState.value
-      const newX = e.clientX - offsetX
-      const newY = e.clientY - offsetY
-      
-      if (tempPositions.value[widgetId]) {
-        const newPosition = {
-          ...tempPositions.value[widgetId],
-          x: newX,
-          y: newY
-        }
-        
-        // Apply snapping for drag operations
-        tempPositions.value[widgetId] = applySnapping(newPosition)
-      }
-      
-      widgetUI.updateDrag({ x: e.clientX, y: e.clientY })
-      
-      // Update dock interaction time during drag
-      floatingDock.updateInteractionTime()
-    } else if (resizeState.value) {
-      const { widgetId, startX, startY, startWidth, startHeight } = resizeState.value
-      const deltaX = e.clientX - startX
-      const deltaY = e.clientY - startY
-      
-      const newWidth = Math.max(300, startWidth + deltaX)
-      const newHeight = Math.max(200, startHeight + deltaY)
-      
-      if (tempPositions.value[widgetId]) {
-        const newPosition = {
-          ...tempPositions.value[widgetId],
-          width: newWidth,
-          height: newHeight
-        }
-        
-        // Apply snapping for resize operations
-        tempPositions.value[widgetId] = applySnapping(newPosition)
-      }
-      
-      widgetUI.updateResize({ width: newWidth, height: newHeight })
-      
-      // Update dock interaction time during resize
-      floatingDock.updateInteractionTime()
-    }
-  }
-  
-  const handleMouseUp = async () => {
-    if (dragState.value) {
-      const { widgetId } = dragState.value
-      const finalPosition = tempPositions.value[widgetId]
-      
-      if (finalPosition) {
-        await updateWidgetPosition(widgetId, finalPosition)
-      }
-      
-      delete tempPositions.value[widgetId]
-      dragState.value = null
-      widgetUI.endDrag()
-    } else if (resizeState.value) {
-      const { widgetId } = resizeState.value
-      const finalPosition = tempPositions.value[widgetId]
-      
-      if (finalPosition) {
-        await updateWidgetPosition(widgetId, finalPosition)
-      }
-      
-      delete tempPositions.value[widgetId]
-      resizeState.value = null
-      widgetUI.endResize()
-    }
-  }
-  
-  // Touch events
-  const handleTouchMove = (e: TouchEvent) => {
-    if (dragState.value || resizeState.value) {
-      e.preventDefault()
-      const touch = e.touches[0]
-      
-      if (dragState.value) {
-        const { widgetId, offsetX, offsetY } = dragState.value
-        const newX = touch.clientX - offsetX
-        const newY = touch.clientY - offsetY
-        
-        if (tempPositions.value[widgetId]) {
-          const newPosition = {
-            ...tempPositions.value[widgetId],
-            x: newX,
-            y: newY
-          }
-          
-          // Apply snapping for touch drag operations
-          tempPositions.value[widgetId] = applySnapping(newPosition)
-        }
-        
-        widgetUI.updateDrag({ x: touch.clientX, y: touch.clientY })
-        
-        // Update dock interaction time during touch drag
-        floatingDock.updateInteractionTime()
-      } else if (resizeState.value) {
-        const { widgetId, startX, startY, startWidth, startHeight } = resizeState.value
-        const deltaX = touch.clientX - startX
-        const deltaY = touch.clientY - startY
-        
-        const newWidth = Math.max(300, startWidth + deltaX)
-        const newHeight = Math.max(200, startHeight + deltaY)
-        
-        if (tempPositions.value[widgetId]) {
-          const newPosition = {
-            ...tempPositions.value[widgetId],
-            width: newWidth,
-            height: newHeight
-          }
-          
-          // Apply snapping for touch resize operations
-          tempPositions.value[widgetId] = applySnapping(newPosition)
-        }
-        
-        widgetUI.updateResize({ width: newWidth, height: newHeight })
-        
-        // Update dock interaction time during touch resize
-        floatingDock.updateInteractionTime()
-      }
-    }
-  }
-  
-  const handleTouchEnd = async (e: TouchEvent) => {
-    if (dragState.value) {
-      const { widgetId } = dragState.value
-      const finalPosition = tempPositions.value[widgetId]
-      
-      if (finalPosition) {
-        await updateWidgetPosition(widgetId, finalPosition)
-      }
-      
-      delete tempPositions.value[widgetId]
-      dragState.value = null
-      widgetUI.endDrag()
-    } else if (resizeState.value) {
-      const { widgetId } = resizeState.value
-      const finalPosition = tempPositions.value[widgetId]
-      
-      if (finalPosition) {
-        await updateWidgetPosition(widgetId, finalPosition)
-      }
-      
-      delete tempPositions.value[widgetId]
-      resizeState.value = null
-      widgetUI.endResize()
-    }
-  }
-  
-  window.addEventListener('mousemove', handleMouseMove)
-  window.addEventListener('mouseup', handleMouseUp)
-  window.addEventListener('touchmove', handleTouchMove, { passive: false })
-  window.addEventListener('touchend', handleTouchEnd)
-  
-  // Cleanup function
-  return () => {
-    window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('mouseup', handleMouseUp)
-    window.removeEventListener('touchmove', handleTouchMove)
-    window.removeEventListener('touchend', handleTouchEnd)
-  }
+// Handle resize start
+const handleResizeStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, page: Page) => {
+  const position = parseWidgetPosition(widget)
+  dragAndDrop.handleResizeStart(e, widget, page, position)
 }
 
-// Debounced fetch function to avoid too many requests
-const debouncedFetchWidgets = useDebounceFn(async (pageId: number) => {
-  // Mark page as needing refresh
-  loadedPageIds.value.delete(pageId)
-  await fetchWidgetsForPage(pageId)
-}, 1000)
 
 // Watch for drag/resize completion to refresh widgets
 watch([widgetUI.isDragging, widgetUI.isResizing], ([dragging, resizing], [prevDragging, prevResizing]) => {
@@ -381,60 +139,10 @@ watch([widgetUI.isDragging, widgetUI.isResizing], ([dragging, resizing], [prevDr
   if ((prevDragging && !dragging) || (prevResizing && !resizing)) {
     // Refresh widgets for current page with debounce
     if (currentPage.value) {
-      debouncedFetchWidgets(currentPage.value.id)
+      widgetLoader.debouncedFetchWidgets(currentPage.value.id)
     }
   }
 })
-
-// Carousel and swipe support
-const carouselRef = ref<InstanceType<typeof Carousel> | null>(null)
-const swipeContainer = ref<HTMLElement | null>(null)
-const currentPageIndex = ref(0)
-
-// Setup swipe gestures (only when carrousel drag is disabled)
-const { onSwipeLeft, onSwipeRight } = useSwipeGesture(swipeContainer, {
-  threshold: 50,
-  timeout: 300,
-  preventDefault: false // Let carousel handle drag when enabled
-})
-
-// Swipe handlers - only active when carousel drag is disabled
-onSwipeLeft.value = () => {
-  if (editMode.value && carouselRef.value?.scrollNext) {
-    carouselRef.value.scrollNext()
-    if (currentPageIndex.value < pages.value.length - 1) {
-      currentPageIndex.value++
-    }
-  }
-}
-
-onSwipeRight.value = () => {
-  if (editMode.value && carouselRef.value?.scrollPrev) {
-    carouselRef.value.scrollPrev()
-    if (currentPageIndex.value > 0) {
-      currentPageIndex.value--
-    }
-  }
-}
-
-// Go to specific page
-const goToPage = (index: number) => {
-  if (carouselRef.value?.carouselApi) {
-    carouselRef.value.carouselApi.scrollTo(index)
-    currentPageIndex.value = index
-  }
-}
-
-// Reset page index when pages change
-watch(pages, (newPages) => {
-  if (newPages.length > 0 && currentPageIndex.value >= newPages.length) {
-    currentPageIndex.value = 0
-  }
-})
-
-// Computed properties
-const editMode = computed(() => editModeComposable.isEditMode.value)
-const currentPage = computed(() => pages.value[currentPageIndex.value] || null)
 
 // Dock actions configuration
 const dockActions = computed<DockAction[]>(() => [
@@ -458,12 +166,12 @@ function handleDockAction(actionId: string, event: MouseEvent): void {
   switch (actionId) {
     case 'add-widget':
       if (currentPage.value) {
-        openAddWidget(currentPage.value.id)
+        pageUIComposable.openAddWidgetDialog(currentPage.value.id)
       }
       break
     case 'settings':
       if (currentPage.value) {
-        openRenamePage(currentPage.value)
+        pageUIComposable.openRenamePageDialog(currentPage.value)
       }
       break
     default:
@@ -490,7 +198,16 @@ const widgetsByPage = computed(() => {
   const result: Record<number, WidgetInstance[]> = {}
   const widgetsList = widgetOperations.widgets.value
   
-  if (!widgetsList) {
+  // Debug log to see what's in widgets
+  logger.debug('Computing widgetsByPage', { 
+    widgetsCount: widgetsList?.length || 0,
+    widgets: widgetsList,
+    widgetsType: typeof widgetsList,
+    isArray: Array.isArray(widgetsList)
+  })
+  
+  if (!widgetsList || widgetsList.length === 0) {
+    logger.debug('No widgets found in widgetOperations')
     return result
   }
   
@@ -502,43 +219,15 @@ const widgetsByPage = computed(() => {
     result[pageId].push(widget)
   }
   
+  logger.debug('Widgets grouped by page', result)
   return result
 })
 
-// Dialog states
-const showAddWidget = ref(false)
-const addWidgetPageId = ref<number | null>(null)
-const showEditWidget = ref(false)
-const editWidgetInstance = ref<WidgetInstance | null>(null)
-
 
 // Widget operations
-async function fetchWidgetsForPage(pageId: number): Promise<void> {
-  try {
-    await widgetOperations.fetchWidgets(pageId)
-    loadedPageIds.value.add(pageId)
-  } catch (error) {
-    console.error(`Failed to fetch widgets for page ${pageId}:`, error)
-    // Remove from loaded pages on error so it can be retried
-    loadedPageIds.value.delete(pageId)
-  }
-}
-
-function openAddWidget(pageId?: number): void {
-  const targetPageId = pageId !== undefined ? pageId : currentPage.value?.id
-  
-  if (!targetPageId) {
-    return
-  }
-  
-  addWidgetPageId.value = targetPageId
-  showAddWidget.value = true
-}
-
 async function handleWidgetAdded(pageId: number): Promise<void> {
-  await fetchWidgetsForPage(pageId)
-  showAddWidget.value = false
-  addWidgetPageId.value = null
+  await widgetLoader.fetchWidgetsForPage(pageId)
+  pageUIComposable.closeAddWidgetDialog()
   context.events.emit('widget:add-completed', pageId)
 }
 
@@ -553,34 +242,16 @@ async function deleteWidget(widget: WidgetInstance, pageId: number): Promise<voi
   }
 }
 
-function openEditWidget(widget: WidgetInstance, pageId: number): void {
-  editWidgetInstance.value = widget
-  showEditWidget.value = true
-}
-
 async function handleWidgetEdited(pageId: number): Promise<void> {
-  await fetchWidgetsForPage(pageId)
-  showEditWidget.value = false
-  editWidgetInstance.value = null
+  await widgetLoader.fetchWidgetsForPage(pageId)
+  pageUIComposable.closeEditWidgetDialog()
   context.events.emit('widget:edit-completed', pageId)
 }
 
-// Event handlers
-const openAddPageFromMenu = () => {
-  pageUI.openAddPageDialog()
-}
-
-const openRenamePageFromMenu = (page: Page) => {
-  openRenamePage(page)
-}
-
-const openDeletePageFromMenu = (page: Page) => {
-  deletePage(page)
-}
 
 // Handle page edit from dialog
 const handleEditPage = async (data: { name: string; snapping: boolean; gridRows: number; gridCols: number }) => {
-  const page = pageToRename.value
+  const page = pageUIComposable.pageToEdit.value
   if (!page) return
   
   logger.debug('Received data from dialog:', data)
@@ -588,60 +259,35 @@ const handleEditPage = async (data: { name: string; snapping: boolean; gridRows:
   
   try {
     await pageOperations.updatePage(page.id, data)
-    await fetchPages()
-    closeRenamePageDialog()
+    await pageOperations.fetchPages()
+    pageUIComposable.closeRenamePageDialog()
   } catch (error) {
     logger.error('Error updating page:', error as Error)
   }
 }
 
 // Subscribe to widget events
-context.events.on('widget:created', (widget) => {
-  // Widget created - handled by operations layer
-})
-
-context.events.on('widget:updated', (widget) => {
-  // Widget updated - handled by operations layer  
-})
-
 context.events.on('widget:deleted', (widget) => {
   // Clear selection if deleted widget was selected
   widgetUI.deselectWidget(widget.id)
 })
 
-// Track loaded pages to avoid duplicate fetches
-const loadedPageIds = ref(new Set<number>())
-
 // Cleanup function for event listeners
 let cleanupEventListeners: (() => void) | null = null
 
 onMounted(async () => {
-  await fetchPages()
-  cleanupEventListeners = setupEventListeners()
+  await pageOperations.fetchPages()
+  cleanupEventListeners = dragAndDrop.setupEventListeners(dashboardContainer, currentPage)
+  setupSwipeHandlers(pages, editMode)
+  widgetLoader.setupAutoLoader(pages)
 })
 
 onUnmounted(() => {
   if (cleanupEventListeners) {
     cleanupEventListeners()
   }
-  tempPositions.value = {}
+  dragAndDrop.tempPositions.value = {}
 })
-
-// Watch for page changes to initialize widgets
-watch(pages, async (newPages) => {
-  // Ensure newPages is an array before iterating
-  if (!Array.isArray(newPages)) return
-  
-  // Only fetch widgets for pages that haven't been loaded yet
-  for (const page of newPages) {
-    if (!loadedPageIds.value.has(page.id)) {
-      loadedPageIds.value.add(page.id)
-      // Add a small delay between requests to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
-      await fetchWidgetsForPage(page.id)
-    }
-  }
-}, { immediate: true })
 </script>
 
 <template>
@@ -686,14 +332,14 @@ watch(pages, async (newPages) => {
             :edit-mode="editMode"
             :grid-config="getGridConfig(page)"
             :is-loading-widgets="widgetOperations.loading.value"
-            :temp-positions="tempPositions"
-            @add-widget="openAddWidget"
-            @add-page="openAddPageFromMenu"
-            @rename-page="openRenamePageFromMenu"
-            @delete-page="openDeletePageFromMenu"
+            :temp-positions="dragAndDrop.tempPositions.value"
+            @add-widget="pageUIComposable.openAddWidgetDialog($event, currentPage?.id)"
+            @add-page="pageUIComposable.openAddPageDialog()"
+            @rename-page="pageUIComposable.openRenamePageDialog"
+            @delete-page="deletePage"
             @widget-dragstart="handleDragStart"
             @widget-resize-start="handleResizeStart"
-            @widget-edit="openEditWidget"
+            @widget-edit="pageUIComposable.openEditWidgetDialog"
             @widget-delete="deleteWidget"
           />
         </CarouselItem>
@@ -721,15 +367,15 @@ watch(pages, async (newPages) => {
       :new-page-name="newPageName"
       :show-rename-page="showRenamePage"
       :page-to-edit="currentPage"
-      @close-add-widget="showAddWidget = false"
+      @close-add-widget="pageUIComposable.closeAddWidgetDialog()"
       @widget-added="handleWidgetAdded"
-      @close-edit-widget="showEditWidget = false"
+      @close-edit-widget="pageUIComposable.closeEditWidgetDialog()"
       @widget-edited="handleWidgetEdited"
-      @close-add-page="pageUI.closeAddPageDialog()"
+      @close-add-page="pageUIComposable.closeAddPageDialog()"
       @add-page="addPage"
-      @close-edit-page="closeRenamePageDialog()"
+      @close-edit-page="pageUIComposable.closeRenamePageDialog()"
       @edit-page="handleEditPage"
-      @update:new-page-name="updateNewPageName($event)"
+      @update:new-page-name="pageUIComposable.updateNewPageName($event)"
     />
   </div>
 </template>
