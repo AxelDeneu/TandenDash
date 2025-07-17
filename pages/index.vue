@@ -136,6 +136,9 @@ const handleDragStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, pag
   
   tempPositions.value[widget.id] = { ...position }
   widgetUI.startDrag(widget, { x: event.clientX, y: event.clientY })
+  
+  // Update dock interaction time when starting drag
+  floatingDock.updateInteractionTime()
 }
 
 // Handle resize start
@@ -154,6 +157,9 @@ const handleResizeStart = (e: MouseEvent | TouchEvent, widget: WidgetInstance, p
   
   tempPositions.value[widget.id] = { ...position }
   widgetUI.startResize(widget, { width: position.width, height: position.height })
+  
+  // Update dock interaction time when starting resize
+  floatingDock.updateInteractionTime()
 }
 
 // Fonction pour mettre à jour la position d'un widget
@@ -214,6 +220,9 @@ const setupEventListeners = () => {
       }
       
       widgetUI.updateDrag({ x: e.clientX, y: e.clientY })
+      
+      // Update dock interaction time during drag
+      floatingDock.updateInteractionTime()
     } else if (resizeState.value) {
       const { widgetId, startX, startY, startWidth, startHeight } = resizeState.value
       const deltaX = e.clientX - startX
@@ -234,6 +243,9 @@ const setupEventListeners = () => {
       }
       
       widgetUI.updateResize({ width: newWidth, height: newHeight })
+      
+      // Update dock interaction time during resize
+      floatingDock.updateInteractionTime()
     }
   }
   
@@ -286,6 +298,9 @@ const setupEventListeners = () => {
         }
         
         widgetUI.updateDrag({ x: touch.clientX, y: touch.clientY })
+        
+        // Update dock interaction time during touch drag
+        floatingDock.updateInteractionTime()
       } else if (resizeState.value) {
         const { widgetId, startX, startY, startWidth, startHeight } = resizeState.value
         const deltaX = touch.clientX - startX
@@ -306,6 +321,9 @@ const setupEventListeners = () => {
         }
         
         widgetUI.updateResize({ width: newWidth, height: newHeight })
+        
+        // Update dock interaction time during touch resize
+        floatingDock.updateInteractionTime()
       }
     }
   }
