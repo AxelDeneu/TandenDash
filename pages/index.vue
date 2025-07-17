@@ -343,6 +343,7 @@ onUnmounted(() => {
             :grid-config="getGridConfig(page)"
             :is-loading-widgets="widgetOperations.loading.value"
             :temp-positions="dragAndDrop.tempPositions.value"
+            :dragging-widget-id="dragAndDrop.dragState.value?.widgetId"
             @add-widget="pageUIComposable.openAddWidgetDialog($event, currentPage?.id)"
             @add-page="pageUIComposable.openAddPageDialog()"
             @rename-page="pageUIComposable.openRenamePageDialog"

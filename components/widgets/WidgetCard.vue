@@ -11,6 +11,7 @@ const props = defineProps<{
   page: Page
   editMode: boolean
   tempPosition?: WidgetPosition // Position temporaire pendant drag/resize
+  isDragging?: boolean // Indique si ce widget est en train d'être déplacé
 }>()
 
 const emit = defineEmits<{
@@ -53,7 +54,7 @@ const widgetStyle = computed(() => {
     position: 'absolute',
     left: '0px',
     top: '0px',
-    transition: 'all 0.2s ease-out',
+    ...(props.isDragging && { transition: 'all 0.2s ease-out' }),
     willChange: 'transform',
     transform: `translate(${pos.x}px, ${pos.y}px)`,
     width: `${pos.width}px`,

@@ -34,6 +34,7 @@
               :page="page"
               :edit-mode="editMode"
               :temp-position="tempPositions?.[widget.id]"
+              :is-dragging="draggingWidgetId === widget.id"
               @dragstart="$emit('widget-dragstart', $event, widget, page)"
               @resizeStart="$emit('widget-resize-start', $event, widget, page)"
               @edit="$emit('widget-edit', widget, page.id)"
@@ -73,6 +74,7 @@ type Props = {
     snapping: boolean
   }
   tempPositions?: Record<number, WidgetPosition>
+  draggingWidgetId?: number | null
 }
 
 defineProps<Props>()
