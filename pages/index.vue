@@ -13,7 +13,8 @@ import {
   useDragAndDrop,
   useCarouselNavigation,
   useWidgetLoader,
-  useDarkMode
+  useDarkMode,
+  useWidgetPlugins
 } from '@/composables'
 import { getGridConfig } from '~/lib/utils/grid'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
@@ -34,6 +35,7 @@ const floatingDock = useFloatingDock({
 })
 const logger = useLogger({ module: 'pages/index' })
 const darkMode = useDarkMode()
+const widgetPlugins = useWidgetPlugins()
 
 // Page state
 const pages = computed(() => pageOperations.pages.value)
@@ -286,6 +288,9 @@ context.events.on('widget:deleted', (widget) => {
 let cleanupEventListeners: (() => void) | null = null
 
 onMounted(async () => {
+  // Initialize widget system first to avoid warnings
+  await widgetPlugins.initialize()
+  
   await pageOperations.fetchPages()
   cleanupEventListeners = dragAndDrop.setupEventListeners(dashboardContainer, currentPage)
   setupSwipeHandlers(pages, editMode)

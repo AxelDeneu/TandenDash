@@ -85,7 +85,10 @@ export function useWidgetPlugins(): UseWidgetPlugins {
 
   function getPlugin(widgetId: string): WidgetPlugin | null {
     if (!systemInitialized.value) {
-      logger.warn('Widget system not initialized')
+      // Only log warning if we're not in the middle of initialization
+      if (!initializationPromise.value) {
+        logger.warn('Widget system not initialized')
+      }
       return null
     }
 
@@ -94,7 +97,10 @@ export function useWidgetPlugins(): UseWidgetPlugins {
 
   function getAllPlugins(): WidgetPlugin[] {
     if (!systemInitialized.value) {
-      logger.warn('Widget system not initialized')
+      // Only log warning if we're not in the middle of initialization
+      if (!initializationPromise.value) {
+        logger.warn('Widget system not initialized')
+      }
       return []
     }
 

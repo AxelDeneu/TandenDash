@@ -52,4 +52,7 @@ export interface AppEvents {
   // Error events
   'error:occurred': [error: Error]
   'error:cleared': []
+  
+  // Widget system events
+  'widgets:system-initialized': []
 }
