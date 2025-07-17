@@ -19,19 +19,6 @@ export const weatherApiRoutes: WidgetApiRoute[] = [
       // Fetch weather data from OpenWeatherMap API
       const apiKey = process.env.NUXT_WEATHER_API_KEY
       
-      if (!apiKey) {
-        // Return mock data if no API key is configured
-        return {
-          location,
-          temperature: 22,
-          conditions: 'Sunny',
-          icon: '01d',
-          humidity: 65,
-          windSpeed: 12,
-          isMockData: true
-        }
-      }
-      
       try {
         const response = await $fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
