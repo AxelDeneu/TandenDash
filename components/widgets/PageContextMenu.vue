@@ -22,7 +22,7 @@ defineEmits<{
     <ContextMenuTrigger :disabled="!editMode">
       <slot />
     </ContextMenuTrigger>
-    <ContextMenuContent data-testid="page-context-menu">
+    <ContextMenuContent>
       <ContextMenuSub>
         <ContextMenuSubTrigger inset data-testid="widgets-menu-trigger">
           Widgets
