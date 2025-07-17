@@ -49,13 +49,25 @@ interface WidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfig> {
 
 ## Getting Started
 
+### Plugin Export Naming Convention
+
+**IMPORTANT**: Your plugin export MUST follow the naming convention:
+`export const [WidgetName]WidgetPlugin`
+
+For example:
+- Widget name: `TaskCounter` → Export name: `TaskCounterWidgetPlugin`
+- Widget name: `Calendar` → Export name: `CalendarWidgetPlugin`
+- Widget name: `Clock` → Export name: `ClockWidgetPlugin`
+
+This naming convention is required by the automatic plugin discovery system. The system extracts the widget name from the directory path and expects to find an export with the exact name `[WidgetName]WidgetPlugin`.
+
 ### 1. Create Widget Directory Structure
 
 ```
 widgets/MyWidget/
 ├── index.vue          # Main component
 ├── definition.ts      # Types and defaults
-└── plugin.ts          # Plugin definition
+└── plugin.ts          # Plugin definition (must export MyWidgetWidgetPlugin)
 ```
 
 ### 2. Define Widget Types and Defaults
@@ -179,7 +191,7 @@ import type { WidgetConfig } from './definition'
 import { WidgetConfigSchema, widgetDefaults } from './definition'
 import MyWidgetComponent from './index.vue'
 
-export const MyWidgetPlugin: WidgetPlugin<WidgetConfig> = {
+export const MyWidgetWidgetPlugin: WidgetPlugin<WidgetConfig> = {
   id: 'my-widget',
   name: 'My Widget',
   description: 'A custom widget for demonstration',

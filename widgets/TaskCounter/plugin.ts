@@ -3,7 +3,7 @@ import type { WidgetConfig } from './definition'
 import { WidgetConfigSchema, widgetDefaults, widgetConfig } from './definition'
 import TaskCounterComponent from './index.vue'
 
-export const TaskCounterPlugin: WidgetPlugin<WidgetConfig> = {
+export const TaskCounterWidgetPlugin: WidgetPlugin<WidgetConfig> = {
   id: 'task-counter',
   name: 'Task Counter',
   description: 'A widget to track and display task completion progress',
