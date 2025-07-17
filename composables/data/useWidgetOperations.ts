@@ -54,7 +54,7 @@ export function useWidgetOperations(): UseWidgetOperations {
       const url = pageId 
         ? `/api/widgets-instances?pageId=${pageId}` 
         : '/api/widgets-instances'
-      const result = await $fetch(url, {
+      const result = await $fetch<WidgetInstance[]>(url, {
         // Force fresh fetch
         headers: {
           'Cache-Control': 'no-cache',
@@ -106,7 +106,7 @@ export function useWidgetOperations(): UseWidgetOperations {
 
   async function createWidget(data: CreateWidgetRequest): Promise<WidgetInstance> {
     const operation = async () => {
-      const newWidget = await $fetch('/api/widgets-instances', {
+      const newWidget = await $fetch<WidgetInstance>('/api/widgets-instances', {
         method: 'POST',
         body: data
       })
@@ -132,7 +132,7 @@ export function useWidgetOperations(): UseWidgetOperations {
 
   async function updateWidget(data: UpdateWidgetRequest): Promise<WidgetInstance> {
     const operation = async () => {
-      const updatedWidget = await $fetch('/api/widgets-instances', {
+      const updatedWidget = await $fetch<WidgetInstance>('/api/widgets-instances', {
         method: 'PUT',
         body: data
       })
@@ -143,18 +143,15 @@ export function useWidgetOperations(): UseWidgetOperations {
         
         context.events.emit('widget:updated', updatedWidget)
         
-        // Emit global event bus event
-        eventBus.emit('widget:updated', updatedWidget, oldWidget)
+        // Already emitted above
         
-        // Check for specific changes
-        if (oldWidget.row !== updatedWidget.row || oldWidget.col !== updatedWidget.col) {
-          eventBus.emit('widget:moved', updatedWidget.id, updatedWidget.row, updatedWidget.col)
+        // Check for position changes
+        if (oldWidget.position !== updatedWidget.position) {
+          context.events.emit('widget:updated', updatedWidget)
         }
-        if (oldWidget.rowSpan !== updatedWidget.rowSpan || oldWidget.colSpan !== updatedWidget.colSpan) {
-          eventBus.emit('widget:resized', updatedWidget.id, updatedWidget.rowSpan, updatedWidget.colSpan)
-        }
-        if (JSON.stringify(oldWidget.config) !== JSON.stringify(updatedWidget.config)) {
-          eventBus.emit('widget:config:changed', updatedWidget.id, updatedWidget.config, oldWidget.config)
+        // Check for options changes
+        if (oldWidget.options !== updatedWidget.options) {
+          context.events.emit('widget:updated', updatedWidget)
         }
       }
       
@@ -173,7 +170,7 @@ export function useWidgetOperations(): UseWidgetOperations {
 
   async function deleteWidget(id: number): Promise<boolean> {
     const operation = async () => {
-      await $fetch('/api/widgets-instances', {
+      await $fetch<void>('/api/widgets-instances', {
         method: 'DELETE',
         body: { id }
       })

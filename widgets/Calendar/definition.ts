@@ -18,7 +18,7 @@ export interface WidgetConfig extends BaseWidgetConfig {
   headerColor: string
 }
 
-export const widgetDefaults: Required<Omit<WidgetConfig, keyof BaseWidgetConfig>> = {
+export const widgetDefaults: WidgetConfig = {
   showWeekNumbers: false,
   firstDayOfWeek: 'sunday',
   highlightToday: true,
@@ -50,79 +50,71 @@ export const WidgetConfigSchema = z.object({
   textColor: z.string(),
   borderColor: z.string(),
   headerColor: z.string(),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
+  minWidth: z.number().min(200),
+  minHeight: z.number().min(200)
 })
 
 export const widgetConfig: EnhancedWidgetConfig = {
-  name: 'Calendar',
-  description: 'A touch-friendly calendar widget for viewing dates and months',
   groups: [
     {
       id: 'display',
       label: 'Display Settings',
-      options: [
-        {
-          id: 'showMonthYear',
+      defaultOpen: true,
+      options: {
+        showMonthYear: {
           type: 'toggle',
           label: 'Show Month/Year Header',
-          defaultValue: true
+          description: 'Display the month and year at the top of the calendar'
         },
-        {
-          id: 'navigationButtons',
+        navigationButtons: {
           type: 'toggle',
           label: 'Show Navigation Buttons',
-          defaultValue: true
+          description: 'Display buttons to navigate between months'
         },
-        {
-          id: 'showWeekNumbers',
+        showWeekNumbers: {
           type: 'toggle',
           label: 'Show Week Numbers',
-          defaultValue: false
+          description: 'Display week numbers on the left side'
         },
-        {
-          id: 'compactMode',
+        compactMode: {
           type: 'toggle',
           label: 'Compact Mode',
-          defaultValue: false,
           description: 'Show abbreviated day names'
         },
-        {
-          id: 'firstDayOfWeek',
+        firstDayOfWeek: {
           type: 'radio',
           label: 'First Day of Week',
-          defaultValue: 'sunday',
+          description: 'Choose which day starts the week',
           options: [
             { value: 'sunday', label: 'Sunday' },
             { value: 'monday', label: 'Monday' }
           ]
         }
-      ]
+      }
     },
     {
       id: 'styling',
       label: 'Styling',
-      options: [
-        {
-          id: 'fontSize',
+      collapsible: true,
+      options: {
+        fontSize: {
           type: 'slider',
           label: 'Font Size',
-          defaultValue: 14,
+          description: 'Size of the calendar text',
           min: 10,
           max: 24,
+          step: 1,
           unit: 'px'
         },
-        {
-          id: 'highlightToday',
+        highlightToday: {
           type: 'toggle',
           label: 'Highlight Today',
-          defaultValue: true
+          description: 'Highlight the current date'
         },
-        {
-          id: 'todayColor',
+        todayColor: {
           type: 'select',
           label: 'Today Highlight Color',
-          defaultValue: 'bg-primary',
+          description: 'Color for highlighting today\'s date',
           options: [
             { value: 'bg-primary', label: 'Primary' },
             { value: 'bg-blue-500', label: 'Blue' },
@@ -130,13 +122,12 @@ export const widgetConfig: EnhancedWidgetConfig = {
             { value: 'bg-yellow-500', label: 'Yellow' },
             { value: 'bg-red-500', label: 'Red' }
           ],
-          showIf: { highlightToday: true }
+          dependencies: { highlightToday: true }
         },
-        {
-          id: 'weekendColor',
+        weekendColor: {
           type: 'select',
           label: 'Weekend Text Color',
-          defaultValue: 'text-muted-foreground',
+          description: 'Color for weekend days',
           options: [
             { value: 'text-muted-foreground', label: 'Muted' },
             { value: 'text-gray-500', label: 'Gray' },
@@ -144,58 +135,58 @@ export const widgetConfig: EnhancedWidgetConfig = {
             { value: 'text-red-500', label: 'Red' }
           ]
         }
-      ]
+      }
     },
     {
       id: 'appearance',
       label: 'Appearance',
-      options: [
-        {
-          id: 'backgroundColor',
+      collapsible: true,
+      options: {
+        backgroundColor: {
           type: 'select',
           label: 'Background Color',
-          defaultValue: 'bg-background',
+          description: 'Calendar background color',
           options: [
             { value: 'bg-background', label: 'Default' },
-            { value: 'bg-white dark:bg-gray-900', label: 'White/Dark' },
-            { value: 'bg-gray-50 dark:bg-gray-800', label: 'Light Gray' },
-            { value: 'bg-blue-50 dark:bg-blue-900/20', label: 'Light Blue' }
+            { value: 'bg-white', label: 'White' },
+            { value: 'bg-gray-50', label: 'Light Gray' },
+            { value: 'bg-gray-100', label: 'Gray' }
           ]
         },
-        {
-          id: 'textColor',
+        textColor: {
           type: 'select',
           label: 'Text Color',
-          defaultValue: 'text-foreground',
+          description: 'Main text color',
           options: [
             { value: 'text-foreground', label: 'Default' },
-            { value: 'text-gray-900 dark:text-gray-100', label: 'High Contrast' },
-            { value: 'text-gray-700 dark:text-gray-300', label: 'Medium Contrast' }
+            { value: 'text-black', label: 'Black' },
+            { value: 'text-gray-800', label: 'Dark Gray' },
+            { value: 'text-gray-600', label: 'Gray' }
           ]
         },
-        {
-          id: 'borderColor',
+        borderColor: {
           type: 'select',
           label: 'Border Color',
-          defaultValue: 'border-border',
+          description: 'Calendar border color',
           options: [
             { value: 'border-border', label: 'Default' },
-            { value: 'border-gray-200 dark:border-gray-700', label: 'Gray' },
-            { value: 'border-transparent', label: 'None' }
+            { value: 'border-gray-200', label: 'Light Gray' },
+            { value: 'border-gray-300', label: 'Gray' },
+            { value: 'border-gray-400', label: 'Dark Gray' }
           ]
         },
-        {
-          id: 'headerColor',
+        headerColor: {
           type: 'select',
           label: 'Header Text Color',
-          defaultValue: 'text-foreground',
+          description: 'Month/Year header text color',
           options: [
             { value: 'text-foreground', label: 'Default' },
-            { value: 'text-primary', label: 'Primary' },
-            { value: 'text-gray-900 dark:text-gray-100', label: 'High Contrast' }
+            { value: 'text-black', label: 'Black' },
+            { value: 'text-gray-800', label: 'Dark Gray' },
+            { value: 'text-primary', label: 'Primary' }
           ]
         }
-      ]
+      }
     }
   ]
 }

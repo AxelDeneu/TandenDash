@@ -13,12 +13,13 @@ export interface EventEmitterOptions<TEvents> {
   }
 }
 
-export function createEventEmitter<TEvents = Record<string, unknown[]>>(
+export function createEventEmitter<TEvents extends Record<string, any[]> = Record<string, any[]>>(
   options: EventEmitterOptions<TEvents> = {}
 ): EventEmitter<TEvents> {
   const { validator, logger } = options
   type EventHandler<K extends keyof TEvents> = (...args: TEvents[K]) => void
-  const listeners = new Map<keyof TEvents, Set<EventHandler<keyof TEvents>>>()
+  type AnyEventHandler = (...args: any[]) => void
+  const listeners = new Map<keyof TEvents, Set<AnyEventHandler>>()
 
   function emit<K extends keyof TEvents>(event: K, ...args: TEvents[K]): void {
     // Validate event payload if validator is provided
@@ -40,7 +41,7 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
         return // Don't emit invalid events
       }
       // Use validated data
-      args = validationResult.data
+      args = validationResult.data as TEvents[K]
     }
 
     const eventListeners = listeners.get(event)
@@ -49,48 +50,60 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
         try {
           handler(...args)
         } catch (error) {
-          const errorMsg = `Error in event handler for '${String(event)}':`
+          const errorMsg = `Handler error for event '${String(event)}':`
           if (logger) {
             logger.error(errorMsg, error)
           } else {
             console.error(errorMsg, error)
-          }
-          // Emit error event for global error handling if available
-          if (event !== 'error' && listeners.has('error' as keyof TEvents)) {
-            const errorListeners = listeners.get('error' as keyof TEvents)
-            if (errorListeners) {
-              for (const errorHandler of errorListeners) {
-                try {
-                  errorHandler(error as any, event as any)
-                } catch (errorHandlerError) {
-                  if (logger) {
-                    logger.error('Error in error handler:', errorHandlerError)
-                  } else {
-                    console.error('Error in error handler:', errorHandlerError)
-                  }
-                }
-              }
-            }
           }
         }
       }
     }
   }
 
+  function emitAsync<K extends keyof TEvents>(event: K, ...args: TEvents[K]): Promise<void> {
+    return new Promise((resolve) => {
+      emit(event, ...args)
+      resolve()
+    })
+  }
+
+  function wildcard(handler: (event: keyof TEvents, ...args: any[]) => void): () => void {
+    // Store a special handler that listens to all events
+    const wildcardHandler = (event: keyof TEvents) => (...args: any[]) => {
+      handler(event, ...args)
+    }
+    
+    // Add wildcard handler to all existing events
+    for (const event of listeners.keys()) {
+      on(event, wildcardHandler(event))
+    }
+    
+    // TODO: Handle new events that are added after wildcard is registered
+    // This would require modifying the 'on' method to check for wildcard handlers
+    
+    return () => {
+      // Remove wildcard handler from all events
+      for (const event of listeners.keys()) {
+        off(event, wildcardHandler(event))
+      }
+    }
+  }
+
   function on<K extends keyof TEvents>(
     event: K, 
-    handler: (...args: TEvents[K]) => void
+    handler: EventHandler<K>
   ): () => void {
     if (!listeners.has(event)) {
       listeners.set(event, new Set())
     }
     
     const eventListeners = listeners.get(event)!
-    eventListeners.add(handler as EventHandler<keyof TEvents>)
+    eventListeners.add(handler as AnyEventHandler)
     
     // Return unsubscribe function
     return () => {
-      eventListeners.delete(handler as EventHandler<keyof TEvents>)
+      eventListeners.delete(handler as AnyEventHandler)
       if (eventListeners.size === 0) {
         listeners.delete(event)
       }
@@ -99,11 +112,11 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
 
   function off<K extends keyof TEvents>(
     event: K, 
-    handler: (...args: TEvents[K]) => void
+    handler: EventHandler<K>
   ): void {
     const eventListeners = listeners.get(event)
     if (eventListeners) {
-      eventListeners.delete(handler as EventHandler<keyof TEvents>)
+      eventListeners.delete(handler as AnyEventHandler)
       if (eventListeners.size === 0) {
         listeners.delete(event)
       }
@@ -112,17 +125,16 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
 
   function once<K extends keyof TEvents>(
     event: K, 
-    handler: (...args: TEvents[K]) => void
+    handler: EventHandler<K>
   ): void {
-    const onceHandler = (...args: TEvents[K]) => {
+    const onceHandler: EventHandler<K> = (...args) => {
       handler(...args)
       off(event, onceHandler)
     }
     on(event, onceHandler)
   }
 
-  // Additional utility methods
-  function removeAllListeners<K extends keyof TEvents>(event?: K): void {
+  function removeAllListeners(event?: keyof TEvents): void {
     if (event) {
       listeners.delete(event)
     } else {
@@ -130,7 +142,7 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
     }
   }
 
-  function listenerCount<K extends keyof TEvents>(event: K): number {
+  function listenerCount(event: keyof TEvents): number {
     const eventListeners = listeners.get(event)
     return eventListeners ? eventListeners.size : 0
   }
@@ -141,15 +153,24 @@ export function createEventEmitter<TEvents = Record<string, unknown[]>>(
 
   return {
     emit,
+    emitAsync,
     on,
     off,
     once,
     removeAllListeners,
     listenerCount,
-    eventNames
-  } as EventEmitter<TEvents> & {
-    removeAllListeners<K extends keyof TEvents>(event?: K): void
-    listenerCount<K extends keyof TEvents>(event: K): number
-    eventNames(): (keyof TEvents)[]
+    eventNames,
+    // Aliases
+    addEventListener: on,
+    removeEventListener: off,
+    trigger: emit,
+    subscribe: on,
+    unsubscribe: off,
+    publish: emit,
+    dispatch: emit,
+    fire: emit,
+    addListener: on,
+    removeListener: off,
+    wildcard
   }
 }

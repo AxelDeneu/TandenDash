@@ -40,7 +40,7 @@ export function usePageOperations(): UsePageOperations {
 
   async function fetchPages(): Promise<void> {
     const operation = async () => {
-      const result = await $fetch('/api/pages')
+      const result = await $fetch<Page[]>('/api/pages')
       pages.value = Array.isArray(result) ? result : []
       
       // Set current page if none selected and we have pages
@@ -64,16 +64,16 @@ export function usePageOperations(): UsePageOperations {
 
   async function fetchPage(id: number): Promise<void> {
     const operation = async () => {
-      const page = await $fetch(`/api/pages/${id}`)
+      const page = await $fetch<Page>(`/api/pages/${id}`)
       
       const index = pages.value.findIndex(p => p.id === id)
       if (index >= 0) {
         pages.value[index] = page
       } else {
-        pages.value.push(page)
+        pages.value.push(page as Page)
       }
       
-      context.events.emit('page:fetched', page)
+      context.events.emit('page:fetched', page as Page)
     }
 
     errorHandler.clearError()
@@ -88,20 +88,20 @@ export function usePageOperations(): UsePageOperations {
 
   async function createPage(data: CreatePageRequest): Promise<Page> {
     const operation = async () => {
-      const newPage = await $fetch('/api/pages', {
+      const newPage = await $fetch<Page>('/api/pages', {
         method: 'POST',
         body: data
       })
       
-      pages.value.push(newPage)
+      pages.value.push(newPage as Page)
       
       // Set as current page if it's the first one
       if (pages.value.length === 1) {
         currentPage.value = newPage
       }
       
-      context.events.emit('page:created', newPage)
-      return newPage
+      context.events.emit('page:created', newPage as Page)
+      return newPage as Page
     }
 
     errorHandler.clearError()
@@ -117,7 +117,7 @@ export function usePageOperations(): UsePageOperations {
   async function updatePage(id: number, data: UpdatePageRequest): Promise<Page> {
     const operation = async () => {
       const body = { id, ...data }
-      const updatedPage = await $fetch('/api/pages', {
+      const updatedPage = await $fetch<Page>('/api/pages', {
         method: 'PUT',
         body
       })
@@ -148,7 +148,7 @@ export function usePageOperations(): UsePageOperations {
 
   async function deletePage(id: number): Promise<boolean> {
     const operation = async () => {
-      await $fetch('/api/pages', {
+      await $fetch<void>('/api/pages', {
         method: 'DELETE',
         body: { id }
       })
@@ -163,7 +163,7 @@ export function usePageOperations(): UsePageOperations {
           currentPage.value = pages.value.length > 0 ? pages.value[0] : null
         }
         
-        context.events.emit('page:deleted', deletedPage)
+        context.events.emit('page:deleted', deletedPage.id)
       }
       
       return true

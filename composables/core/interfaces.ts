@@ -11,16 +11,25 @@ export interface BaseComposableState {
 
 // Error handling
 export interface ErrorHandler {
+  error: Readonly<Ref<Error | null>>
+  retryCount: Readonly<Ref<number>>
+  isRetrying: Readonly<Ref<boolean>>
+  maxRetries: Ref<number>
+  canRetry: ComputedRef<boolean>
+  hasError: ComputedRef<boolean>
   handleError(error: Error): void
   clearError(): void
-  retry?(): Promise<void>
+  retry(): Promise<void>
 }
 
 // Loading state management
 export interface LoadingState {
   isLoading: ComputedRef<boolean>
-  setLoading(loading: boolean): void
-  withLoading<T>(operation: () => Promise<T>): Promise<T>
+  setLoading(loading: boolean, key?: string): void
+  withLoading<T>(operation: () => Promise<T>, key?: string): Promise<T>
+  clearLoading(): void
+  getLoadingKeys(): string[]
+  isLoadingKey(key: string): boolean
 }
 
 // Data operations interface
@@ -66,18 +75,34 @@ export interface DialogState {
 }
 
 // Event handling
-export interface EventEmitter<TEvents = Record<string, unknown[]>> {
+export interface EventEmitter<TEvents extends Record<string, any[]> = Record<string, any[]>> {
   emit<K extends keyof TEvents>(event: K, ...args: TEvents[K]): void
   on<K extends keyof TEvents>(event: K, handler: (...args: TEvents[K]) => void): () => void
   off<K extends keyof TEvents>(event: K, handler: (...args: TEvents[K]) => void): void
   once<K extends keyof TEvents>(event: K, handler: (...args: TEvents[K]) => void): void
+  emitAsync<K extends keyof TEvents>(event: K, ...args: TEvents[K]): Promise<void>
+  removeAllListeners(event?: keyof TEvents): void
+  listenerCount(event: keyof TEvents): number
+  eventNames(): (keyof TEvents)[]
+  wildcard(handler: (event: keyof TEvents, ...args: any[]) => void): () => void
+  // Aliases
+  addEventListener: EventEmitter<TEvents>['on']
+  removeEventListener: EventEmitter<TEvents>['off']
+  trigger: EventEmitter<TEvents>['emit']
+  subscribe: EventEmitter<TEvents>['on']
+  unsubscribe: EventEmitter<TEvents>['off']
+  publish: EventEmitter<TEvents>['emit']
+  dispatch: EventEmitter<TEvents>['emit']
+  fire: EventEmitter<TEvents>['emit']
+  addListener: EventEmitter<TEvents>['on']
+  removeListener: EventEmitter<TEvents>['off']
 }
 
 // Dependency injection context
 export interface ComposableContext {
   services: IServiceFactory
   widgets: IWidgetCore
-  events: EventEmitter
+  events: EventEmitter<import('./events').AppEvents>
 }
 
 // Composable factory interface

@@ -5,6 +5,7 @@ import type { IWidgetCore } from '@/lib/widgets/interfaces'
 import { createEventEmitter } from '@/composables/core/EventEmitter'
 import { createMockServiceFactory, createMockWidgetSystem } from './mockServices'
 import { useLogger } from './useLogger'
+import type { AppEvents } from './events'
 
 // Injection keys
 const COMPOSABLE_CONTEXT_KEY: InjectionKey<ComposableContext> = Symbol('composable-context')
@@ -13,7 +14,7 @@ const COMPOSABLE_CONTEXT_KEY: InjectionKey<ComposableContext> = Symbol('composab
 class DefaultComposableContext implements ComposableContext {
   public readonly services: IServiceFactory
   public readonly widgets: IWidgetCore
-  public readonly events: EventEmitter
+  public readonly events: EventEmitter<AppEvents>
 
   constructor() {
     // Always use mock services on client side to avoid database imports
@@ -23,10 +24,10 @@ class DefaultComposableContext implements ComposableContext {
     // Create event emitter with logger if available
     try {
       const logger = useLogger({ module: 'ComposableContext' })
-      this.events = createEventEmitter({ logger })
+      this.events = createEventEmitter<AppEvents>({ logger })
     } catch {
       // Fallback to event emitter without logger during SSR or when logger not available
-      this.events = createEventEmitter()
+      this.events = createEventEmitter<AppEvents>()
     }
   }
 }
@@ -62,12 +63,12 @@ function getDefaultContext(): ComposableContext {
 export function createComposableContext(
   services?: IServiceFactory,
   widgets?: IWidgetCore,
-  events?: EventEmitter
+  events?: EventEmitter<AppEvents>
 ): ComposableContext {
   return {
     services: services || createMockServiceFactory(),
     widgets: widgets || createMockWidgetSystem(),
-    events: events || createEventEmitter()
+    events: events || createEventEmitter<AppEvents>()
   }
 }
 

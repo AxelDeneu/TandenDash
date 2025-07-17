@@ -10,7 +10,7 @@ export interface WidgetConfig extends BaseWidgetConfig {
   showProgress: boolean
 }
 
-export const widgetDefaults: Required<Omit<WidgetConfig, keyof BaseWidgetConfig>> = {
+export const widgetDefaults: WidgetConfig = {
   title: 'Task Counter',
   color: '#3b82f6',
   showBorder: true,

@@ -30,7 +30,7 @@ export function setupConsoleErrorCapture(page: Page) {
 
 export function ignoreKnownErrors(errors: ConsoleError[]): ConsoleError[] {
   // Filtrer les erreurs connues et acceptables
-  const knownErrorPatterns = [
+  const knownErrorPatterns: RegExp[] = [
     // Ajouter ici des patterns d'erreurs connues à ignorer si nécessaire
     // Par exemple: /Failed to load resource.*favicon/
   ]
