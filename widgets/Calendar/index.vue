@@ -187,7 +187,12 @@ const getWeekNumber = (date: Date) => {
     <!-- Calendar Grid -->
     <div class="flex-1 p-4">
       <!-- Days of Week Header -->
-      <div class="grid grid-cols-7 gap-1 mb-2">
+      <div class="grid gap-1 mb-2" :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'">
+        <!-- Week number header space -->
+        <div v-if="showWeekNumbers" class="text-center font-medium text-sm">
+          W#
+        </div>
+        <!-- Day headers -->
         <div
           v-for="(day, index) in daysOfWeek"
           :key="index"
@@ -198,13 +203,18 @@ const getWeekNumber = (date: Date) => {
         </div>
       </div>
       
-      <!-- Week Numbers Column + Calendar Days -->
-      <div class="grid" :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'" style="gap: 0.25rem">
-        <template v-for="(week, weekIndex) in calendarWeeks" :key="weekIndex">
+      <!-- Calendar Weeks -->
+      <div class="space-y-1">
+        <div 
+          v-for="(week, weekIndex) in calendarWeeks" 
+          :key="weekIndex"
+          class="grid gap-1"
+          :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'"
+        >
           <!-- Week Number -->
           <div
             v-if="showWeekNumbers"
-            class="text-center text-xs text-muted-foreground p-1"
+            class="flex items-center justify-center text-xs text-muted-foreground"
           >
             {{ week.weekNumber }}
           </div>
@@ -222,7 +232,7 @@ const getWeekNumber = (date: Date) => {
               {{ day.date }}
             </span>
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </div>
