@@ -16,6 +16,7 @@ export { useWidgetUI } from './ui/useWidgetUI'
 export { usePageUI } from './ui/usePageUI'
 export { useFloatingDock } from './ui/useFloatingDock'
 export { useCarouselNavigation } from './ui/useCarouselNavigation'
+export { useDarkMode } from './ui/useDarkMode'
 
 // Interaction composables
 export { useSwipeGesture } from './interaction/useSwipeGesture'

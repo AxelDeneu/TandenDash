@@ -12,7 +12,8 @@ import {
   useFloatingDock,
   useDragAndDrop,
   useCarouselNavigation,
-  useWidgetLoader
+  useWidgetLoader,
+  useDarkMode
 } from '@/composables'
 import { getGridConfig } from '~/lib/utils/grid'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
@@ -32,6 +33,7 @@ const floatingDock = useFloatingDock({
   autoHideDelay: 30000
 })
 const logger = useLogger({ module: 'pages/index' })
+const darkMode = useDarkMode()
 
 // Page state
 const pages = computed(() => pageOperations.pages.value)
@@ -158,6 +160,11 @@ const dockActions = computed<DockAction[]>(() => [
     icon: 'Settings', 
     label: 'Page Settings',
     disabled: !currentPage.value
+  },
+  {
+    id: 'theme-toggle',
+    icon: darkMode.isDark.value ? 'Sun' : 'Moon',
+    label: darkMode.isDark.value ? 'Light Mode' : 'Dark Mode'
   }
 ])
 
@@ -173,6 +180,9 @@ function handleDockAction(actionId: string, event: MouseEvent): void {
       if (currentPage.value) {
         pageUIComposable.openRenamePageDialog(currentPage.value)
       }
+      break
+    case 'theme-toggle':
+      darkMode.toggleMode()
       break
     default:
       logger.warn('Unknown dock action:', actionId)

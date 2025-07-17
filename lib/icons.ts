@@ -11,10 +11,12 @@ export {
   Circle,
   Edit,
   GripVertical,
+  Moon,
   MoveDiagonal2,
   Plus,
   RefreshCw,
   Settings,
+  Sun,
   Trash2,
   X
 } from 'lucide-vue-next'
