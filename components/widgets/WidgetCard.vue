@@ -51,8 +51,11 @@ const widgetStyle = computed(() => {
   const pos = displayPosition.value
   return {
     position: 'absolute',
-    left: `${pos.x}px`,
-    top: `${pos.y}px`,
+    left: '0px',
+    top: '0px',
+    transition: 'all 0.2s ease-out',
+    willChange: 'transform',
+    transform: `translate(${pos.x}px, ${pos.y}px)`,
     width: `${pos.width}px`,
     height: `${pos.height}px`,
   }
