@@ -1,6 +1,7 @@
 import type { Component } from 'vue'
 import type { ZodSchema } from 'zod'
 import type { BaseWidgetConfig } from '@/types/widget'
+import type { EnhancedWidgetConfig } from '@/types/widget-options'
 import { nanoid } from 'nanoid'
 import { WidgetRenderer } from './WidgetRenderer'
 import { WidgetConfigManager } from './WidgetConfigManager'
@@ -19,6 +20,7 @@ export interface WidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfi
   component: Component
   defaultConfig: TConfig
   configSchema: ZodSchema<TConfig>
+  configUI?: EnhancedWidgetConfig
   dataProvider?: new () => IDataProvider
   permissions?: string[]
   settings?: {

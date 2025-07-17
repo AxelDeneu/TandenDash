@@ -1,6 +1,6 @@
 import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
 import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
+import { WidgetConfigSchema, widgetDefaults, widgetConfig } from './definition'
 import CalendarComponent from './index.vue'
 
 export const CalendarWidgetPlugin: WidgetPlugin<WidgetConfig> = {
@@ -14,6 +14,7 @@ export const CalendarWidgetPlugin: WidgetPlugin<WidgetConfig> = {
   component: CalendarComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   settings: {
     allowResize: true,
     allowMove: true,

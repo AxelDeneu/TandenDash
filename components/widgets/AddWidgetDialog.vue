@@ -60,14 +60,46 @@ const selectedPlugin = computed(() => {
 const enhancedConfig = computed(() => {
   if (!selectedPlugin.value) return undefined;
   
-  // Get the configUI from the plugin manifest
-  return selectedPlugin.value.configUI;
+  const configUI = selectedPlugin.value.configUI;
+  if (!configUI) return undefined;
+  
+  // Convert old format to new format if necessary
+  if (configUI.groups && Array.isArray(configUI.groups)) {
+    const convertedGroups = configUI.groups.map((group: any) => {
+      if (group.options && !Array.isArray(group.options)) {
+        // Already in the correct format
+        return group;
+      }
+      
+      // Convert array format to Record format
+      const optionsRecord: Record<string, any> = {};
+      if (Array.isArray(group.options)) {
+        group.options.forEach((opt: any) => {
+          if (opt.id) {
+            optionsRecord[opt.id] = opt;
+          }
+        });
+      }
+      
+      return {
+        ...group,
+        options: optionsRecord
+      };
+    });
+    
+    return {
+      ...configUI,
+      groups: convertedGroups
+    };
+  }
+  
+  return configUI;
 });
 
 const widgetDisplayName = computed(() => {
   if (!selectedPlugin.value) return '';
-  // Get display name from plugin metadata
-  return selectedPlugin.value.metadata?.name || selectedWidgetType.value;
+  // Get display name from plugin
+  return selectedPlugin.value.name || selectedWidgetType.value;
 });
 
 // Prefill for edit mode

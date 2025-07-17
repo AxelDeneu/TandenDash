@@ -1,7 +1,7 @@
 import type { WidgetPlugin, IDataProvider } from '@/lib/widgets/WidgetCore'
 import type { WeatherWidgetConfig } from './definition'
 import WeatherComponent from './index.vue'
-import { widgetDefaults, WidgetConfigSchema } from './definition'
+import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
 
 // Weather data provider
 class WeatherDataProvider implements IDataProvider<any> {
@@ -64,6 +64,7 @@ export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
   component: WeatherComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   dataProvider: WeatherDataProvider as any,
   permissions: ['network'],
   settings: {

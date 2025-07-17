@@ -1,7 +1,7 @@
 import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
 import type { ClockWidgetConfig } from './definition'
 import ClockComponent from './index.vue'
-import { widgetDefaults, WidgetConfigSchema } from './definition'
+import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
 
 export const ClockWidgetPlugin: WidgetPlugin<ClockWidgetConfig> = {
   id: 'clock',
@@ -14,6 +14,7 @@ export const ClockWidgetPlugin: WidgetPlugin<ClockWidgetConfig> = {
   component: ClockComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   settings: {
     allowResize: true,
     allowMove: true,

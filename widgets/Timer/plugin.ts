@@ -1,7 +1,7 @@
 import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
 import type { TimerWidgetConfig } from './definition'
 import TimerComponent from './index.vue'
-import { widgetDefaults, WidgetConfigSchema } from './definition'
+import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
 
 export const TimerWidgetPlugin: WidgetPlugin<TimerWidgetConfig> = {
   id: 'timer',
@@ -14,6 +14,7 @@ export const TimerWidgetPlugin: WidgetPlugin<TimerWidgetConfig> = {
   component: TimerComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   settings: {
     allowResize: true,
     allowMove: true,

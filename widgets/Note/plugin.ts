@@ -1,7 +1,7 @@
 import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
 import type { NoteWidgetConfig } from './definition'
 import NoteComponent from './index.vue'
-import { widgetDefaults, WidgetConfigSchema } from './definition'
+import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
 
 export const NoteWidgetPlugin: WidgetPlugin<NoteWidgetConfig> = {
   id: 'note',
@@ -14,6 +14,7 @@ export const NoteWidgetPlugin: WidgetPlugin<NoteWidgetConfig> = {
   component: NoteComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   settings: {
     allowResize: true,
     allowMove: true,

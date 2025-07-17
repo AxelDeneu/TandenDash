@@ -1,6 +1,6 @@
 import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
 import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
+import { WidgetConfigSchema, widgetDefaults, widgetConfig } from './definition'
 import TaskCounterComponent from './index.vue'
 
 export const TaskCounterPlugin: WidgetPlugin<WidgetConfig> = {
@@ -14,6 +14,7 @@ export const TaskCounterPlugin: WidgetPlugin<WidgetConfig> = {
   component: TaskCounterComponent,
   defaultConfig: widgetDefaults,
   configSchema: WidgetConfigSchema,
+  configUI: widgetConfig as any,
   settings: {
     allowResize: true,
     allowMove: true,
