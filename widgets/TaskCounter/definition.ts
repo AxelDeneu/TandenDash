@@ -12,7 +12,7 @@ export interface WidgetConfig extends BaseWidgetConfig {
 
 export const widgetDefaults: WidgetConfig = {
   title: 'Task Counter',
-  color: '#3b82f6',
+  color: 'hsl(var(--primary))',
   showBorder: true,
   taskCount: 10,
   completedTasks: 3,
@@ -23,7 +23,7 @@ export const widgetDefaults: WidgetConfig = {
 
 export const WidgetConfigSchema = z.object({
   title: z.string().min(1).max(100),
-  color: z.string().regex(/^#[0-9a-f]{6}$/i),
+  color: z.string().min(1),
   showBorder: z.boolean(),
   taskCount: z.number().min(0).max(1000),
   completedTasks: z.number().min(0).max(1000),
