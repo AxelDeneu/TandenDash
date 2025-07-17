@@ -2,6 +2,7 @@ import type { WidgetPlugin, IDataProvider } from '@/lib/widgets/WidgetCore'
 import type { WeatherWidgetConfig } from './definition'
 import WeatherComponent from './index.vue'
 import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
+import { weatherApiRoutes } from './api'
 
 // Weather data provider
 class WeatherDataProvider implements IDataProvider<any> {
@@ -18,9 +19,9 @@ class WeatherDataProvider implements IDataProvider<any> {
     }
 
     try {
-      // Use the secure server-side API endpoint
-      const response = await $fetch(`/api/weather/${encodeURIComponent(this.config.location)}`, {
-        query: { lang: 'en' }
+      // Use the new widget API route
+      const response = await $fetch('/api/widgets/weather/current', {
+        query: { location: this.config.location }
       })
 
       return response
@@ -72,5 +73,6 @@ export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
     allowMove: true,
     allowDelete: true,
     allowConfigure: true
-  }
+  },
+  apiRoutes: weatherApiRoutes
 }

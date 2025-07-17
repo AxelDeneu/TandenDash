@@ -2,33 +2,16 @@ import type { Component } from 'vue'
 import type { ZodSchema } from 'zod'
 import type { BaseWidgetConfig } from '@/types/widget'
 import type { EnhancedWidgetConfig } from '@/types/widget-options'
+import type { IWidgetPlugin } from './interfaces'
 import { nanoid } from 'nanoid'
 import { WidgetRenderer } from './WidgetRenderer'
 import { WidgetConfigManager } from './WidgetConfigManager'
 import { WidgetErrorBoundary } from './WidgetErrorBoundary'
 import { pluginDiscovery } from './PluginDiscovery'
 
-// Simplified interfaces
-export interface WidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfig> {
-  id: string
-  name: string
-  description: string
-  version: string
-  icon?: string
-  category: string
-  tags: string[]
-  component: Component
-  defaultConfig: TConfig
-  configSchema: ZodSchema<TConfig>
+// Re-export with additional properties for backward compatibility
+export interface WidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfig> extends IWidgetPlugin<TConfig> {
   configUI?: EnhancedWidgetConfig
-  dataProvider?: new () => IDataProvider
-  permissions?: string[]
-  settings?: {
-    allowResize: boolean
-    allowMove: boolean
-    allowDelete: boolean
-    allowConfigure: boolean
-  }
 }
 
 export interface IDataProvider<TData = any> {

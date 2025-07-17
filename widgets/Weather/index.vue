@@ -28,20 +28,17 @@ const fetchWeatherData = async () => {
     loading.value = false;
     return;
   }
-
-  // Use browser language for condition description (primary subtag only)
-  const browserLang = (navigator.language || 'en').split('-')[0];
   
   try {
-    // Use server-side API endpoint to protect the API key
-    const data = await $fetch(`/api/weather/${encodeURIComponent(props.location)}`, {
-      query: { lang: browserLang }
+    // Use the new widget API route
+    const data = await $fetch('/api/widgets/weather/current', {
+      query: { location: props.location }
     });
 
-    temperature.value = `${Math.round(data.main.temp)}°C`;
-    condition.value = data.weather[0].description;
-    iconUrl.value = `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
-    locationName.value = data.name;
+    temperature.value = `${data.temperature}°C`;
+    condition.value = data.conditions;
+    iconUrl.value = data.icon ? `https://openweathermap.org/img/wn/${data.icon}.png` : '';
+    locationName.value = data.location;
   } catch (error) {
     console.error(error);
     temperature.value = 'N/A';

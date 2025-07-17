@@ -1,6 +1,7 @@
 import type { Component } from 'vue'
 import type { ZodSchema } from 'zod'
 import type { BaseWidgetConfig } from '@/types/widget'
+import type { WidgetApiRoute } from './api-routes'
 
 // Core widget plugin interface
 export interface IWidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfig> {
@@ -17,6 +18,7 @@ export interface IWidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConf
   dataProvider?: new () => IWidgetDataProvider
   permissions?: string[]
   settings?: IWidgetSettings
+  apiRoutes?: WidgetApiRoute[]
 }
 
 // Widget settings
