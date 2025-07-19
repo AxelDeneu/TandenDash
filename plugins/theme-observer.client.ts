@@ -23,14 +23,8 @@ export default defineNuxtPlugin(() => {
     })
   }
   
-  // Log initialization
+  // Log initialization in dev mode
   if (process.dev) {
-    console.log('[WidgetEventBus] Initialized')
-  }
-  
-  return {
-    provide: {
-      widgetEventBus: eventBus
-    }
+    console.log('[ThemeObserver] Initialized')
   }
 })
