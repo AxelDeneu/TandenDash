@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "nuxt prepare && npm run widgets:install",
+    "widgets:install": "tsx scripts/install-widget-deps.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
@@ -44,9 +45,11 @@
     "@playwright/test": "^1.53.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/dompurify": "^3.0.5",
+    "@types/node": "^20.14.0",
     "drizzle-kit": "^0.31.0",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }
 }

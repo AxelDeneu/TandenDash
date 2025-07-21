@@ -1,3 +1,5 @@
+import { resolve } from 'path'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -40,6 +42,15 @@ export default defineNuxtConfig({
     ssr: {
       noExternal: [],
       external: ['better-sqlite3']
+    },
+    // Allow resolution of widget node_modules
+    server: {
+      fs: {
+        allow: [
+          // Allow access to widget directories
+          resolve(process.cwd(), 'widgets'),
+        ]
+      }
     },
     build: {
       // Optimize bundle size
