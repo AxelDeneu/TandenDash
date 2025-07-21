@@ -1,256 +1,191 @@
 <template>
-  <div 
-    class="h-full w-full flex flex-col items-center justify-center p-4"
-    :class="[
-      backgroundColor,
-      showBorder ? `border-2 ${borderColor}` : ''
-    ]"
-    :style="{
-      borderRadius: `${borderRadius}px`
-    }"
-  >
-    <!-- Timer Display -->
-    <div 
-      class="font-mono font-bold mb-6"
-      :class="timerColor"
-      :style="{ fontSize: `${fontSize}px` }"
-    >
-      {{ formattedTime }}
-    </div>
-    
-    <!-- Progress Bar -->
-    <div 
-      v-if="showProgressBar && (isRunning || isPaused)"
-      class="w-full mb-6 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-      :style="{ height: `${progressBarHeight}px` }"
-    >
-      <div 
-        class="h-full transition-all duration-300"
-        :class="progressBarColor"
-        :style="{ width: `${progress}%` }"
-      />
-    </div>
-    
-    <!-- Control Buttons -->
-    <div class="flex gap-3">
-      <button
-        v-if="!isRunning && !isPaused"
-        @click="startTimer"
-        class="px-6 py-3 rounded-lg font-medium transition-all hover:scale-105"
-        :class="buttonColor"
+  <div class="h-full w-full flex flex-col items-center justify-center p-6 space-y-6">
+      <!-- Timer Display -->
+      <div class="text-center space-y-2">
+        <div 
+          class="font-mono font-bold transition-all duration-300"
+          :class="[
+            timerSizeClass,
+            timerColorClass
+          ]"
+        >
+          {{ timer.formattedTime.value }}
+        </div>
+        
+        <!-- Status Badge -->
+        <Badge 
+          v-if="timer.status.value !== 'idle'"
+          :variant="badgeVariant"
+          class="text-xs"
+        >
+          {{ statusText }}
+        </Badge>
+      </div>
+
+      <!-- Quick Duration Buttons -->
+      <div class="flex gap-2 flex-wrap justify-center">
+        <Button
+          v-for="preset in durationPresets"
+          :key="preset.value"
+          @click="handlePresetClick(preset.value)"
+          variant="outline"
+          size="sm"
+          :disabled="timer.isRunning.value || timer.isPaused.value"
+          class="min-w-[60px]"
+        >
+          {{ preset.label }}
+        </Button>
+      </div>
+
+      <!-- Main Control Button -->
+      <Button
+        @click="handleMainButtonClick"
+        :variant="mainButtonVariant"
+        size="lg"
+        class="min-w-[120px] text-lg"
       >
-        <Play class="w-5 h-5 inline mr-2" />
-        Start
-      </button>
-      
-      <button
-        v-if="isRunning"
-        @click="pauseTimer"
-        class="px-6 py-3 rounded-lg font-medium transition-all hover:scale-105"
-        :class="buttonColor"
-      >
-        <Pause class="w-5 h-5 inline mr-2" />
-        Pause
-      </button>
-      
-      <button
-        v-if="isPaused"
-        @click="resumeTimer"
-        class="px-6 py-3 rounded-lg font-medium transition-all hover:scale-105"
-        :class="buttonColor"
-      >
-        <Play class="w-5 h-5 inline mr-2" />
-        Resume
-      </button>
-      
-      <button
-        v-if="isRunning || isPaused"
-        @click="resetTimer"
-        class="px-6 py-3 rounded-lg font-medium transition-all hover:scale-105 bg-gray-500 text-white"
-      >
-        <RotateCcw class="w-5 h-5 inline mr-2" />
-        Reset
-      </button>
-    </div>
-    
-    <!-- Quick Time Buttons -->
-    <div class="mt-4 flex gap-2">
-      <button
-        v-for="duration in quickDurations"
-        :key="duration.seconds"
-        @click="setDuration(duration.seconds)"
-        class="px-3 py-1 text-sm rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-      >
-        {{ duration.label }}
-      </button>
-    </div>
+        <component :is="mainButtonIcon" class="w-5 h-5 mr-2" />
+        {{ mainButtonText }}
+      </Button>
+
+      <!-- Secondary Actions -->
+      <div v-if="timer.isPaused.value || timer.status.value === 'completed'" class="flex gap-2">
+        <Button
+          @click="timer.reset"
+          variant="outline"
+          size="sm"
+        >
+          <RotateCcw class="w-4 h-4 mr-1" />
+          Reset
+        </Button>
+      </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted, watch } from 'vue'
+import { computed, onUnmounted } from 'vue'
 import { Play, Pause, RotateCcw } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import type { TimerWidgetConfig } from './definition'
+import { useTimer } from './composables/useTimer'
 
 const props = defineProps<TimerWidgetConfig>()
 
-// State
-const currentTime = ref(props.defaultDuration)
-const isRunning = ref(false)
-const isPaused = ref(false)
-const intervalId = ref<number | null>(null)
-const startTime = ref<number | null>(null)
-const pausedTime = ref<number | null>(null)
-
-// Quick duration presets
-const quickDurations = [
-  { label: '1m', seconds: 60 },
-  { label: '5m', seconds: 300 },
-  { label: '10m', seconds: 600 },
-  { label: '15m', seconds: 900 },
-  { label: '30m', seconds: 1800 },
-  { label: '1h', seconds: 3600 }
+// Duration presets
+const durationPresets = [
+  { label: '5 min', value: 300 },
+  { label: '10 min', value: 600 },
+  { label: '25 min', value: 1500 } // Pomodoro
 ]
 
-// Computed
-const formattedTime = computed(() => {
-  const totalSeconds = Math.max(0, Math.ceil(currentTime.value))
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  const milliseconds = Math.floor((currentTime.value % 1) * 1000)
-  
-  let timeStr = ''
-  
-  if (props.showHours || hours > 0) {
-    timeStr = `${hours.toString().padStart(2, '0')}:`
+// Initialize timer
+const timer = useTimer({
+  defaultDuration: props.defaultDuration,
+  onComplete: () => {
+    if (props.enableSound) {
+      playCompletionSound()
+    }
+    if (props.autoRepeat) {
+      setTimeout(() => {
+        timer.setDuration(props.defaultDuration)
+        timer.start()
+      }, 1000)
+    }
   }
-  
-  timeStr += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-  
-  if (props.showMilliseconds) {
-    timeStr += `.${milliseconds.toString().padStart(3, '0')}`
-  }
-  
-  return timeStr
 })
 
-const progress = computed(() => {
-  if (!isRunning.value && !isPaused.value) return 0
-  return ((props.defaultDuration - currentTime.value) / props.defaultDuration) * 100
+// Computed properties
+const mainButtonText = computed(() => {
+  if (timer.isRunning.value) return 'Pause'
+  if (timer.isPaused.value) return 'Resume'
+  if (timer.status.value === 'completed') return 'Start Again'
+  return 'Start'
+})
+
+const mainButtonIcon = computed(() => {
+  if (timer.isRunning.value) return Pause
+  return Play
+})
+
+const mainButtonVariant = computed(() => {
+  if (timer.isRunning.value) return 'default' as const
+  return props.variant as 'default' | 'secondary' | 'outline' | 'ghost'
+})
+
+const statusText = computed(() => {
+  switch (timer.status.value) {
+    case 'running': return 'Running'
+    case 'paused': return 'Paused'
+    case 'completed': return 'Completed'
+    default: return ''
+  }
+})
+
+const badgeVariant = computed(() => {
+  switch (timer.status.value) {
+    case 'running': return 'default' as const
+    case 'paused': return 'secondary' as const
+    case 'completed': return 'outline' as const
+    default: return 'default' as const
+  }
+})
+
+const timerSizeClass = computed(() => {
+  switch (props.size) {
+    case 'small': return 'text-3xl'
+    case 'large': return 'text-6xl'
+    default: return 'text-5xl'
+  }
+})
+
+const timerColorClass = computed(() => {
+  if (timer.status.value === 'completed') return 'text-green-600 dark:text-green-400'
+  if (timer.isRunning.value) return 'text-foreground'
+  return 'text-muted-foreground'
 })
 
 // Methods
-const startTimer = () => {
-  isRunning.value = true
-  isPaused.value = false
-  startTime.value = Date.now()
-  
-  intervalId.value = window.setInterval(() => {
-    updateTimer()
-  }, props.showMilliseconds ? 10 : 100)
-}
-
-const pauseTimer = () => {
-  isRunning.value = false
-  isPaused.value = true
-  pausedTime.value = currentTime.value
-  
-  if (intervalId.value) {
-    clearInterval(intervalId.value)
-    intervalId.value = null
+const handleMainButtonClick = () => {
+  if (timer.isRunning.value) {
+    timer.pause()
+  } else if (timer.isPaused.value) {
+    timer.resume()
+  } else if (timer.status.value === 'completed') {
+    timer.reset()
+    timer.setDuration(props.defaultDuration)
+    timer.start()
+  } else {
+    timer.start()
   }
 }
 
-const resumeTimer = () => {
-  isRunning.value = true
-  isPaused.value = false
-  startTime.value = Date.now()
-  
-  intervalId.value = window.setInterval(() => {
-    updateTimer()
-  }, props.showMilliseconds ? 10 : 100)
+const handlePresetClick = (seconds: number) => {
+  timer.setDuration(seconds)
 }
 
-const resetTimer = () => {
-  isRunning.value = false
-  isPaused.value = false
-  currentTime.value = props.defaultDuration
-  startTime.value = null
-  pausedTime.value = null
-  
-  if (intervalId.value) {
-    clearInterval(intervalId.value)
-    intervalId.value = null
+const playCompletionSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+    
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+    
+    // Simple pleasant beep
+    oscillator.frequency.value = 800
+    gainNode.gain.value = 0.3
+    
+    oscillator.start()
+    oscillator.stop(audioContext.currentTime + 0.2)
+  } catch (error) {
+    console.error('Failed to play sound:', error)
   }
 }
-
-const setDuration = (seconds: number) => {
-  if (!isRunning.value && !isPaused.value) {
-    currentTime.value = seconds
-  }
-}
-
-const updateTimer = () => {
-  if (!startTime.value) return
-  
-  const elapsed = (Date.now() - startTime.value) / 1000
-  const baseTime = pausedTime.value !== null ? pausedTime.value : props.defaultDuration
-  currentTime.value = Math.max(0, baseTime - elapsed)
-  
-  if (currentTime.value <= 0) {
-    timerComplete()
-  }
-}
-
-const timerComplete = () => {
-  isRunning.value = false
-  isPaused.value = false
-  
-  if (intervalId.value) {
-    clearInterval(intervalId.value)
-    intervalId.value = null
-  }
-  
-  // Play sound if enabled
-  if (props.enableSound) {
-    playSound()
-  }
-  
-  // Auto repeat if enabled
-  if (props.autoRepeat) {
-    currentTime.value = props.defaultDuration
-    setTimeout(startTimer, 1000)
-  }
-}
-
-const playSound = () => {
-  // Create a simple beep sound
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
-  
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
-  
-  oscillator.frequency.value = 800 // Frequency in Hz
-  gainNode.gain.value = props.soundVolume
-  
-  oscillator.start()
-  oscillator.stop(audioContext.currentTime + 0.2) // Beep for 0.2 seconds
-}
-
-// Watch for defaultDuration changes
-watch(() => props.defaultDuration, (newDuration) => {
-  if (!isRunning.value && !isPaused.value) {
-    currentTime.value = newDuration
-  }
-})
 
 // Cleanup
 onUnmounted(() => {
-  if (intervalId.value) {
-    clearInterval(intervalId.value)
-  }
+  timer.cleanup()
 })
 </script>
