@@ -35,6 +35,7 @@
     "shadcn-nuxt": "^2.0.1",
     "tailwind-merge": "^2.6.0",
     "vue": "^3.4.19",
+    "vue-sonner": "^2.0.2",
     "zod": "^3.25.67"
   },
   "devDependencies": {

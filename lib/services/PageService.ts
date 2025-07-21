@@ -31,6 +31,18 @@ export class PageService extends BaseService implements IPageService {
     }
   }
 
+  async getPagesByDashboardId(dashboardId: number): Promise<ServiceListResult<Page>> {
+    try {
+      this.logOperation('getPagesByDashboardId', { dashboardId })
+      
+      const pages = await this.pageRepository.findByDashboardId(dashboardId)
+      
+      return this.successList(pages)
+    } catch (error) {
+      return this.handleListError(error, 'fetch pages by dashboard')
+    }
+  }
+
   async getPageById(id: number): Promise<ServiceResult<Page>> {
     try {
       this.logOperation('getPageById', { id })

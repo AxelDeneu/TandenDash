@@ -1,4 +1,4 @@
-import { ref, computed, readonly, type Ref } from 'vue'
+import { ref, computed, readonly, type Ref, watch } from 'vue'
 import type { Page, CreatePageRequest, UpdatePageRequest } from '@/types/page'
 import { useComposableContext } from '../core/ComposableContext'
 import { useErrorHandler } from '../core/useErrorHandler'
@@ -21,7 +21,7 @@ export interface UsePageOperations {
   getPreviousPage(): Page | null
 }
 
-export function usePageOperations(): UsePageOperations {
+export function usePageOperations(dashboardId?: Ref<number | null>): UsePageOperations {
   const context = useComposableContext()
   const pages = ref<Page[]>([])
   const currentPage = ref<Page | null>(null)
@@ -40,7 +40,12 @@ export function usePageOperations(): UsePageOperations {
 
   async function fetchPages(): Promise<void> {
     const operation = async () => {
-      const result = await $fetch<Page[]>('/api/pages')
+      // If dashboardId is provided, fetch pages for that dashboard
+      const url = dashboardId?.value 
+        ? `/api/dashboards/${dashboardId.value}/pages`
+        : '/api/pages'
+      
+      const result = await $fetch<Page[]>(url)
       pages.value = Array.isArray(result) ? result : []
       
       // Set current page if none selected and we have pages
@@ -88,9 +93,14 @@ export function usePageOperations(): UsePageOperations {
 
   async function createPage(data: CreatePageRequest): Promise<Page> {
     const operation = async () => {
+      // Add dashboardId to the data if provided
+      const pageData = dashboardId?.value 
+        ? { ...data, dashboardId: dashboardId.value }
+        : data
+      
       const newPage = await $fetch<Page>('/api/pages', {
         method: 'POST',
-        body: data
+        body: pageData
       })
       
       pages.value.push(newPage as Page)
@@ -225,6 +235,18 @@ export function usePageOperations(): UsePageOperations {
       }
     }
   })
+
+  // Watch for dashboard changes and reload pages
+  if (dashboardId) {
+    watch(dashboardId, (newId) => {
+      if (newId) {
+        fetchPages()
+      } else {
+        pages.value = []
+        currentPage.value = null
+      }
+    })
+  }
 
   return {
     pages: readonly(pages),
