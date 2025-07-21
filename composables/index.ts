@@ -9,6 +9,8 @@ export { useLogger } from './core/useLogger'
 export { useWidgetOperations } from './data/useWidgetOperations'
 export { usePageOperations } from './data/usePageOperations'
 export { useWidgetLoader } from './data/useWidgetLoader'
+export { useDashboard } from './data/useDashboard'
+export { useDashboardSettings } from './data/useDashboardSettings'
 
 // UI composables
 export { useEditMode } from './ui/useEditMode'

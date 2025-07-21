@@ -10,6 +10,14 @@ import type {
   CreatePageRequest, 
   UpdatePageRequest 
 } from '@/types/page'
+import type {
+  Dashboard,
+  DashboardSettings,
+  DashboardWithRelations,
+  CreateDashboardRequest,
+  UpdateDashboardRequest,
+  UpdateDashboardSettingsRequest
+} from '@/types/dashboard'
 import type { 
   TodoList, 
   TodoItem, 
@@ -87,6 +95,7 @@ export interface IWidgetService {
 // Page service interface
 export interface IPageService {
   getAllPages(): Promise<ServiceListResult<Page>>
+  getPagesByDashboardId(dashboardId: number): Promise<ServiceListResult<Page>>
   getPageById(id: number): Promise<ServiceResult<Page>>
   getPageWithWidgets(id: number): Promise<ServiceResult<PageWithWidgets>>
   createPage(data: CreatePageRequest): Promise<ServiceResult<Page>>
@@ -123,6 +132,25 @@ export interface IModeService {
   toggleMode(): Promise<ServiceResult<'light' | 'dark'>>
 }
 
+// Dashboard service interface
+export interface IDashboardService {
+  findAll(): Promise<ServiceListResult<Dashboard>>
+  findById(id: number): Promise<ServiceResult<DashboardWithRelations>>
+  findDefault(): Promise<ServiceResult<Dashboard>>
+  create(data: CreateDashboardRequest): Promise<ServiceResult<Dashboard>>
+  update(id: number, data: UpdateDashboardRequest): Promise<ServiceResult<Dashboard>>
+  delete(id: number): Promise<ServiceResult<boolean>>
+  setDefault(id: number): Promise<ServiceResult<boolean>>
+  duplicateDashboard(id: number, newName: string): Promise<ServiceResult<Dashboard>>
+}
+
+// Dashboard settings service interface
+export interface IDashboardSettingsService {
+  findByDashboardId(dashboardId: number): Promise<ServiceResult<DashboardSettings>>
+  update(dashboardId: number, data: Partial<UpdateDashboardSettingsRequest>): Promise<ServiceResult<DashboardSettings>>
+  ensureSettingsExist(dashboardId: number): Promise<ServiceResult<DashboardSettings>>
+}
+
 // Service factory interface
 export interface IServiceFactory {
   createWidgetService(): IWidgetService
@@ -131,4 +159,6 @@ export interface IServiceFactory {
   createTodoItemService(): ITodoItemService
   createModeService(): IModeService
   createLoggerService(): ILoggerService
+  createDashboardService(): IDashboardService
+  createDashboardSettingsService(): IDashboardSettingsService
 }

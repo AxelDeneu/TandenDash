@@ -9,6 +9,13 @@ import type {
   UpdatePageRequest 
 } from '@/types/page'
 import type { 
+  Dashboard,
+  DashboardSettings,
+  CreateDashboardRequest,
+  UpdateDashboardRequest,
+  UpdateDashboardSettingsRequest
+} from '@/types/dashboard'
+import type { 
   TodoList, 
   TodoItem, 
   TodoListWithItems,
@@ -35,6 +42,7 @@ export interface IWidgetRepository {
 export interface IPageRepository {
   findById(id: number): Promise<Page | null>
   findAll(): Promise<Page[]>
+  findByDashboardId(dashboardId: number): Promise<Page[]>
   create(data: CreatePageRequest): Promise<Page>
   update(id: number, data: UpdatePageRequest): Promise<Page>
   delete(id: number): Promise<boolean>
@@ -73,6 +81,26 @@ export interface IModeStateRepository {
   setMode(mode: 'light' | 'dark'): Promise<void>
 }
 
+// Dashboard repository interface
+export interface IDashboardRepository {
+  findAll(): Promise<Dashboard[]>
+  findById(id: number): Promise<Dashboard | null>
+  findByName(name: string): Promise<Dashboard | null>
+  findDefault(): Promise<Dashboard | null>
+  create(data: CreateDashboardRequest): Promise<Dashboard>
+  update(id: number, data: UpdateDashboardRequest): Promise<Dashboard | null>
+  delete(id: number): Promise<boolean>
+  setDefault(id: number): Promise<boolean>
+}
+
+// Dashboard settings repository interface
+export interface IDashboardSettingsRepository {
+  findByDashboardId(dashboardId: number): Promise<DashboardSettings | null>
+  create(dashboardId: number, settings?: Partial<Omit<DashboardSettings, 'id' | 'dashboardId' | 'createdAt' | 'updatedAt'>>): Promise<DashboardSettings>
+  update(dashboardId: number, data: Partial<UpdateDashboardSettingsRequest>): Promise<DashboardSettings | null>
+  delete(dashboardId: number): Promise<boolean>
+}
+
 // Repository factory interface for dependency injection
 export interface IRepositoryFactory {
   createWidgetRepository(): IWidgetRepository
@@ -80,4 +108,6 @@ export interface IRepositoryFactory {
   createTodoListRepository(): ITodoListRepository
   createTodoItemRepository(): ITodoItemRepository
   createModeStateRepository(): IModeStateRepository
+  createDashboardRepository(): IDashboardRepository
+  createDashboardSettingsRepository(): IDashboardSettingsRepository
 }

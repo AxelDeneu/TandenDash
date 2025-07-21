@@ -6,6 +6,8 @@ import { TodoListService } from './TodoListService'
 import { TodoItemService } from './TodoItemService'
 import { ModeService } from './ModeService'
 import { LoggerService } from './LoggerService'
+import { DashboardService } from './DashboardService'
+import { DashboardSettingsService } from './DashboardSettingsService'
 
 export class ServiceFactory implements IServiceFactory {
   constructor(
@@ -19,6 +21,8 @@ export class ServiceFactory implements IServiceFactory {
   private todoItemService?: TodoItemService
   private modeService?: ModeService
   private loggerService?: ILoggerService
+  private dashboardService?: DashboardService
+  private dashboardSettingsService?: DashboardSettingsService
 
   createWidgetService() {
     if (!this.widgetService) {
@@ -72,5 +76,27 @@ export class ServiceFactory implements IServiceFactory {
       this.loggerService = new LoggerService(logLevel)
     }
     return this.loggerService
+  }
+
+  createDashboardService() {
+    if (!this.dashboardService) {
+      const dashboardRepository = this.repositoryFactory.createDashboardRepository()
+      const dashboardSettingsRepository = this.repositoryFactory.createDashboardSettingsRepository()
+      const pageRepository = this.repositoryFactory.createPageRepository()
+      this.dashboardService = new DashboardService(
+        dashboardRepository,
+        dashboardSettingsRepository,
+        pageRepository
+      )
+    }
+    return this.dashboardService
+  }
+
+  createDashboardSettingsService() {
+    if (!this.dashboardSettingsService) {
+      const dashboardSettingsRepository = this.repositoryFactory.createDashboardSettingsRepository()
+      this.dashboardSettingsService = new DashboardSettingsService(dashboardSettingsRepository)
+    }
+    return this.dashboardSettingsService
   }
 }

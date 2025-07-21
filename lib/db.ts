@@ -61,9 +61,35 @@ export const widgetInstance = sqliteTable('WidgetInstance', {
   pageTypeIdx: index('widgetInstance_page_type_idx').on(table.pageId, table.type),
 }));
 
+export const dashboards = sqliteTable('Dashboards', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  isDefault: integer('isDefault', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+});
+
+export const dashboardSettings = sqliteTable('DashboardSettings', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  dashboardId: integer('dashboardId').notNull().references(() => dashboards.id, { onDelete: 'cascade' }),
+  locale: text('locale').notNull().default('fr'),
+  measurementSystem: text('measurementSystem').notNull().default('metric'), // 'metric' | 'imperial'
+  temperatureUnit: text('temperatureUnit').notNull().default('celsius'), // 'celsius' | 'fahrenheit'
+  timeFormat: text('timeFormat').notNull().default('24h'), // '24h' | '12h'
+  dateFormat: text('dateFormat').notNull().default('DD/MM/YYYY'),
+  timezone: text('timezone').notNull().default('Europe/Paris'),
+  theme: text('theme').notNull().default('auto'), // 'light' | 'dark' | 'auto'
+  createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+}, (table) => ({
+  dashboardIdIdx: index('dashboardSettings_dashboardId_idx').on(table.dashboardId),
+  dashboardIdUnique: unique('dashboardSettings_dashboardId_unique').on(table.dashboardId),
+}));
+
 export const pages = sqliteTable('Pages', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  dashboardId: integer('dashboardId').references(() => dashboards.id, { onDelete: 'cascade' }),
   snapping: integer('snapping', { mode: 'boolean' }).notNull().default(false),
   gridRows: integer('gridRows').notNull().default(6),
   gridCols: integer('gridCols').notNull().default(6),
@@ -73,7 +99,9 @@ export const pages = sqliteTable('Pages', {
   marginLeft: integer('marginLeft').notNull().default(0),
   createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
   updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
-});
+}, (table) => ({
+  dashboardIdIdx: index('pages_dashboardId_idx').on(table.dashboardId),
+}));
 
 // Database configuration
 const getDatabasePath = (): string => {

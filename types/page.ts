@@ -10,6 +10,7 @@ export interface PageMargins {
 export interface Page extends PageMargins {
   id: number
   name: string
+  dashboardId: number | null
   snapping: boolean
   gridRows: number
   gridCols: number
@@ -20,6 +21,7 @@ export interface Page extends PageMargins {
 // API request/response types
 export interface CreatePageRequest {
   name: string
+  dashboardId?: number
   snapping?: boolean
   gridRows?: number
   gridCols?: number

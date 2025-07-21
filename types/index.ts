@@ -1,6 +1,7 @@
 // Re-export all types from specific modules
 export type { BaseWidgetConfig, WidgetPosition, WidgetPositionDB, WidgetInstance, ParsedWidgetInstance, CreateWidgetRequest, UpdateWidgetRequest, DeleteWidgetRequest, WidgetResponse } from './widget'
 export type { Page, CreatePageRequest, UpdatePageRequest, DeletePageRequest, PageWithWidgets, GridConfig, EditModeState } from './page'
+export type { Dashboard, DashboardSettings, DashboardWithRelations, CreateDashboardRequest, UpdateDashboardRequest, UpdateDashboardSettingsRequest, DeleteDashboardRequest } from './dashboard'
 export type { TodoItem, TodoList, TodoListWithItems, CreateTodoListRequest, UpdateTodoListRequest, DeleteTodoListRequest, CreateTodoItemRequest, UpdateTodoItemRequest, DeleteTodoItemRequest, BatchUpdateTodoItemsRequest, TodoListReference } from './todo'
 
 // Legacy compatibility (deprecated - use specific types)

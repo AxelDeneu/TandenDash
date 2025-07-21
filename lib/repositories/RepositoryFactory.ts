@@ -3,6 +3,9 @@ import { WidgetRepository } from './WidgetRepository'
 import { PageRepository } from './PageRepository'
 import { TodoListRepository, TodoItemRepository } from './TodoRepository'
 import { ModeStateRepository } from './ModeStateRepository'
+import { DashboardRepository } from './DashboardRepository'
+import { DashboardSettingsRepository } from './DashboardSettingsRepository'
+import { db } from '../db'
 
 export class RepositoryFactory implements IRepositoryFactory {
   // Singleton instances for repository reuse
@@ -11,6 +14,8 @@ export class RepositoryFactory implements IRepositoryFactory {
   private static todoListRepository?: TodoListRepository
   private static todoItemRepository?: TodoItemRepository
   private static modeStateRepository?: ModeStateRepository
+  private static dashboardRepository?: DashboardRepository
+  private static dashboardSettingsRepository?: DashboardSettingsRepository
 
   createWidgetRepository() {
     if (!RepositoryFactory.widgetRepository) {
@@ -47,6 +52,20 @@ export class RepositoryFactory implements IRepositoryFactory {
     return RepositoryFactory.modeStateRepository
   }
 
+  createDashboardRepository() {
+    if (!RepositoryFactory.dashboardRepository) {
+      RepositoryFactory.dashboardRepository = new DashboardRepository()
+    }
+    return RepositoryFactory.dashboardRepository
+  }
+
+  createDashboardSettingsRepository() {
+    if (!RepositoryFactory.dashboardSettingsRepository) {
+      RepositoryFactory.dashboardSettingsRepository = new DashboardSettingsRepository()
+    }
+    return RepositoryFactory.dashboardSettingsRepository
+  }
+
   // Method to clear singleton instances (useful for testing)
   static clearInstances() {
     RepositoryFactory.widgetRepository = undefined
@@ -54,6 +73,8 @@ export class RepositoryFactory implements IRepositoryFactory {
     RepositoryFactory.todoListRepository = undefined
     RepositoryFactory.todoItemRepository = undefined
     RepositoryFactory.modeStateRepository = undefined
+    RepositoryFactory.dashboardRepository = undefined
+    RepositoryFactory.dashboardSettingsRepository = undefined
   }
 }
 
