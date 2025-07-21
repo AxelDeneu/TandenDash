@@ -1,147 +1,136 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { ChevronLeft, ChevronRight, Calendar, CalendarDays, List, Plus, RefreshCw } from '@/lib/icons'
 import type { WidgetConfig } from './definition'
+import CalendarMonth from './components/views/CalendarMonth.vue'
+import CalendarWeek from './components/views/CalendarWeek.vue'
+import CalendarDay from './components/views/CalendarDay.vue'
+import CalendarList from './components/views/CalendarList.vue'
+import CalendarSettings from './components/views/CalendarSettings.vue'
+import EventModal from './components/EventModal.vue'
+import { useCalendarViews } from './composables/useCalendarViews'
+import { useCalendarEvents } from './composables/useCalendarEvents'
+import { useCalendarSync } from './composables/useCalendarSync'
+import type { CalendarEvent } from './types'
 
-const props = defineProps<WidgetConfig>()
+interface Props extends WidgetConfig {
+  id?: number
+}
 
-// State
-const currentDate = ref(new Date())
-const selectedDate = ref<Date | null>(null)
-const today = new Date()
+const props = defineProps<Props>()
 
-// Computed
-const monthYearDisplay = computed(() => {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-  return formatter.format(currentDate.value)
+// Composables - Simple direct initialization
+const views = useCalendarViews(props.defaultView, props.firstDayOfWeek === 'monday' ? 1 : 0)
+const events = useCalendarEvents(props.id!)  // ID always exists for widget instances
+const sync = props.syncEnabled ? useCalendarSync(props.id!, {
+  url: props.syncUrl || '',
+  interval: props.syncInterval,
+  enabled: props.syncEnabled
+}) : null
+
+// Modal state
+const showEventModal = ref(false)
+const editingEvent = ref<CalendarEvent | null>(null)
+const modalInitialDate = ref<Date | null>(null)
+
+// Get events for current view
+const viewEvents = computed(() => {
+  if (!props.showEvents) return []
+  
+  switch (views.viewType.value) {
+    case 'month':
+    case 'week':
+    case 'day':
+      return events.getEventsForDateRange(
+        views.viewBounds.value.start,
+        views.viewBounds.value.end
+      ) || []
+    case 'list':
+      return events.getUpcomingEvents(30) || []
+    default:
+      return []
+  }
 })
 
-const daysOfWeek = computed(() => {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  if (props.firstDayOfWeek === 'monday') {
-    return [...days.slice(1), days[0]]
+// View icon
+const viewIcon = computed(() => {
+  switch (views.viewType.value) {
+    case 'month':
+      return Calendar
+    case 'week':
+      return CalendarDays
+    case 'day':
+      return CalendarDays
+    case 'list':
+      return List
+    default:
+      return Calendar
   }
-  return days
 })
 
-const calendarWeeks = computed(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-  const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
-
-  // Calculate start date (beginning of week)
-  const startDate = new Date(firstDay)
-  const dayOfWeek = firstDay.getDay()
-  const daysToSubtract = props.firstDayOfWeek === 'monday'
-      ? (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-      : dayOfWeek
-  startDate.setDate(startDate.getDate() - daysToSubtract)
-
-  // Build weeks
-  const weeks = []
-  const currentDateIter = new Date(startDate)
-
-  while (currentDateIter <= lastDay || currentDateIter.getDay() !== (props.firstDayOfWeek === 'monday' ? 1 : 0)) {
-    const week = {
-      weekNumber: getWeekNumber(currentDateIter),
-      days: []
-    }
-
-    for (let i = 0; i < 7; i++) {
-      week.days.push({
-        date: currentDateIter.getDate(),
-        month: currentDateIter.getMonth(),
-        year: currentDateIter.getFullYear(),
-        isCurrentMonth: currentDateIter.getMonth() === month,
-        isToday: isSameDay(currentDateIter, today),
-        isSelected: selectedDate.value ? isSameDay(currentDateIter, selectedDate.value) : false,
-        isWeekend: currentDateIter.getDay() === 0 || currentDateIter.getDay() === 6
-      })
-      currentDateIter.setDate(currentDateIter.getDate() + 1)
-    }
-
-    weeks.push(week)
+// Handle date selection
+function handleDateSelect(date: Date) {
+  views.selectDate(date)
+  if (views.viewType.value === 'month' && props.showEvents) {
+    // Switch to day view when clicking a date in month view
+    views.switchView('day')
+    views.navigateToDate(date)
   }
-
-  return weeks
-})
-
-// Methods
-const previousMonth = () => {
-  const newDate = new Date(currentDate.value)
-  newDate.setMonth(newDate.getMonth() - 1)
-  currentDate.value = newDate
 }
 
-const nextMonth = () => {
-  const newDate = new Date(currentDate.value)
-  newDate.setMonth(newDate.getMonth() + 1)
-  currentDate.value = newDate
+// Handle event selection
+function handleEventSelect(event: CalendarEvent) {
+  if (props.allowEventEditing) {
+    editingEvent.value = event
+    showEventModal.value = true
+  }
 }
 
-const selectDate = (day: any) => {
-  selectedDate.value = new Date(day.year, day.month, day.date)
+// Handle event creation
+function handleEventCreate(date: Date, hour?: number) {
+  if (!props.allowEventCreation || !props.showEvents) return
+  
+  modalInitialDate.value = date
+  editingEvent.value = null
+  showEventModal.value = true
 }
 
-const isWeekend = (dayIndex: number) => {
-  if (props.firstDayOfWeek === 'monday') {
-    return dayIndex === 5 || dayIndex === 6
-  }
-  return dayIndex === 0 || dayIndex === 6
-}
-
-const getDayClasses = (day: any) => {
-  const classes = []
-
-  if (!day.isCurrentMonth) {
-    classes.push('text-muted-foreground opacity-50')
-  }
-
-  if (day.isWeekend && day.isCurrentMonth) {
-    classes.push(props.weekendColor)
-  }
-
-  if (day.isSelected) {
-    classes.push('bg-primary text-primary-foreground')
-  } else if (day.isToday && props.highlightToday) {
-    classes.push(props.todayColor, 'text-white')
+// Handle event save
+async function handleEventSave(eventData: Partial<CalendarEvent>) {
+  if (editingEvent.value) {
+    // Update existing event
+    await events.updateEvent(editingEvent.value.id, eventData)
   } else {
-    classes.push('hover:bg-gray-100 dark:hover:bg-gray-800')
+    // Create new event
+    await events.createEvent(eventData as Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt' | 'source'>)
   }
-
-  return classes
+  
+  showEventModal.value = false
+  editingEvent.value = null
+  modalInitialDate.value = null
 }
 
-const getDayStyles = (day: any) => {
-  const styles: any = {}
-
-  if (day.isToday && props.highlightToday && !day.isSelected) {
-    // Extract color from Tailwind class if needed
-    if (props.todayColor.startsWith('bg-')) {
-      // Use the color directly from the class
-    }
+// Handle event delete
+async function handleEventDelete() {
+  if (editingEvent.value && props.allowEventDeletion) {
+    await events.deleteEvent(editingEvent.value.id)
+    showEventModal.value = false
+    editingEvent.value = null
   }
-
-  return styles
 }
 
-// Helper functions
-const isSameDay = (date1: Date, date2: Date) => {
-  return date1.getDate() === date2.getDate() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getFullYear() === date2.getFullYear()
+// Switch view
+function switchToView(view: 'month' | 'week' | 'day' | 'list') {
+  views.switchView(view)
 }
 
-const getWeekNumber = (date: Date) => {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-  const dayNum = d.getUTCDay() || 7
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
-  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+// Handle config update
+function handleConfigUpdate(config: Partial<WidgetConfig>) {
+  // In a real implementation, this would update the widget config
+  // For now, we'll just update the sync settings
+  if (config.syncEnabled !== undefined || config.syncUrl !== undefined || config.syncInterval !== undefined) {
+    sync?.scheduleSyncInterval()
+  }
 }
 </script>
 
@@ -158,82 +147,184 @@ const getWeekNumber = (date: Date) => {
     <!-- Calendar Header -->
     <div 
       v-if="showMonthYear"
-      class="p-4 flex items-center justify-between"
+      class="p-4 flex items-center justify-between border-b"
       :class="headerColor"
     >
-      <button
-        v-if="navigationButtons"
-        @click="previousMonth"
-        class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        aria-label="Previous month"
-      >
-        <ChevronLeft class="w-5 h-5" />
-      </button>
+      <!-- Navigation -->
+      <div class="flex items-center gap-2">
+        <button
+          v-if="navigationButtons && views.canNavigate.value"
+          @click="views.navigatePrevious()"
+          class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Previous"
+        >
+          <ChevronLeft class="w-5 h-5" />
+        </button>
+        
+        <button
+          v-if="navigationButtons && views.canNavigate.value"
+          @click="views.navigateToToday()"
+          class="px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          Today
+        </button>
+        
+        <button
+          v-if="navigationButtons && views.canNavigate.value"
+          @click="views.navigateNext()"
+          class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Next"
+        >
+          <ChevronRight class="w-5 h-5" />
+        </button>
+      </div>
       
+      <!-- Title -->
       <h2 class="text-xl font-semibold">
-        {{ monthYearDisplay }}
+        {{ views.viewTitle.value }}
       </h2>
       
-      <button
-        v-if="navigationButtons"
-        @click="nextMonth"
-        class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        aria-label="Next month"
-      >
-        <ChevronRight class="w-5 h-5" />
-      </button>
+      <!-- View switcher and actions -->
+      <div class="flex items-center gap-2">
+        <!-- Sync status indicator -->
+        <div
+          v-if="syncEnabled && sync?.status.value.lastSync"
+          class="flex items-center gap-1 text-sm text-muted-foreground"
+          :title="`Last synced: ${sync?.status.value.lastSync.toLocaleString()}`"
+        >
+          <RefreshCw 
+            class="w-4 h-4" 
+            :class="{ 'animate-spin': sync?.status.value.syncing }"
+          />
+          <span v-if="!sync?.status.value.syncing">
+            {{ sync?.status.value.eventsCount }} synced
+          </span>
+        </div>
+        <!-- View buttons -->
+        <div class="flex items-center rounded-md border divide-x">
+          <button
+            @click="switchToView('month')"
+            class="px-3 py-1.5 text-sm transition-colors"
+            :class="views.viewType.value === 'month' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
+            title="Month view"
+          >
+            Month
+          </button>
+          <button
+            @click="switchToView('week')"
+            class="px-3 py-1.5 text-sm transition-colors"
+            :class="views.viewType.value === 'week' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
+            title="Week view"
+          >
+            Week
+          </button>
+          <button
+            @click="switchToView('day')"
+            class="px-3 py-1.5 text-sm transition-colors"
+            :class="views.viewType.value === 'day' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
+            title="Day view"
+          >
+            Day
+          </button>
+          <button
+            v-if="showEvents"
+            @click="switchToView('list')"
+            class="px-3 py-1.5 text-sm transition-colors"
+            :class="views.viewType.value === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
+            title="List view"
+          >
+            List
+          </button>
+        </div>
+        
+        <!-- Add event button -->
+        <button
+          v-if="showEvents && allowEventCreation"
+          @click="handleEventCreate(views.selectedDate.value || new Date())"
+          class="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          title="Add event"
+        >
+          <Plus class="w-5 h-5" />
+        </button>
+        
+        <!-- Settings button -->
+        <CalendarSettings
+          v-bind="props"
+          :sync-status="sync?.status.value"
+          :next-sync-time="sync?.nextSyncTime.value"
+          :can-sync="sync?.canSync.value"
+          @sync="sync?.syncCalendar"
+          @update:config="handleConfigUpdate"
+        />
+      </div>
     </div>
     
-    <!-- Calendar Grid -->
-    <div class="flex-1 p-4">
-      <!-- Days of Week Header -->
-      <div class="grid gap-1 mb-2" :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'">
-        <!-- Week number header space -->
-        <div v-if="showWeekNumbers" class="text-center font-medium text-sm">
-          W#
-        </div>
-        <!-- Day headers -->
-        <div
-          v-for="(day, index) in daysOfWeek"
-          :key="index"
-          class="text-center font-medium text-sm"
-          :class="isWeekend(index) ? weekendColor : ''"
-        >
-          {{ compactMode ? day.slice(0, 1) : day.slice(0, 3) }}
-        </div>
-      </div>
+    <!-- Calendar Views -->
+    <div class="flex-1 min-h-0 p-4">
+      <!-- Month View -->
+      <CalendarMonth
+        v-if="views.viewType.value === 'month'"
+        :current-date="views.currentDate.value"
+        :selected-date="views.selectedDate.value"
+        :events="viewEvents"
+        :show-week-numbers="showWeekNumbers"
+        :week-starts-on="firstDayOfWeek === 'monday' ? 1 : 0"
+        :compact-mode="compactMode"
+        :highlight-today="highlightToday"
+        :today-color="todayColor"
+        :weekend-color="weekendColor"
+        :font-size="fontSize"
+        @select-date="handleDateSelect"
+        @select-event="handleEventSelect"
+      />
       
-      <!-- Calendar Weeks -->
-      <div class="space-y-1">
-        <div 
-          v-for="(week, weekIndex) in calendarWeeks" 
-          :key="weekIndex"
-          class="grid gap-1"
-          :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'"
-        >
-          <!-- Week Number -->
-          <div
-            v-if="showWeekNumbers"
-            class="flex items-center justify-center text-xs text-muted-foreground"
-          >
-            {{ week.weekNumber }}
-          </div>
-          
-          <!-- Days -->
-          <div
-            v-for="(day, dayIndex) in week.days"
-            :key="`${weekIndex}-${dayIndex}`"
-            class="aspect-square flex items-center justify-center rounded-md transition-colors cursor-pointer"
-            :class="getDayClasses(day)"
-            :style="getDayStyles(day)"
-            @click="selectDate(day)"
-          >
-            <span :style="{ fontSize: `${fontSize}px` }">
-              {{ day.date }}
-            </span>
-          </div>
-        </div>
-      </div>
+      <!-- Week View -->
+      <CalendarWeek
+        v-else-if="views.viewType.value === 'week'"
+        :current-date="views.currentDate.value"
+        :selected-date="views.selectedDate.value"
+        :events="viewEvents"
+        :week-starts-on="firstDayOfWeek === 'monday' ? 1 : 0"
+        :show-24-hours="show24Hours"
+        :font-size="fontSize"
+        @select-date="handleDateSelect"
+        @select-event="handleEventSelect"
+        @create-event="handleEventCreate"
+      />
+      
+      <!-- Day View -->
+      <CalendarDay
+        v-else-if="views.viewType.value === 'day'"
+        :current-date="views.currentDate.value"
+        :events="viewEvents"
+        :show-24-hours="show24Hours"
+        :font-size="fontSize"
+        @select-event="handleEventSelect"
+        @create-event="handleEventCreate"
+      />
+      
+      <!-- List View -->
+      <CalendarList
+        v-else-if="views.viewType.value === 'list'"
+        :events="viewEvents"
+        :show-24-hours="show24Hours"
+        :font-size="fontSize"
+        @select-event="handleEventSelect"
+      />
     </div>
+    
+    <!-- Event Modal -->
+    <EventModal
+      v-if="showEvents"
+      v-model="showEventModal"
+      :event="editingEvent"
+      :initial-date="modalInitialDate"
+      :categories="eventCategories"
+      :event-colors="eventColors"
+      :default-duration="defaultEventDuration"
+      :default-color="defaultEventColor"
+      @save="handleEventSave"
+      @delete="handleEventDelete"
+    />
   </div>
 </template>

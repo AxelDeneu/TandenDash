@@ -3,8 +3,13 @@ import type { BaseWidgetConfig } from '@/types/widget'
 import type { EnhancedWidgetConfig } from '@/types/widget-options'
 
 export interface WidgetConfig extends BaseWidgetConfig {
+  // View settings
+  defaultView: 'month' | 'week' | 'day' | 'list'
   showWeekNumbers: boolean
   firstDayOfWeek: 'sunday' | 'monday'
+  show24Hours: boolean
+  
+  // Display settings
   highlightToday: boolean
   todayColor: string
   weekendColor: string
@@ -12,15 +17,39 @@ export interface WidgetConfig extends BaseWidgetConfig {
   compactMode: boolean
   showMonthYear: boolean
   navigationButtons: boolean
+  
+  // Event settings
+  showEvents: boolean
+  defaultEventColor: string
+  defaultEventDuration: number // minutes
+  eventColors: string[]
+  eventCategories: string[]
+  
+  // Sync settings
+  syncEnabled: boolean
+  syncUrl?: string
+  syncInterval: number // minutes
+  
+  // Appearance
   backgroundColor: string
   textColor: string
   borderColor: string
   headerColor: string
+  
+  // Permissions
+  allowEventCreation: boolean
+  allowEventEditing: boolean
+  allowEventDeletion: boolean
 }
 
 export const widgetDefaults: WidgetConfig = {
+  // View settings
+  defaultView: 'month',
   showWeekNumbers: false,
   firstDayOfWeek: 'sunday',
+  show24Hours: false,
+  
+  // Display settings
   highlightToday: true,
   todayColor: 'bg-primary',
   weekendColor: 'text-muted-foreground',
@@ -28,17 +57,43 @@ export const widgetDefaults: WidgetConfig = {
   compactMode: false,
   showMonthYear: true,
   navigationButtons: true,
+  
+  // Event settings
+  showEvents: true,
+  defaultEventColor: '#3b82f6',
+  defaultEventDuration: 60,
+  eventColors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+  eventCategories: ['Personal', 'Work', 'Family', 'Other'],
+  
+  // Sync settings
+  syncEnabled: false,
+  syncUrl: '',
+  syncInterval: 30,
+  
+  // Appearance
   backgroundColor: 'bg-background',
   textColor: 'text-foreground',
   borderColor: 'border-border',
   headerColor: 'text-foreground',
-  minWidth: 300,
-  minHeight: 320,
+  
+  // Permissions
+  allowEventCreation: true,
+  allowEventEditing: true,
+  allowEventDeletion: true,
+  
+  // Base widget config
+  minWidth: 400,
+  minHeight: 400,
 }
 
 export const WidgetConfigSchema = z.object({
+  // View settings
+  defaultView: z.enum(['month', 'week', 'day', 'list']),
   showWeekNumbers: z.boolean(),
   firstDayOfWeek: z.enum(['sunday', 'monday']),
+  show24Hours: z.boolean(),
+  
+  // Display settings
   highlightToday: z.boolean(),
   todayColor: z.string(),
   weekendColor: z.string(),
@@ -46,40 +101,52 @@ export const WidgetConfigSchema = z.object({
   compactMode: z.boolean(),
   showMonthYear: z.boolean(),
   navigationButtons: z.boolean(),
+  
+  // Event settings
+  showEvents: z.boolean(),
+  defaultEventColor: z.string(),
+  defaultEventDuration: z.number().min(15).max(480),
+  eventColors: z.array(z.string()),
+  eventCategories: z.array(z.string()),
+  
+  // Sync settings
+  syncEnabled: z.boolean(),
+  syncUrl: z.string().optional(),
+  syncInterval: z.number().min(5).max(1440),
+  
+  // Appearance
   backgroundColor: z.string(),
   textColor: z.string(),
   borderColor: z.string(),
   headerColor: z.string(),
-  minWidth: z.number().min(200),
-  minHeight: z.number().min(200)
+  
+  // Permissions
+  allowEventCreation: z.boolean(),
+  allowEventEditing: z.boolean(),
+  allowEventDeletion: z.boolean(),
+  
+  // Base widget config
+  minWidth: z.number().min(300),
+  minHeight: z.number().min(300)
 })
 
 export const widgetConfig: EnhancedWidgetConfig = {
   groups: [
     {
-      id: 'display',
-      label: 'Display Settings',
+      id: 'view',
+      label: 'View Settings',
       defaultOpen: true,
       options: {
-        showMonthYear: {
-          type: 'toggle',
-          label: 'Show Month/Year Header',
-          description: 'Display the month and year at the top of the calendar'
-        },
-        navigationButtons: {
-          type: 'toggle',
-          label: 'Show Navigation Buttons',
-          description: 'Display buttons to navigate between months'
-        },
-        showWeekNumbers: {
-          type: 'toggle',
-          label: 'Show Week Numbers',
-          description: 'Display week numbers on the left side'
-        },
-        compactMode: {
-          type: 'toggle',
-          label: 'Compact Mode',
-          description: 'Show abbreviated day names'
+        defaultView: {
+          type: 'select',
+          label: 'Default View',
+          description: 'Choose the default calendar view',
+          options: [
+            { value: 'month', label: 'Month' },
+            { value: 'week', label: 'Week' },
+            { value: 'day', label: 'Day' },
+            { value: 'list', label: 'List' }
+          ]
         },
         firstDayOfWeek: {
           type: 'radio',
@@ -89,14 +156,39 @@ export const widgetConfig: EnhancedWidgetConfig = {
             { value: 'sunday', label: 'Sunday' },
             { value: 'monday', label: 'Monday' }
           ]
+        },
+        show24Hours: {
+          type: 'toggle',
+          label: '24-Hour Format',
+          description: 'Use 24-hour time format instead of 12-hour'
+        },
+        showWeekNumbers: {
+          type: 'toggle',
+          label: 'Show Week Numbers',
+          description: 'Display week numbers in month view'
         }
       }
     },
     {
-      id: 'styling',
-      label: 'Styling',
+      id: 'display',
+      label: 'Display Settings',
       collapsible: true,
       options: {
+        showMonthYear: {
+          type: 'toggle',
+          label: 'Show Month/Year Header',
+          description: 'Display the month and year at the top'
+        },
+        navigationButtons: {
+          type: 'toggle',
+          label: 'Show Navigation Buttons',
+          description: 'Display buttons to navigate between periods'
+        },
+        compactMode: {
+          type: 'toggle',
+          label: 'Compact Mode',
+          description: 'Show abbreviated day names'
+        },
         fontSize: {
           type: 'slider',
           label: 'Font Size',
@@ -134,6 +226,75 @@ export const widgetConfig: EnhancedWidgetConfig = {
             { value: 'text-blue-500', label: 'Blue' },
             { value: 'text-red-500', label: 'Red' }
           ]
+        }
+      }
+    },
+    {
+      id: 'events',
+      label: 'Event Settings',
+      collapsible: true,
+      options: {
+        showEvents: {
+          type: 'toggle',
+          label: 'Show Events',
+          description: 'Display events on the calendar'
+        },
+        allowEventCreation: {
+          type: 'toggle',
+          label: 'Allow Event Creation',
+          description: 'Allow creating new events',
+          dependencies: { showEvents: true }
+        },
+        allowEventEditing: {
+          type: 'toggle',
+          label: 'Allow Event Editing',
+          description: 'Allow editing existing events',
+          dependencies: { showEvents: true }
+        },
+        allowEventDeletion: {
+          type: 'toggle',
+          label: 'Allow Event Deletion',
+          description: 'Allow deleting events',
+          dependencies: { showEvents: true }
+        },
+        defaultEventDuration: {
+          type: 'slider',
+          label: 'Default Event Duration',
+          description: 'Default duration for new events',
+          min: 15,
+          max: 480,
+          step: 15,
+          unit: 'min',
+          dependencies: { showEvents: true }
+        }
+      }
+    },
+    {
+      id: 'sync',
+      label: 'Synchronization',
+      collapsible: true,
+      options: {
+        syncEnabled: {
+          type: 'toggle',
+          label: 'Enable Sync',
+          description: 'Enable calendar synchronization'
+        },
+        syncUrl: {
+          type: 'text',
+          label: 'iCal URL',
+          description: 'URL of the iCal calendar to sync',
+          placeholder: 'https://calendar.example.com/feed.ics',
+          dependencies: { syncEnabled: true }
+        },
+        syncInterval: {
+          type: 'slider',
+          label: 'Sync Interval',
+          description: 'How often to sync the calendar',
+          min: 5,
+          max: 1440,
+          step: 5,
+          unit: 'min',
+          dependencies: { syncEnabled: true }
         }
       }
     },
