@@ -19,11 +19,7 @@ export default defineNuxtConfig({
     lazy: true,
     strategy: 'no_prefix',
     detectBrowserLanguage: false,
-    vueI18n: {
-      legacy: false,
-      locale: process.env.NUXT_DEFAULT_LOCALE || 'en',
-      fallbackLocale: 'en'
-    }
+    vueI18n: './i18n.config.ts'
   },
   
   // Runtime configuration
