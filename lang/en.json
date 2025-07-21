@@ -1,0 +1,119 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "reset": "Reset",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "settings": "Settings",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "addWidget": "Add Widget",
+    "editWidget": "Edit Widget",
+    "editMode": "Edit Mode",
+    "exitEditMode": "Exit Edit Mode",
+    "addPage": "Add Page",
+    "editPage": "Edit Page",
+    "deletePage": "Delete Page",
+    "pageSettings": "Page Settings",
+    "noPages": "No pages found",
+    "createFirstPage": "Create your first page to get started",
+    "gridSettings": "Grid Settings",
+    "gridRows": "Grid Rows",
+    "gridColumns": "Grid Columns",
+    "enableSnapping": "Enable Grid Snapping",
+    "snapToGrid": "Snap to Grid",
+    "widgetConfiguration": "Widget Configuration",
+    "removeWidget": "Remove Widget",
+    "resizeWidget": "Resize Widget"
+  },
+  "widgets": {
+    "title": "Widgets",
+    "selectWidget": "Select widget",
+    "categories": {
+      "time": "Time & Date",
+      "productivity": "Productivity",
+      "information": "Information",
+      "media": "Media",
+      "utility": "Utility"
+    },
+    "noWidgets": "No widgets available",
+    "configuration": "Configuration",
+    "preview": "Preview"
+  },
+  "pages": {
+    "pageName": "Page Name",
+    "pageNamePlaceholder": "Enter page name",
+    "defaultPage": "Default Page",
+    "makeDefault": "Make Default",
+    "duplicatePage": "Duplicate Page",
+    "confirmDelete": "Are you sure you want to delete this page?",
+    "cannotDeleteDefault": "Cannot delete the default page"
+  },
+  "errors": {
+    "notFound": "Not found",
+    "pageNotFound": "Page not found",
+    "widgetNotFound": "Widget not found",
+    "serverError": "Server error",
+    "networkError": "Network error",
+    "validationError": "Validation error",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Forbidden",
+    "somethingWentWrong": "Something went wrong",
+    "failedToLoad": "Failed to load",
+    "failedToSave": "Failed to save",
+    "failedToDelete": "Failed to delete",
+    "required": "This field is required",
+    "invalidFormat": "Invalid format"
+  },
+  "navigation": {
+    "previous": "Previous",
+    "next": "Next",
+    "home": "Home",
+    "back": "Back"
+  },
+  "dock": {
+    "dragToMove": "Drag to move dock",
+    "position": {
+      "top": "Top",
+      "bottom": "Bottom", 
+      "left": "Left",
+      "right": "Right"
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggleTheme": "Toggle theme"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation",
+    "closeDialog": "Close dialog",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "validation": {
+    "required": "This field is required",
+    "minLength": "Minimum length is {min} characters",
+    "maxLength": "Maximum length is {max} characters",
+    "email": "Please enter a valid email",
+    "number": "Please enter a valid number",
+    "integer": "Please enter a whole number",
+    "positive": "Please enter a positive number",
+    "url": "Please enter a valid URL"
+  }
+}

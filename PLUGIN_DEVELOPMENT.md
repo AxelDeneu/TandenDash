@@ -11,6 +11,8 @@ TandenDash uses a plugin system for widgets that allows you to create custom wid
 - [Widget Component](#widget-component)
 - [API Routes](#api-routes)
 - [Configuration & Validation](#configuration--validation)
+- [Internationalization (i18n)](#internationalization-i18n)
+- [Widget Dependencies](#widget-dependencies)
 - [Registration Process](#registration-process)
 - [Testing & Debugging](#testing--debugging)
 - [Best Practices](#best-practices)
@@ -48,354 +50,406 @@ interface WidgetPlugin<TConfig extends BaseWidgetConfig = BaseWidgetConfig> {
 - **defaultConfig**: Default configuration values
 - **configSchema**: Zod schema for configuration validation
 - **settings**: Widget behavior settings (resize, move, delete, configure)
-- **apiRoutes** (optional): Array of API routes for backend functionality
 
 ## Getting Started
 
-### Plugin Export Naming Convention
+### 1. Create Widget Directory
 
-**IMPORTANT**: Your plugin export MUST follow the naming convention:
-`export const [WidgetName]WidgetPlugin`
-
-For example:
-- Widget name: `TaskCounter` → Export name: `TaskCounterWidgetPlugin`
-- Widget name: `Calendar` → Export name: `CalendarWidgetPlugin`
-- Widget name: `Clock` → Export name: `ClockWidgetPlugin`
-
-This naming convention is required by the automatic plugin discovery system. The system extracts the widget name from the directory path and expects to find an export with the exact name `[WidgetName]WidgetPlugin`.
-
-### 1. Create Widget Directory Structure
-
-```
-widgets/MyWidget/
-├── index.vue          # Main component
-├── definition.ts      # Types and defaults
-├── plugin.ts          # Plugin definition (must export MyWidgetWidgetPlugin)
-├── api.ts             # Optional: API routes for backend functionality
-├── package.json       # Optional: Widget-specific npm dependencies
-└── node_modules/      # Generated: Widget's isolated dependencies
+```bash
+mkdir widgets/MyWidget
+cd widgets/MyWidget
 ```
 
-### 2. Define Widget Types and Defaults
+### 2. Required Files
 
-**`widgets/MyWidget/definition.ts`**
+- `index.vue` - Main widget component
+- `definition.ts` - Widget configuration and metadata
+- `plugin.ts` - Plugin export
+
+### 3. Basic Structure
 
 ```typescript
-import type { BaseWidgetConfig } from '@/types/widget'
+// definition.ts
 import { z } from 'zod'
+import { defineWidgetConfig } from '@/lib/widgets/defineWidgetConfig'
 
-export interface WidgetConfig extends BaseWidgetConfig {
-  title: string
-  color: string
-  showBorder: boolean
-  updateInterval: number
-}
-
-export const widgetDefaults: Required<Omit<WidgetConfig, keyof BaseWidgetConfig>> = {
-  title: 'My Widget',
-  color: '#3b82f6',
-  showBorder: true,
-  updateInterval: 30000,
-  minWidth: 300,
-  minHeight: 200
-}
-
-export const WidgetConfigSchema = z.object({
-  title: z.string().min(1).max(100),
-  color: z.string().regex(/^#[0-9a-f]{6}$/i),
-  showBorder: z.boolean(),
-  updateInterval: z.number().min(1000).max(300000),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
+export const MyWidgetConfig = defineWidgetConfig({
+  // Configuration properties
+  title: z.string().default('My Widget'),
+  refreshInterval: z.number().default(60)
 })
 
-// Widget configuration groups for UI
-export const widgetConfig = {
-  groups: [
-    {
-      id: 'display',
-      label: 'Display Settings',
-      description: 'Configure what information to show',
-      defaultOpen: true,
-      options: {
-        title: {
-          type: 'text',
-          label: 'Widget Title',
-          description: 'The title displayed at the top of the widget',
-          placeholder: 'My Widget'
-        },
-        showBorder: {
-          type: 'toggle',
-          label: 'Show Border',
-          description: 'Display a colored border around the widget'
-        },
-        updateInterval: {
-          type: 'slider',
-          label: 'Update Interval',
-          description: 'How often to update the widget (in milliseconds)',
-          min: 1000,
-          max: 300000,
-          step: 1000,
-          unit: 'ms'
-        }
-      }
-    },
-    {
-      id: 'appearance',
-      label: 'Appearance',
-      description: 'Customize colors and styling',
-      collapsible: true,
-      options: {
-        color: {
-          type: 'color',
-          label: 'Accent Color',
-          description: 'The primary color for the widget theme'
-        }
-      }
-    }
-  ]
-}
+export type MyWidgetConfig = z.infer<typeof MyWidgetConfig>
 ```
 
-### 3. Create Widget Component
+## Widget Structure
 
-**`widgets/MyWidget/index.vue`**
+### Component (`index.vue`)
 
 ```vue
 <template>
-  <div 
-    class="h-full w-full p-4 rounded-lg"
-    :class="{ 'border-2': showBorder }"
-    :style="{ borderColor: color }"
-  >
-    <h2 class="text-xl font-bold mb-4" :style="{ color }">
-      {{ title }}
-    </h2>
-    
-    <div class="text-center">
-      Your widget content here
-    </div>
+  <div class="widget-container">
+    <h2>{{ props.title }}</h2>
+    <!-- Widget content -->
   </div>
 </template>
 
 <script setup lang="ts">
-import type { WidgetConfig } from './definition'
+import type { MyWidgetConfig } from './definition'
 
-const props = defineProps<WidgetConfig & { id?: number }>()
+const props = defineProps<MyWidgetConfig>()
 </script>
+```
+
+### Plugin Definition (`plugin.ts`)
+
+```typescript
+import { defineWidgetPlugin } from '@/lib/widgets/definePlugin'
+import MyWidgetComponent from './index.vue'
+import { MyWidgetConfig } from './definition'
+
+export default defineWidgetPlugin({
+  id: 'my-widget',
+  name: 'My Widget',
+  description: 'A custom widget',
+  version: '1.0.0',
+  category: 'utility',
+  tags: ['custom'],
+  component: MyWidgetComponent,
+  defaultConfig: MyWidgetConfig.parse({}),
+  configSchema: MyWidgetConfig,
+  settings: {
+    canResize: true,
+    canMove: true,
+    canDelete: true,
+    canConfigure: true
+  }
+})
 ```
 
 ## Widget Plugin Interface
 
-### Basic Plugin Structure
+### Required Properties
 
-**`widgets/MyWidget/plugin.ts`**
+- `id`: Unique identifier (lowercase, hyphenated)
+- `name`: Display name
+- `description`: User-friendly description
+- `version`: Semantic version
+- `category`: Widget category
+- `component`: Vue component
+- `defaultConfig`: Default configuration object
+- `configSchema`: Zod schema for validation
+
+### Optional Properties
+
+- `icon`: Icon name or component
+- `tags`: Array of searchable tags
+- `dataProvider`: Server-side data provider class
+- `permissions`: Required permissions
+- `settings`: Widget behavior settings
+- `apiRoutes`: Custom API endpoints
+
+## Widget Component
+
+### Props
+
+All widgets receive their configuration as props:
 
 ```typescript
-import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
-import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
-import MyWidgetComponent from './index.vue'
-
-export const MyWidgetWidgetPlugin: WidgetPlugin<WidgetConfig> = {
-  id: 'my-widget',
-  name: 'My Widget',
-  description: 'A custom widget for demonstration',
-  version: '1.0.0',
-  icon: '🔧',
-  category: 'productivity',
-  tags: ['demo', 'example'],
-  component: MyWidgetComponent,
-  defaultConfig: widgetDefaults,
-  configSchema: WidgetConfigSchema,
-  settings: {
-    allowResize: true,
-    allowMove: true,
-    allowDelete: true,
-    allowConfigure: true
-  },
-  permissions: []
-  // Optional: Add API routes if your widget needs backend functionality
-  // apiRoutes: myWidgetApiRoutes
-}
+const props = defineProps<YourWidgetConfig>()
 ```
 
-## Widget Dependencies
+### Widget Context
 
-### Installing Widget-Specific Packages
+You can access widget-specific context:
 
-Widgets can have their own npm dependencies, completely isolated from the main application and other widgets.
+```typescript
+import { useWidgetContext } from '@/composables'
 
-#### Creating a Widget with Dependencies
+const context = useWidgetContext()
+// context.instanceId - Widget instance ID
+// context.pageId - Current page ID
+```
 
-1. **Create a `package.json` in your widget directory:**
+## API Routes
 
-**`widgets/MyWidget/package.json`**
+Define custom API routes for your widget:
+
+```typescript
+// plugin.ts
+export default defineWidgetPlugin({
+  // ... other config
+  apiRoutes: [
+    {
+      method: 'GET',
+      path: '/data',
+      handler: async (event) => {
+        // Handle request
+        return { data: 'example' }
+      }
+    }
+  ]
+})
+```
+
+Access from component:
+
+```typescript
+const response = await $fetch(`/api/widgets/${widgetId}/data`)
+```
+
+## Configuration & Validation
+
+### Using Zod Schemas
+
+```typescript
+import { z } from 'zod'
+import { defineWidgetConfig } from '@/lib/widgets/defineWidgetConfig'
+
+export const WeatherWidgetConfig = defineWidgetConfig({
+  location: z.string().default('New York'),
+  units: z.enum(['metric', 'imperial']).default('metric'),
+  showForecast: z.boolean().default(true),
+  refreshInterval: z.number().min(60).default(300)
+})
+```
+
+### Configuration UI
+
+Define custom configuration UI:
+
+```typescript
+export default defineWidgetPlugin({
+  // ... other config
+  configUI: {
+    groups: [
+      {
+        label: 'General',
+        options: {
+          location: {
+            type: 'text',
+            label: 'Location',
+            placeholder: 'Enter city name'
+          },
+          units: {
+            type: 'select',
+            label: 'Units',
+            options: [
+              { value: 'metric', label: 'Metric' },
+              { value: 'imperial', label: 'Imperial' }
+            ]
+          }
+        }
+      }
+    ]
+  }
+})
+```
+
+## Internationalization (i18n)
+
+Widgets support multiple languages through a dedicated translation system. Each widget can have its own translation files that are automatically loaded based on the user's locale.
+
+### Setting up translations for your widget
+
+1. **Create a `lang` directory** in your widget folder:
+```
+widgets/YourWidget/
+├── lang/
+│   ├── en.json
+│   ├── fr.json
+│   ├── es.json
+│   └── de.json
+├── index.vue
+├── definition.ts
+└── plugin.ts
+```
+
+2. **Create translation files** for each supported language:
+
+Example `lang/en.json`:
 ```json
 {
-  "name": "@tandendash/widget-mywidget",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "chart.js": "^4.4.0",
-    "moment": "^2.29.4",
-    "lodash": "^4.17.21"
+  "title": "Your Widget",
+  "settings": {
+    "label": "Settings",
+    "option1": "Option 1",
+    "option2": "Option 2"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success!"
   }
 }
 ```
 
-2. **Install dependencies:**
-
-When you run `npm install` in the project root, it automatically installs widget dependencies:
-
-```bash
-npm install  # This also runs npm run widgets:install
+Example `lang/fr.json`:
+```json
+{
+  "title": "Votre Widget",
+  "settings": {
+    "label": "Paramètres",
+    "option1": "Option 1", 
+    "option2": "Option 2"
+  },
+  "messages": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "success": "Succès !"
+  }
+}
 ```
 
-Or manually install widget dependencies:
-
-```bash
-npm run widgets:install
-```
-
-3. **Use the dependencies in your widget:**
-
-**`widgets/MyWidget/index.vue`**
-```vue
-<script setup lang="ts">
-import Chart from 'chart.js/auto'
-import moment from 'moment'
-import { debounce } from 'lodash'
-
-// These imports work because they're installed in widgets/MyWidget/node_modules/
-</script>
-```
-
-#### How It Works
-
-- Each widget has its own `node_modules` directory
-- Dependencies are completely isolated between widgets
-- Two widgets can use different versions of the same package
-- No conflicts with the main application dependencies
-- Imports work naturally with Node.js module resolution
-
-#### Best Practices
-
-1. **Keep dependencies minimal** - Only include what you actually need
-2. **Use specific versions** - Avoid using `latest` or `*`
-3. **Document required dependencies** - List them in your widget documentation
-4. **Test with clean installs** - Ensure your widget works on fresh installations
-
-## Widget Component
-
-### Component Props
-
-Your widget component will receive all configuration properties plus an optional `id`:
+3. **Use translations in your widget**:
 
 ```vue
 <script setup lang="ts">
-import type { WidgetConfig } from './definition'
+import { useWidgetI18n } from '@/composables'
 
-// Props include all config properties plus id
-const props = defineProps<WidgetConfig & { id?: number }>()
-
-// Access configuration
-console.log(props.title)     // string
-console.log(props.color)     // string
-console.log(props.id)        // number | undefined
-</script>
-```
-
-### Reactive Updates
-
-The component will automatically re-render when configuration changes:
-
-```vue
-<script setup lang="ts">
-import { watch } from 'vue'
-import type { WidgetConfig } from './definition'
-
-const props = defineProps<WidgetConfig & { id?: number }>()
-
-// Watch for config changes
-watch(() => props.updateInterval, (newInterval) => {
-  console.log('Update interval changed:', newInterval)
+// Initialize widget i18n with your widget name
+const { t } = useWidgetI18n({ 
+  widgetName: 'YourWidget',
+  fallbackLocale: 'en' // Optional: fallback language if translation is missing
 })
 </script>
+
+<template>
+  <div>
+    <h2>{{ t('title') }}</h2>
+    <p>{{ t('messages.loading') }}</p>
+    <button>{{ t('settings.label') }}</button>
+  </div>
+</template>
+```
+
+### Best practices
+
+1. **Always provide English translations** as the fallback language
+2. **Use nested keys** to organize translations logically
+3. **Keep translation keys consistent** across all language files
+4. **Test your widget** in different languages to ensure proper display
+
+### Available languages
+
+The application currently supports:
+- English (en)
+- French (fr)
+- Spanish (es)
+- German (de)
+
+### Dynamic locale changes
+
+Widget translations are automatically reloaded when the user changes the application language. No additional code is needed to handle locale changes.
+
+## Widget Dependencies
+
+Widgets can have their own npm dependencies that are isolated from the main application.
+
+### Adding dependencies to your widget
+
+1. **Create a `package.json`** in your widget directory:
+
+```json
+{
+  "name": "tandendash-widget-yourwidget",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "date-fns": "^2.30.0"
+  }
+}
+```
+
+2. **Install dependencies**:
+
+Dependencies are automatically installed when running the widget dependency installation script:
+
+```bash
+npm run install-widget-deps
+```
+
+This command will:
+- Scan all widget directories for `package.json` files
+- Install dependencies in each widget's `node_modules` folder
+- Skip widgets without `package.json`
+
+3. **Import dependencies in your widget**:
+
+```typescript
+// In your widget component
+import { format } from 'date-fns'
+import Chart from 'chart.js/auto'
+```
+
+### Best practices for widget dependencies
+
+1. **Only include necessary dependencies** to keep widgets lightweight
+2. **Use specific versions** to ensure compatibility
+3. **Avoid duplicating** dependencies that are already in the main app
+4. **Test your widget** after adding new dependencies
+
+### Handling dependency conflicts
+
+- Each widget has its own `node_modules` folder
+- Dependencies are isolated between widgets
+- Multiple widgets can use different versions of the same package
+
+## Registration Process
+
+### Automatic Registration
+
+Place your widget in the `widgets/` directory and it will be automatically discovered:
+
+```
+widgets/
+├── MyWidget/
+│   ├── index.vue
+│   ├── definition.ts
+│   └── plugin.ts
+```
+
+### Manual Registration
+
+For custom locations, register manually:
+
+```typescript
+// plugins/widgets.client.ts
+import { useWidgetPlugins } from '@/composables'
+import MyWidget from '@/custom-widgets/MyWidget/plugin'
+
+export default defineNuxtPlugin(() => {
+  const widgetPlugins = useWidgetPlugins()
+  widgetPlugins.registerPlugin(MyWidget)
+})
 ```
 
 ## Widget Data Storage
 
-### Persistent Storage per Instance
+Widgets can store persistent data using the `useWidgetData` composable:
 
-TandenDash provides a powerful data storage system that allows each widget instance to store its own persistent data. This is perfect for storing user preferences, cached data, or any information specific to a widget instance.
+### Basic Usage
 
-#### Using the useWidgetData Composable
-
-The `useWidgetData` composable provides persistent storage for each widget instance. The widget receives its instance ID automatically through the `id` prop.
-
-**`widgets/MyWidget/index.vue`**
 ```vue
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useWidgetData } from '@/composables/data/useWidgetData'
-import type { WidgetConfig } from './definition'
+import { useWidgetData } from '@/composables'
 
-interface Props extends WidgetConfig {
-  id?: number  // This is provided automatically by WidgetCard
-}
-
-const props = defineProps<Props>()
-
-// Initialize widget data storage
-// Note: During widget creation, id might be undefined. The composable handles this gracefully.
+const props = defineProps<{ id?: number }>()
 const widgetData = useWidgetData(props.id)
 
-// Store a single value
-async function saveUserPreference(theme: string) {
-  await widgetData.set('theme', theme)
-}
+// Get data
+const savedValue = widgetData.get<string>('myKey')
 
-// Retrieve a value with type safety
-const theme = widgetData.get<string>('theme') || 'light'
+// Set data
+await widgetData.set('myKey', 'myValue')
 
-// Store multiple values at once
-async function saveSettings() {
-  await widgetData.setMultiple({
-    theme: 'dark',
-    fontSize: 16,
-    showLabels: true,
-    lastUpdated: new Date().toISOString()
-  })
-}
-
-// Remove a value
-async function resetTheme() {
-  await widgetData.remove('theme')
-}
-
-// Clear all data for this instance
-async function resetWidget() {
-  await widgetData.clear()
-}
-
-// Access reactive state
-const isLoading = widgetData.loading
-const hasError = widgetData.error
-const allKeys = widgetData.keys  // Reactive list of all stored keys
+// Remove data
+await widgetData.remove('myKey')
 </script>
 ```
 
-#### Storage Features
-
-1. **Instance Isolation**: Each widget instance has its own storage space
-2. **Type Safety**: Full TypeScript support with generic types
-3. **Reactive State**: Loading, error, and data states are reactive
-4. **Automatic JSON Serialization**: Complex objects are automatically serialized
-5. **Optimistic Updates**: UI updates immediately while saving in background
-6. **Error Recovery**: Failed updates automatically revert to previous state
-
-#### API Reference
+### Data Storage API
 
 ```typescript
 interface UseWidgetData {
@@ -461,1025 +515,279 @@ async function toggleTask(id: string) {
   }
 }
 
-// Clear completed tasks
-async function clearCompleted() {
-  tasks.value = tasks.value.filter(t => !t.completed)
+// Delete a task
+async function deleteTask(id: string) {
+  tasks.value = tasks.value.filter(t => t.id !== id)
   await widgetData.set('tasks', tasks.value)
 }
 </script>
-```
-
-#### Best Practices
-
-1. **Use meaningful keys**: Choose descriptive keys like 'userSettings' instead of 'data1'
-2. **Handle loading states**: Show loading indicators during async operations
-3. **Type your data**: Always use TypeScript generics for type safety
-4. **Batch updates**: Use `setMultiple` when updating multiple values
-5. **Clean up**: Remove unused data to keep storage efficient
-
-## API Routes
-
-TandenDash provides a dynamic API route system that allows widgets to define their own backend endpoints without modifying the core server directory.
-
-### Defining Widget API Routes
-
-Create an `api.ts` file in your widget directory to define custom API routes:
-
-**`widgets/MyWidget/api.ts`**
-
-```typescript
-import type { WidgetApiRoute } from '@/lib/widgets/api-routes'
-import { getQuery, createError } from 'h3'
-
-export const myWidgetApiRoutes: WidgetApiRoute[] = [
-  {
-    method: 'GET',
-    path: 'data',
-    handler: async (event) => {
-      const { id } = getQuery(event) as { id?: string }
-      
-      if (!id) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'ID parameter is required'
-        })
-      }
-      
-      // Your API logic here
-      return {
-        id,
-        data: 'Your data here',
-        timestamp: new Date().toISOString()
-      }
-    }
-  },
-  {
-    method: 'POST',
-    path: 'update',
-    handler: async (event) => {
-      const body = await readBody(event)
-      
-      // Process the update
-      return {
-        success: true,
-        message: 'Updated successfully'
-      }
-    }
-  }
-]
-```
-
-### API Route Interface
-
-The `WidgetApiRoute` interface defines the structure for widget API routes:
-
-```typescript
-interface WidgetApiRoute {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-  path: string
-  handler: (event: H3Event) => Promise<any> | any
-}
-```
-
-### Dynamic Route System
-
-Widget API routes are automatically available at `/api/widgets/[type]/[...path]` where:
-- `[type]` is your widget ID (e.g., 'weather', 'my-widget')
-- `[...path]` is the path defined in your route
-
-For example:
-- Widget ID: `weather`, Route path: `current` → `/api/widgets/weather/current`
-- Widget ID: `todo`, Route path: `items/list` → `/api/widgets/todo/items/list`
-
-### Using Environment Variables
-
-For API keys and sensitive configuration:
-
-**`.env`**
-```env
-NUXT_MY_WIDGET_API_KEY=your-api-key-here
-NUXT_MY_WIDGET_API_URL=https://api.example.com
-```
-
-**Access in your API handler:**
-```typescript
-handler: async (event) => {
-  const apiKey = process.env.NUXT_MY_WIDGET_API_KEY
-  const apiUrl = process.env.NUXT_MY_WIDGET_API_URL
-  
-  if (!apiKey) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'API key not configured'
-    })
-  }
-  
-  // Use the API key for external requests
-  const response = await $fetch(`${apiUrl}/endpoint`, {
-    headers: {
-      'Authorization': `Bearer ${apiKey}`
-    }
-  })
-  
-  return response
-}
-```
-
-### Error Handling
-
-Always handle errors gracefully in your API routes:
-
-```typescript
-handler: async (event) => {
-  try {
-    // Your API logic
-    const data = await fetchExternalData()
-    return data
-  } catch (error) {
-    console.error('API error:', error)
-    
-    // Return appropriate error response
-    throw createError({
-      statusCode: error.statusCode || 503,
-      statusMessage: error.message || 'Service unavailable'
-    })
-  }
-}
-```
-
-### Calling Widget APIs from Components
-
-Use the widget API routes in your component:
-
-```vue
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-
-const data = ref(null)
-const loading = ref(false)
-const error = ref(null)
-
-async function fetchData() {
-  loading.value = true
-  error.value = null
-  
-  try {
-    // Call your widget's API route
-    const response = await $fetch('/api/widgets/my-widget/data', {
-      query: { id: props.id }
-    })
-    
-    data.value = response
-  } catch (err) {
-    error.value = err.message
-    console.error('Failed to fetch data:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchData()
-})
-</script>
-```
-
-### Best Practices for Widget APIs
-
-1. **Security**: Always validate input parameters and sanitize data
-2. **Error Handling**: Provide meaningful error messages for debugging
-3. **Performance**: Cache responses when appropriate
-4. **Rate Limiting**: Consider implementing rate limiting for external API calls
-5. **Logging**: Log errors for monitoring and debugging
-6. **Environment Variables**: Store API keys and secrets in environment variables
-7. **Type Safety**: Use TypeScript types for request/response data
-8. **Documentation**: Document your API routes and their parameters
-
-### Important Notes
-
-- Widget API routes are automatically registered when the widget is loaded
-- Routes are namespaced by widget ID to prevent conflicts
-- The catch-all handler at `/api/widgets/[type]/[...path]` manages all widget routes
-- Currently, widget API routes must be manually registered in the catch-all handler
-- Future versions may support automatic discovery of widget API routes
-
-## Configuration & Validation
-
-### Using Zod for Schema Validation
-
-Define your widget's validation schema in your definition file:
-
-```typescript
-// widgets/MyWidget/definition.ts
-import { z } from 'zod'
-
-export const WidgetConfigSchema = z.object({
-  title: z.string().min(1).max(100),
-  color: z.string().regex(/^#[0-9a-f]{6}$/i),
-  showBorder: z.boolean(),
-  updateInterval: z.number().min(1000).max(300000),
-  minWidth: z.number().min(1),
-  minHeight: z.number().min(1)
-})
-```
-
-The validation schema is automatically registered when the plugin is discovered. No manual registration is required.
-
-## Widget Configuration UI
-
-### The widgetConfig Export
-
-**IMPORTANT**: The `widgetConfig` export is required for your widget to appear in the widget list. This defines the configuration UI that users will see when adding or configuring your widget.
-
-The `widgetConfig` export defines:
-- **Groups**: Organize related configuration options
-- **Control Types**: How each option is displayed (toggle, slider, text, etc.)
-- **Labels & Descriptions**: User-friendly names and help text
-- **Validation**: Min/max values, dependencies between options
-- **UI Behavior**: Which groups are collapsible, default open state
-
-### Available Control Types
-
-```typescript
-// Toggle - Boolean on/off switch
-{
-  type: 'toggle',
-  label: 'Enable Feature',
-  description: 'Turn this feature on or off'
-}
-
-// Slider - Numeric input with range
-{
-  type: 'slider',
-  label: 'Font Size',
-  description: 'Size of the text',
-  min: 12,
-  max: 48,
-  step: 2,
-  unit: 'px'
-}
-
-// Text - String input field
-{
-  type: 'text',
-  label: 'Title',
-  description: 'Widget title text',
-  placeholder: 'Enter title...'
-}
-
-// Color - Color picker
-{
-  type: 'color',
-  label: 'Accent Color',
-  description: 'Primary color for the widget'
-}
-
-// Select - Dropdown with options
-{
-  type: 'select',
-  label: 'Theme',
-  description: 'Choose a theme',
-  options: [
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' }
-  ]
-}
-
-// Radio - Single choice from multiple options
-{
-  type: 'radio',
-  label: 'Layout',
-  description: 'Choose layout direction',
-  options: [
-    { value: 'horizontal', label: 'Horizontal' },
-    { value: 'vertical', label: 'Vertical' }
-  ]
-}
-```
-
-### Group Configuration
-
-Groups help organize related options:
-
-```typescript
-export const widgetConfig = {
-  groups: [
-    {
-      id: 'display',           // Unique identifier
-      label: 'Display',        // User-visible name
-      description: 'Display settings',  // Help text
-      defaultOpen: true,       // Open by default
-      options: {
-        // ... option definitions
-      }
-    },
-    {
-      id: 'advanced',
-      label: 'Advanced',
-      description: 'Advanced options',
-      collapsible: true,       // Can be collapsed
-      options: {
-        // ... option definitions
-      }
-    }
-  ]
-}
-```
-
-### Dependencies and Conditional Options
-
-Show options only when certain conditions are met:
-
-```typescript
-{
-  type: 'slider',
-  label: 'Animation Speed',
-  description: 'Speed of animations',
-  min: 100,
-  max: 2000,
-  unit: 'ms',
-  dependencies: { enableAnimations: true }  // Only show when enableAnimations is true
-}
-```
-
-### Complete Example
-
-Here's a complete `widgetConfig` with multiple groups and option types:
-
-```typescript
-export const widgetConfig = {
-  groups: [
-    {
-      id: 'content',
-      label: 'Content',
-      description: 'Configure widget content',
-      defaultOpen: true,
-      options: {
-        title: {
-          type: 'text',
-          label: 'Title',
-          description: 'Widget title text',
-          placeholder: 'Enter title...'
-        },
-        showSubtitle: {
-          type: 'toggle',
-          label: 'Show Subtitle',
-          description: 'Display subtitle below title'
-        },
-        subtitle: {
-          type: 'text',
-          label: 'Subtitle',
-          description: 'Subtitle text',
-          placeholder: 'Enter subtitle...',
-          dependencies: { showSubtitle: true }
-        }
-      }
-    },
-    {
-      id: 'appearance',
-      label: 'Appearance',
-      description: 'Customize visual appearance',
-      collapsible: true,
-      options: {
-        theme: {
-          type: 'select',
-          label: 'Theme',
-          description: 'Choose color theme',
-          options: [
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-            { value: 'auto', label: 'Auto' }
-          ]
-        },
-        accentColor: {
-          type: 'color',
-          label: 'Accent Color',
-          description: 'Primary color for highlights'
-        },
-        fontSize: {
-          type: 'slider',
-          label: 'Font Size',
-          description: 'Size of text content',
-          min: 12,
-          max: 32,
-          step: 2,
-          unit: 'px'
-        }
-      }
-    }
-  ]
-}
-```
-
-## Registration Process
-
-### 1. Create Your Plugin
-
-Follow the structure above to create your widget plugin.
-
-### 2. Automatic Registration
-
-The widget system uses an automatic plugin discovery system. Simply create your widget plugin file in the correct location:
-
-```
-widgets/MyWidget/
-├── index.vue          # Main component
-├── definition.ts      # Types, defaults, and validation schema
-└── plugin.ts          # Plugin manifest
-```
-
-The system will automatically:
-- Discover your plugin on startup
-- Register it in the plugin registry
-- Register its validation schema
-- Make it available in the "Add Widget" dialog
-
-### 3. Plugin Discovery
-
-The plugin discovery system (`lib/widgets/PluginDiscovery.ts`) automatically:
-- Scans for widget plugins in `widgets/*/plugin.ts`
-- Validates plugin definitions
-- Registers plugins and their validation schemas
-- Handles hot reload in development mode
-
-### 4. Restart Development Server
-
-```bash
-npm run dev
-```
-
-Your widget will now be available in the "Add Widget" dialog automatically.
-
-## Testing & Debugging
-
-### Development Console
-
-Monitor widget registration in the browser console. The plugin discovery system logs all discovered and registered widgets.
-
-### Error Handling
-
-Handle errors gracefully in your component:
-
-```vue
-<script setup lang="ts">
-import { ref, onErrorCaptured } from 'vue'
-
-const error = ref<string | null>(null)
-
-onErrorCaptured((err) => {
-  error.value = err.message
-  console.error('Widget error:', err)
-  return false
-})
-</script>
 
 <template>
-  <div v-if="error" class="error-state">
-    Error: {{ error }}
-  </div>
-  <div v-else>
-    <!-- Normal widget content -->
+  <div class="task-widget">
+    <div v-for="task in tasks" :key="task.id" class="task-item">
+      <input 
+        type="checkbox" 
+        :checked="task.completed"
+        @change="toggleTask(task.id)"
+      />
+      <span :class="{ completed: task.completed }">{{ task.title }}</span>
+      <button @click="deleteTask(task.id)">Delete</button>
+    </div>
+    <button @click="addTask('New Task')">Add Task</button>
   </div>
 </template>
 ```
 
-### Widget System Health Check
+### Advanced Data Storage
 
-Check widget system status:
+#### Reactive Key Binding
+
+```vue
+<script setup lang="ts">
+import { useWidgetDataKey } from '@/composables'
+
+const props = defineProps<{ id?: number }>()
+
+// Reactive binding to a specific key
+const { value: userName, save } = useWidgetDataKey<string>(
+  props.id!,
+  'userName',
+  'Anonymous' // default value
+)
+
+// Value is automatically synced
+async function updateName(newName: string) {
+  await save(newName) // Updates both local and remote
+}
+</script>
+```
+
+#### Batch Operations
 
 ```typescript
-import { widgetSystem } from '@/lib/widgets/WidgetSystem'
+// Set multiple values at once
+await widgetData.setMultiple({
+  theme: 'dark',
+  language: 'en',
+  fontSize: 16
+})
 
-// Get system info
-const info = widgetSystem.getSystemInfo()
-console.log('Widget system info:', info)
+// Clear all data
+await widgetData.clear()
+```
 
-// Perform health check
-const health = await widgetSystem.performHealthCheck()
-console.log('Health check:', health)
+## Testing & Debugging
+
+### Widget Testing
+
+```typescript
+// __tests__/MyWidget.test.ts
+import { mount } from '@vue/test-utils'
+import MyWidget from '../index.vue'
+import { MyWidgetConfig } from '../definition'
+
+describe('MyWidget', () => {
+  it('renders with default config', () => {
+    const config = MyWidgetConfig.parse({})
+    const wrapper = mount(MyWidget, {
+      props: config
+    })
+    
+    expect(wrapper.find('h2').text()).toBe(config.title)
+  })
+})
+```
+
+### Debug Mode
+
+Enable debug logging:
+
+```typescript
+const widgetPlugins = useWidgetPlugins()
+console.log('Registered widgets:', widgetPlugins.getAllPlugins())
 ```
 
 ## Best Practices
 
-### 1. Type Safety
+### 1. Component Organization
 
-Use strict TypeScript types for all configurations:
+- Keep components small and focused
+- Use composables for reusable logic
+- Implement proper error handling
 
-```typescript
-export interface WidgetConfig extends BaseWidgetConfig {
-  readonly title: string
-  readonly color: `#${string}`  // Template literal type
-  readonly showBorder: boolean
-  readonly updateInterval: number
-}
-```
+### 2. Performance
 
-### 2. Validation
+- Implement proper cleanup in `onUnmounted`
+- Use `computed` and `watch` efficiently
+- Debounce expensive operations
 
-Implement comprehensive validation:
+### 3. Configuration
 
-```typescript
-export const WidgetConfigSchema = z.object({
-  title: z.string().min(1).max(100),
-  color: z.string().regex(/^#[0-9a-f]{6}$/i),
-  showBorder: z.boolean(),
-  updateInterval: z.number().min(1000).max(300000)
-})
-```
+- Provide sensible defaults
+- Validate all user inputs
+- Document configuration options
 
-### 3. Error Handling
+### 4. Styling
 
-Always handle errors gracefully:
+- Use Tailwind CSS classes
+- Respect theme variables
+- Ensure responsive design
+
+### 5. Error Handling
 
 ```vue
 <script setup lang="ts">
 import { ref, onErrorCaptured } from 'vue'
 
-const error = ref<string | null>(null)
+const error = ref<Error | null>(null)
 
 onErrorCaptured((err) => {
-  error.value = err.message
+  error.value = err
   return false
 })
 </script>
-```
 
-### 4. Performance
-
-Optimize for performance:
-
-```vue
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-
-// Use computed for expensive calculations
-const expensiveComputation = computed(() => {
-  return heavyCalculation(props.data)
-})
-
-// Avoid watchers on frequently changing props
-// Use computed instead
-</script>
-```
-
-### 5. Accessibility
-
-Make widgets accessible:
-
-```vue
 <template>
-  <div
-    role="region"
-    :aria-label="title"
-    tabindex="0"
-    @keydown.enter="handleActivate"
-  >
-    <h2 :id="titleId">{{ title }}</h2>
-    <div :aria-labelledby="titleId">
-      <!-- Widget content -->
-    </div>
+  <div v-if="error" class="error">
+    {{ error.message }}
+  </div>
+  <div v-else>
+    <!-- Widget content -->
   </div>
 </template>
 ```
 
 ## Examples
 
-### Weather Widget with API Routes
+### Simple Clock Widget
 
-Here's a complete example of a widget that uses API routes:
-
-**`widgets/Weather/api.ts`**
-```typescript
-import type { WidgetApiRoute } from '@/lib/widgets/api-routes'
-import { getQuery, createError } from 'h3'
-
-export const weatherApiRoutes: WidgetApiRoute[] = [
-  {
-    method: 'GET',
-    path: 'current',
-    handler: async (event) => {
-      const { location } = getQuery(event) as { location?: string }
-      
-      if (!location) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'Location parameter is required'
-        })
-      }
-      
-      // Fetch weather data from external API
-      const apiKey = process.env.NUXT_WEATHER_API_KEY
-      
-      try {
-        const response = await $fetch(
-          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
-        )
-        
-        return {
-          location: response.name,
-          temperature: Math.round(response.main.temp),
-          conditions: response.weather[0].description,
-          icon: response.weather[0].icon,
-          humidity: response.main.humidity,
-          windSpeed: Math.round(response.wind.speed * 3.6) // Convert m/s to km/h
-        }
-      } catch (error) {
-        console.error('Weather API error:', error)
-        throw createError({
-          statusCode: 503,
-          statusMessage: 'Weather service unavailable'
-        })
-      }
-    }
-  }
-]
-```
-
-**`widgets/Weather/plugin.ts`**
-```typescript
-import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
-import type { WeatherWidgetConfig } from './definition'
-import WeatherComponent from './index.vue'
-import { widgetDefaults, WidgetConfigSchema } from './definition'
-import { weatherApiRoutes } from './api'
-
-export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
-  id: 'weather',
-  name: 'Weather Widget',
-  description: 'Display current weather conditions',
-  version: '1.0.0',
-  icon: '🌤️',
-  category: 'Weather & Environment',
-  tags: ['weather', 'temperature', 'conditions'],
-  component: WeatherComponent,
-  defaultConfig: widgetDefaults,
-  configSchema: WidgetConfigSchema,
-  settings: {
-    allowResize: true,
-    allowMove: true,
-    allowDelete: true,
-    allowConfigure: true
-  },
-  permissions: ['network'],
-  apiRoutes: weatherApiRoutes  // Register the API routes
-}
-```
-
-**`widgets/Weather/index.vue`**
 ```vue
+<!-- index.vue -->
+<template>
+  <div class="text-center p-4">
+    <div class="text-4xl font-bold">{{ time }}</div>
+    <div class="text-sm text-gray-500">{{ date }}</div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import type { WeatherWidgetConfig } from './definition'
+import { ref, onMounted, onUnmounted } from 'vue'
+import type { ClockWidgetConfig } from './definition'
 
-const props = defineProps<WeatherWidgetConfig & { id?: number }>()
+const props = defineProps<ClockWidgetConfig>()
 
-const weatherData = ref(null)
-const loading = ref(false)
-const error = ref(null)
+const time = ref('')
+const date = ref('')
+let timer: number
 
-async function fetchWeather() {
-  if (!props.location) return
-  
-  loading.value = true
-  error.value = null
-  
-  try {
-    // Call the widget's API route
-    const data = await $fetch('/api/widgets/weather/current', {
-      query: { location: props.location }
-    })
-    
-    weatherData.value = data
-  } catch (err) {
-    error.value = 'Failed to load weather data'
-    console.error('Weather fetch error:', err)
-  } finally {
-    loading.value = false
-  }
+function updateTime() {
+  const now = new Date()
+  time.value = now.toLocaleTimeString()
+  date.value = now.toLocaleDateString()
 }
 
 onMounted(() => {
-  fetchWeather()
+  updateTime()
+  timer = window.setInterval(updateTime, 1000)
+})
+
+onUnmounted(() => {
+  clearInterval(timer)
 })
 </script>
-
-<template>
-  <div class="weather-widget p-4">
-    <h3 class="text-lg font-bold mb-2">{{ location }}</h3>
-    
-    <div v-if="loading" class="text-center">
-      Loading weather...
-    </div>
-    
-    <div v-else-if="error" class="text-red-500">
-      {{ error }}
-    </div>
-    
-    <div v-else-if="weatherData" class="weather-info">
-      <div class="temperature text-3xl font-bold">
-        {{ weatherData.temperature }}°C
-      </div>
-      <div class="conditions capitalize">
-        {{ weatherData.conditions }}
-      </div>
-      <div class="details text-sm mt-2">
-        <span>Humidity: {{ weatherData.humidity }}%</span>
-        <span class="ml-4">Wind: {{ weatherData.windSpeed }} km/h</span>
-      </div>
-    </div>
-  </div>
-</template>
 ```
 
-### Calendar Widget
+### Weather Widget with API
 
 ```typescript
-import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
-import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
-import CalendarComponent from './index.vue'
-
-export const CalendarWidgetPlugin: WidgetPlugin<WidgetConfig> = {
-  id: 'calendar',
-  name: 'Calendar',
-  description: 'A touch-friendly calendar widget for viewing dates and months',
-  version: '1.0.0',
-  icon: '📅',
-  category: 'productivity',
-  tags: ['calendar', 'date', 'time', 'schedule'],
-  component: CalendarComponent,
-  defaultConfig: widgetDefaults,
-  configSchema: WidgetConfigSchema,
-  settings: {
-    allowResize: true,
-    allowMove: true,
-    allowDelete: true,
-    allowConfigure: true
-  },
-  permissions: []
-}
-```
-
-### Complete Example: Counter Widget with Data Storage
-
-Here's a complete example of a widget that uses data storage and external dependencies:
-
-**`widgets/Counter/package.json`**
-```json
-{
-  "name": "@tandendash/widget-counter",
-  "version": "1.0.0",
-  "dependencies": {
-    "animate.css": "^4.1.1"
-  }
-}
-```
-
-**`widgets/Counter/definition.ts`**
-```typescript
-import { z } from 'zod'
-import type { BaseWidgetConfig } from '@/types/widget'
-
-export interface WidgetConfig extends BaseWidgetConfig {
-  title: string
-  incrementBy: number
-  animateChanges: boolean
-}
-
-export const widgetDefaults: WidgetConfig = {
-  title: 'My Counter',
-  incrementBy: 1,
-  animateChanges: true,
-  minWidth: 200,
-  minHeight: 150
-}
-
-export const WidgetConfigSchema = z.object({
-  title: z.string(),
-  incrementBy: z.number().min(1).max(10),
-  animateChanges: z.boolean(),
-  minWidth: z.number().min(100),
-  minHeight: z.number().min(100)
-})
-
-export const widgetConfig = {
-  groups: [
+// plugin.ts
+export default defineWidgetPlugin({
+  // ... config
+  apiRoutes: [
     {
-      id: 'general',
-      label: 'General Settings',
-      defaultOpen: true,
-      options: {
-        title: {
-          type: 'text',
-          label: 'Widget Title',
-          description: 'Title displayed at the top'
-        },
-        incrementBy: {
-          type: 'slider',
-          label: 'Increment By',
-          description: 'Amount to increment on each click',
-          min: 1,
-          max: 10,
-          step: 1
-        },
-        animateChanges: {
-          type: 'toggle',
-          label: 'Animate Changes',
-          description: 'Show animations when counter changes'
-        }
+      method: 'GET',
+      path: '/weather/:location',
+      handler: async (event) => {
+        const { location } = event.context.params
+        const apiKey = useRuntimeConfig().weatherApiKey
+        
+        const response = await $fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}`
+        )
+        
+        return response
       }
     }
   ]
-}
+})
 ```
 
-**`widgets/Counter/index.vue`**
-```vue
-<script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useWidgetData } from '@/composables/data/useWidgetData'
-import 'animate.css'
-import type { WidgetConfig } from './definition'
+## Advanced Topics
 
-interface Props extends WidgetConfig {
-  id?: number
-}
+### Server-Side Data Provider
 
-const props = defineProps<Props>()
+```typescript
+// dataProvider.ts
+import { BaseDataProvider } from '@/lib/widgets/BaseDataProvider'
 
-// Initialize widget data storage
-const widgetData = useWidgetData(props.id)
-
-// Load saved count or start at 0
-const count = ref<number>(widgetData.get<number>('count') || 0)
-const animationClass = ref('')
-
-// Save count whenever it changes
-watch(count, async (newCount) => {
-  await widgetData.set('count', newCount)
-  
-  // Trigger animation
-  if (props.animateChanges) {
-    animationClass.value = 'animate__animated animate__pulse'
-    setTimeout(() => {
-      animationClass.value = ''
-    }, 1000)
+export class MyWidgetDataProvider extends BaseDataProvider {
+  async getData(config: MyWidgetConfig) {
+    // Fetch data from external API
+    const data = await fetchExternalData(config)
+    return data
   }
-})
-
-// Increment function
-function increment() {
-  count.value += props.incrementBy
-}
-
-// Reset function
-async function reset() {
-  count.value = 0
-  await widgetData.remove('count')
-}
-
-// Load last updated time
-const lastUpdated = ref<string | null>(null)
-
-onMounted(async () => {
-  lastUpdated.value = widgetData.get<string>('lastUpdated') || null
-  await widgetData.set('lastUpdated', new Date().toISOString())
-})
-</script>
-
-<template>
-  <div class="h-full w-full p-4 flex flex-col">
-    <h3 class="text-lg font-bold mb-4">{{ title }}</h3>
-    
-    <div class="flex-1 flex items-center justify-center">
-      <div 
-        class="text-5xl font-bold" 
-        :class="animationClass"
-      >
-        {{ count }}
-      </div>
-    </div>
-    
-    <div class="flex gap-2 mt-4">
-      <button
-        @click="increment"
-        class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-      >
-        +{{ incrementBy }}
-      </button>
-      <button
-        @click="reset"
-        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
-      >
-        Reset
-      </button>
-    </div>
-    
-    <div v-if="lastUpdated" class="text-xs text-muted-foreground mt-2">
-      Last opened: {{ new Date(lastUpdated).toLocaleString() }}
-    </div>
-  </div>
-</template>
-```
-
-**`widgets/Counter/plugin.ts`**
-```typescript
-import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
-import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
-import CounterComponent from './index.vue'
-
-export const CounterWidgetPlugin: WidgetPlugin<WidgetConfig> = {
-  id: 'counter',
-  name: 'Counter',
-  description: 'A persistent counter with animations',
-  version: '1.0.0',
-  icon: '🔢',
-  category: 'utility',
-  tags: ['counter', 'tally', 'count'],
-  component: CounterComponent,
-  defaultConfig: widgetDefaults,
-  configSchema: WidgetConfigSchema,
-  settings: {
-    allowResize: true,
-    allowMove: true,
-    allowDelete: true,
-    allowConfigure: true
-  },
-  permissions: []
+  
+  async validateConfig(config: MyWidgetConfig) {
+    // Validate configuration
+    return { valid: true }
+  }
 }
 ```
 
-This example demonstrates:
-- Using `useWidgetData` for persistent storage
-- Installing and using external npm packages (animate.css)
-- Reactive data that persists across page reloads
-- Configuration options that affect widget behavior
-- Tracking metadata like last updated time
-
-### Clock Widget
+### Custom Widget Events
 
 ```typescript
-import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
-import type { WidgetConfig } from './definition'
-import { WidgetConfigSchema, widgetDefaults } from './definition'
-import ClockComponent from './index.vue'
+// Emit events from widget
+const emit = defineEmits<{
+  'data-updated': [data: any]
+  'error': [error: Error]
+}>()
 
-export const ClockWidgetPlugin: WidgetPlugin<WidgetConfig> = {
-  id: 'clock',
-  name: 'Digital Clock',
-  description: 'A customizable digital clock widget',
-  version: '1.0.0',
-  icon: '🕐',
-  category: 'time',
-  tags: ['clock', 'time', 'digital'],
-  component: ClockComponent,
-  defaultConfig: widgetDefaults,
-  configSchema: WidgetConfigSchema,
-  settings: {
-    allowResize: true,
-    allowMove: true,
-    allowDelete: true,
-    allowConfigure: true
-  },
-  permissions: []
-}
+// Listen in parent
+<MyWidget @data-updated="handleUpdate" @error="handleError" />
 ```
 
-## File Structure
+### Widget Communication
 
-When creating a new widget, follow this structure:
+```typescript
+// Use event bus for cross-widget communication
+import { useWidgetEventBus } from '@/composables'
 
+const eventBus = useWidgetEventBus()
+
+// Emit event
+eventBus.emit('weather-updated', { temp: 25 })
+
+// Listen for events
+eventBus.on('weather-updated', (data) => {
+  console.log('Weather updated:', data)
+})
 ```
-widgets/MyWidget/
-├── index.vue                 # Main component
-├── definition.ts             # Types, defaults, and validation schema
-├── plugin.ts                 # Plugin manifest
-├── api.ts                    # Optional: API routes for backend functionality
-├── package.json              # Optional: Widget-specific npm dependencies
-└── node_modules/             # Generated: Widget's isolated dependencies
-```
 
-Everything you need is contained within the widget directory. No modifications to core files are required.
+## Troubleshooting
 
-## Summary
+### Common Issues
 
-To create a new widget plugin:
+1. **Widget not appearing**: Check that plugin.ts exports default
+2. **Configuration not saving**: Ensure schema matches defaultConfig
+3. **API routes not working**: Verify route registration and paths
 
-1. **Create widget directory** in `widgets/MyWidget/`
-2. **Create component** in `widgets/MyWidget/index.vue`
-3. **Define types and validation** in `widgets/MyWidget/definition.ts`
-4. **Create plugin manifest** in `widgets/MyWidget/plugin.ts`
-5. **Restart development server**
+### Debug Checklist
 
-The widget will be automatically discovered, registered, and made available in the "Add Widget" dialog.
+- [ ] Widget files in correct location
+- [ ] Plugin properly exported
+- [ ] Configuration schema valid
+- [ ] Component props match config type
+- [ ] No console errors
 
-### Key Benefits of the Current System
-
-- **No manual registration** - widgets are automatically discovered
-- **No core file modification** - add widgets without touching system files
-- **Automatic validation** - schemas are registered automatically
-- **Hot reload support** - development-time plugin reloading
-- **Type safety** - full TypeScript support throughout
-
-For more examples, check the existing widgets in the `widgets/` directory and their corresponding plugin definitions.
+For more help, check the example widgets in the `widgets/` directory.

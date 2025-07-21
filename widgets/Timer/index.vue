@@ -56,7 +56,7 @@
           size="sm"
         >
           <RotateCcw class="w-4 h-4 mr-1" />
-          Reset
+          {{ t('buttons.reset') }}
         </Button>
       </div>
   </div>
@@ -69,14 +69,18 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { TimerWidgetConfig } from './definition'
 import { useTimer } from './composables/useTimer'
+import { useWidgetI18n } from '@/composables'
 
 const props = defineProps<TimerWidgetConfig>()
 
+// i18n
+const { t } = useWidgetI18n({ widgetName: 'Timer', fallbackLocale: 'en' })
+
 // Duration presets
 const durationPresets = [
-  { label: '5 min', value: 300 },
-  { label: '10 min', value: 600 },
-  { label: '25 min', value: 1500 } // Pomodoro
+  { label: t('presets.5min'), value: 300 },
+  { label: t('presets.10min'), value: 600 },
+  { label: t('presets.25min'), value: 1500 } // Pomodoro
 ]
 
 // Initialize timer
@@ -97,10 +101,10 @@ const timer = useTimer({
 
 // Computed properties
 const mainButtonText = computed(() => {
-  if (timer.isRunning.value) return 'Pause'
-  if (timer.isPaused.value) return 'Resume'
-  if (timer.status.value === 'completed') return 'Start Again'
-  return 'Start'
+  if (timer.isRunning.value) return t('buttons.pause')
+  if (timer.isPaused.value) return t('buttons.resume')
+  if (timer.status.value === 'completed') return t('buttons.startAgain')
+  return t('buttons.start')
 })
 
 const mainButtonIcon = computed(() => {
@@ -115,9 +119,10 @@ const mainButtonVariant = computed(() => {
 
 const statusText = computed(() => {
   switch (timer.status.value) {
-    case 'running': return 'Running'
-    case 'paused': return 'Paused'
-    case 'completed': return 'Completed'
+    case 'running': return t('status.running')
+    case 'paused': return t('status.paused')
+    case 'completed': return t('status.completed')
+    case 'idle': return t('status.idle')
     default: return ''
   }
 })

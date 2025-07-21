@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Vue imports
 import { ref, computed, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 // UI component imports
 import { Dialog, DialogScrollContent, DialogHeader, DialogFooter, DialogTitle, DialogClose } from '@/components/ui/dialog'
@@ -31,6 +32,7 @@ const emit = defineEmits<{
   'widget-edited': [pageId: number]
 }>()
 
+const { t } = useI18n()
 const widgetPlugins = useWidgetPlugins();
 const widgetOperations = useWidgetOperations();
 
@@ -189,13 +191,13 @@ const handleSave = async () => {
   <Dialog :open="open" @update:open="val => { if (!val) emit('close') }" data-testid="widget-dialog">
     <DialogScrollContent>
       <DialogHeader>
-        <DialogTitle>{{ mode === 'edit' ? 'Edit Widget' : 'Add Widget' }}</DialogTitle>
+        <DialogTitle>{{ mode === 'edit' ? t('dashboard.editWidget') : t('dashboard.addWidget') }}</DialogTitle>
       </DialogHeader>
       <div class="mb-4">
-        <label class="block mb-2">Widget Type</label>
+        <label class="block mb-2">{{ t('widgets.title') }}</label>
         <Select v-model="selectedWidgetType" :disabled="mode === 'edit'" data-testid="widget-type-select">
           <SelectTrigger class="w-full">
-            <SelectValue placeholder="Select widget" />
+            <SelectValue :placeholder="t('widgets.selectWidget')" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem v-for="w in availableWidgets" :key="w.id" :value="w.id" :data-testid="`widget-option-${w.id.toLowerCase()}`">
@@ -213,8 +215,8 @@ const handleSave = async () => {
         />
       </div>
       <DialogFooter>
-        <Button @click="handleSave" :disabled="!selectedWidgetType" data-testid="widget-save-button">{{ mode === 'edit' ? 'Save' : 'Add' }}</Button>
-        <DialogClose as-child><Button variant="secondary" @click="emit('close')" data-testid="widget-cancel-button">Cancel</Button></DialogClose>
+        <Button @click="handleSave" :disabled="!selectedWidgetType" data-testid="widget-save-button">{{ mode === 'edit' ? t('common.save') : t('common.add') }}</Button>
+        <DialogClose as-child><Button variant="secondary" @click="emit('close')" data-testid="widget-cancel-button">{{ t('common.cancel') }}</Button></DialogClose>
       </DialogFooter>
     </DialogScrollContent>
   </Dialog>

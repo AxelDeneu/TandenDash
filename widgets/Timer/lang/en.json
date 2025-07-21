@@ -1,0 +1,27 @@
+{
+  "presets": {
+    "5min": "5 min",
+    "10min": "10 min",
+    "25min": "25 min"
+  },
+  "buttons": {
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Reset",
+    "startAgain": "Start Again"
+  },
+  "status": {
+    "running": "Running",
+    "paused": "Paused",
+    "completed": "Completed",
+    "idle": "Ready"
+  },
+  "settings": {
+    "duration": "Duration",
+    "sound": "Sound",
+    "volume": "Volume",
+    "notifications": "Notifications",
+    "autoStart": "Auto Start"
+  }
+}

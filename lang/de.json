@@ -1,0 +1,119 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "add": "Hinzufügen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "reset": "Zurücksetzen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "actions": "Aktionen",
+    "settings": "Einstellungen",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "addWidget": "Widget hinzufügen",
+    "editWidget": "Widget bearbeiten",
+    "editMode": "Bearbeitungsmodus",
+    "exitEditMode": "Bearbeitungsmodus verlassen",
+    "addPage": "Seite hinzufügen",
+    "editPage": "Seite bearbeiten",
+    "deletePage": "Seite löschen",
+    "pageSettings": "Seiteneinstellungen",
+    "noPages": "Keine Seiten gefunden",
+    "createFirstPage": "Erstellen Sie Ihre erste Seite, um zu beginnen",
+    "gridSettings": "Rastereinstellungen",
+    "gridRows": "Rasterzeilen",
+    "gridColumns": "Rasterspalten",
+    "enableSnapping": "Rasterausrichtung aktivieren",
+    "snapToGrid": "Am Raster ausrichten",
+    "widgetConfiguration": "Widget-Konfiguration",
+    "removeWidget": "Widget entfernen",
+    "resizeWidget": "Widget-Größe ändern"
+  },
+  "widgets": {
+    "title": "Widgets",
+    "selectWidget": "Widget auswählen",
+    "categories": {
+      "time": "Zeit und Datum",
+      "productivity": "Produktivität",
+      "information": "Information",
+      "media": "Medien",
+      "utility": "Dienstprogramm"
+    },
+    "noWidgets": "Keine Widgets verfügbar",
+    "configuration": "Konfiguration",
+    "preview": "Vorschau"
+  },
+  "pages": {
+    "pageName": "Seitenname",
+    "pageNamePlaceholder": "Seitennamen eingeben",
+    "defaultPage": "Standardseite",
+    "makeDefault": "Als Standard festlegen",
+    "duplicatePage": "Seite duplizieren",
+    "confirmDelete": "Sind Sie sicher, dass Sie diese Seite löschen möchten?",
+    "cannotDeleteDefault": "Die Standardseite kann nicht gelöscht werden"
+  },
+  "errors": {
+    "notFound": "Nicht gefunden",
+    "pageNotFound": "Seite nicht gefunden",
+    "widgetNotFound": "Widget nicht gefunden",
+    "serverError": "Serverfehler",
+    "networkError": "Netzwerkfehler",
+    "validationError": "Validierungsfehler",
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Verboten",
+    "somethingWentWrong": "Etwas ist schief gelaufen",
+    "failedToLoad": "Laden fehlgeschlagen",
+    "failedToSave": "Speichern fehlgeschlagen",
+    "failedToDelete": "Löschen fehlgeschlagen",
+    "required": "Dieses Feld ist erforderlich",
+    "invalidFormat": "Ungültiges Format"
+  },
+  "navigation": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "home": "Startseite",
+    "back": "Zurück"
+  },
+  "dock": {
+    "dragToMove": "Ziehen Sie, um das Dock zu verschieben",
+    "position": {
+      "top": "Oben",
+      "bottom": "Unten",
+      "left": "Links",
+      "right": "Rechts"
+    }
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "toggleTheme": "Thema wechseln"
+  },
+  "accessibility": {
+    "skipToContent": "Zum Inhalt springen",
+    "mainNavigation": "Hauptnavigation",
+    "closeDialog": "Dialog schließen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen"
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich",
+    "minLength": "Die Mindestlänge beträgt {min} Zeichen",
+    "maxLength": "Die maximale Länge beträgt {max} Zeichen",
+    "email": "Bitte geben Sie eine gültige E-Mail ein",
+    "number": "Bitte geben Sie eine gültige Zahl ein",
+    "integer": "Bitte geben Sie eine ganze Zahl ein",
+    "positive": "Bitte geben Sie eine positive Zahl ein",
+    "url": "Bitte geben Sie eine gültige URL ein"
+  }
+}

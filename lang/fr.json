@@ -1,0 +1,119 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "reset": "Réinitialiser",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "actions": "Actions",
+    "settings": "Paramètres",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "addWidget": "Ajouter un widget",
+    "editWidget": "Modifier le widget",
+    "editMode": "Mode édition",
+    "exitEditMode": "Quitter le mode édition",
+    "addPage": "Ajouter une page",
+    "editPage": "Modifier la page",
+    "deletePage": "Supprimer la page",
+    "pageSettings": "Paramètres de la page",
+    "noPages": "Aucune page trouvée",
+    "createFirstPage": "Créez votre première page pour commencer",
+    "gridSettings": "Paramètres de la grille",
+    "gridRows": "Lignes de la grille",
+    "gridColumns": "Colonnes de la grille",
+    "enableSnapping": "Activer l'alignement sur la grille",
+    "snapToGrid": "Aligner sur la grille",
+    "widgetConfiguration": "Configuration du widget",
+    "removeWidget": "Supprimer le widget",
+    "resizeWidget": "Redimensionner le widget"
+  },
+  "widgets": {
+    "title": "Widgets",
+    "selectWidget": "Sélectionner un widget",
+    "categories": {
+      "time": "Heure et date",
+      "productivity": "Productivité",
+      "information": "Information",
+      "media": "Média",
+      "utility": "Utilitaire"
+    },
+    "noWidgets": "Aucun widget disponible",
+    "configuration": "Configuration",
+    "preview": "Aperçu"
+  },
+  "pages": {
+    "pageName": "Nom de la page",
+    "pageNamePlaceholder": "Entrez le nom de la page",
+    "defaultPage": "Page par défaut",
+    "makeDefault": "Définir par défaut",
+    "duplicatePage": "Dupliquer la page",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette page ?",
+    "cannotDeleteDefault": "Impossible de supprimer la page par défaut"
+  },
+  "errors": {
+    "notFound": "Non trouvé",
+    "pageNotFound": "Page non trouvée",
+    "widgetNotFound": "Widget non trouvé",
+    "serverError": "Erreur serveur",
+    "networkError": "Erreur réseau",
+    "validationError": "Erreur de validation",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Interdit",
+    "somethingWentWrong": "Une erreur s'est produite",
+    "failedToLoad": "Échec du chargement",
+    "failedToSave": "Échec de l'enregistrement",
+    "failedToDelete": "Échec de la suppression",
+    "required": "Ce champ est requis",
+    "invalidFormat": "Format invalide"
+  },
+  "navigation": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "home": "Accueil",
+    "back": "Retour"
+  },
+  "dock": {
+    "dragToMove": "Glisser pour déplacer le dock",
+    "position": {
+      "top": "Haut",
+      "bottom": "Bas",
+      "left": "Gauche",
+      "right": "Droite"
+    }
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système",
+    "toggleTheme": "Changer de thème"
+  },
+  "accessibility": {
+    "skipToContent": "Aller au contenu",
+    "mainNavigation": "Navigation principale",
+    "closeDialog": "Fermer la boîte de dialogue",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "validation": {
+    "required": "Ce champ est requis",
+    "minLength": "La longueur minimale est de {min} caractères",
+    "maxLength": "La longueur maximale est de {max} caractères",
+    "email": "Veuillez entrer un email valide",
+    "number": "Veuillez entrer un nombre valide",
+    "integer": "Veuillez entrer un nombre entier",
+    "positive": "Veuillez entrer un nombre positif",
+    "url": "Veuillez entrer une URL valide"
+  }
+}

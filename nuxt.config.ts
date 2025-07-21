@@ -3,8 +3,28 @@ import { resolve } from 'path'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', 'shadcn-nuxt'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', 'shadcn-nuxt', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
+  
+  // i18n configuration
+  i18n: {
+    locales: [
+      { code: 'fr', iso: 'fr-FR', file: 'fr.json', name: 'Français' },
+      { code: 'en', iso: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'es', iso: 'es-ES', file: 'es.json', name: 'Español' },
+      { code: 'de', iso: 'de-DE', file: 'de.json', name: 'Deutsch' }
+    ],
+    defaultLocale: process.env.NUXT_DEFAULT_LOCALE || 'en',
+    langDir: 'lang/',
+    lazy: true,
+    strategy: 'no_prefix',
+    detectBrowserLanguage: false,
+    vueI18n: {
+      legacy: false,
+      locale: process.env.NUXT_DEFAULT_LOCALE || 'en',
+      fallbackLocale: 'en'
+    }
+  },
   
   // Runtime configuration
   runtimeConfig: {
