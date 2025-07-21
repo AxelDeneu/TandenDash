@@ -215,7 +215,7 @@ function handleDockAction(actionId: string, event: MouseEvent): void {
       }
       break
     case 'theme-toggle':
-      darkMode.toggleDarkMode()
+      darkMode.toggleMode()
       break
   }
 }
