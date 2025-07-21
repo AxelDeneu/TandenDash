@@ -51,7 +51,10 @@
     },
     "noWidgets": "No hay widgets disponibles",
     "configuration": "Configuración",
-    "preview": "Vista previa"
+    "preview": "Vista previa",
+    "chooseColor": "Elegir un color...",
+    "addTag": "Añadir etiqueta...",
+    "additionalOptions": "Opciones adicionales"
   },
   "pages": {
     "pageName": "Nombre de página",

@@ -39,7 +39,7 @@
     <!-- Ungrouped options -->
     <div v-if="config.ungrouped" class="space-y-4">
       <Separator v-if="config.groups?.length" />
-      <h3 class="font-medium">Additional Options</h3>
+      <h3 class="font-medium">{{ $t('widgets.additionalOptions') }}</h3>
       <div class="space-y-4">
         <OptionField
           v-for="(optionDef, key) in config.ungrouped"

@@ -104,7 +104,8 @@
     "configuration": "Configuration",
     "preview": "Preview",
     "chooseColor": "Choose a color...",
-    "addTag": "Add tag..."
+    "addTag": "Add tag...",
+    "additionalOptions": "Additional Options"
   },
   "pages": {
     "pageName": "Page Name",

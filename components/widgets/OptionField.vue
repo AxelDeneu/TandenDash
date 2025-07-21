@@ -44,7 +44,7 @@
         @update:model-value="$emit('update:modelValue', $event)"
       >
         <SelectTrigger class="flex-1">
-          <SelectValue placeholder="Choose a color..." />
+          <SelectValue :placeholder="$t('widgets.chooseColor')" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem 
@@ -212,7 +212,7 @@
       :model-value="modelValue || []"
       @update:model-value="$emit('update:modelValue', $event)"
     >
-      <TagsInputInput :placeholder="definition.placeholder || 'Add tag...'" />
+      <TagsInputInput :placeholder="definition.placeholder || $t('widgets.addTag')" />
     </TagsInput>
   </div>
 </template>

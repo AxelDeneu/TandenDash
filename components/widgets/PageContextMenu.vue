@@ -25,20 +25,20 @@ defineEmits<{
     <ContextMenuContent>
       <ContextMenuSub>
         <ContextMenuSubTrigger inset data-testid="widgets-menu-trigger">
-          Widgets
+          {{ $t('contextMenu.widgets') }}
         </ContextMenuSubTrigger>
         <ContextMenuSubContent class="w-48">
-          <ContextMenuItem @click="() => $emit('add-widget', page.id)" data-testid="add-widget-menu">Add Widget</ContextMenuItem>
+          <ContextMenuItem @click="() => $emit('add-widget', page.id)" data-testid="add-widget-menu">{{ $t('contextMenu.addWidget') }}</ContextMenuItem>
         </ContextMenuSubContent>
       </ContextMenuSub>
       <ContextMenuSub>
         <ContextMenuSubTrigger inset data-testid="pages-menu-trigger">
-          Pages
+          {{ $t('contextMenu.pages') }}
         </ContextMenuSubTrigger>
         <ContextMenuSubContent class="w-48">
-          <ContextMenuItem @click="() => $emit('add-page')" data-testid="add-page-menu">Add Page</ContextMenuItem>
-          <ContextMenuItem @click="() => $emit('rename-page', page)" data-testid="rename-page-menu">Rename Page</ContextMenuItem>
-          <ContextMenuItem @click="() => $emit('delete-page', page)" data-testid="delete-page-menu">Delete Page</ContextMenuItem>
+          <ContextMenuItem @click="() => $emit('add-page')" data-testid="add-page-menu">{{ $t('contextMenu.addPage') }}</ContextMenuItem>
+          <ContextMenuItem @click="() => $emit('rename-page', page)" data-testid="rename-page-menu">{{ $t('contextMenu.renamePage') }}</ContextMenuItem>
+          <ContextMenuItem @click="() => $emit('delete-page', page)" data-testid="delete-page-menu">{{ $t('contextMenu.deletePage') }}</ContextMenuItem>
         </ContextMenuSubContent>
       </ContextMenuSub>
     </ContextMenuContent>
