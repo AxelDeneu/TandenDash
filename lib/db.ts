@@ -103,6 +103,18 @@ export const pages = sqliteTable('Pages', {
   dashboardIdIdx: index('pages_dashboardId_idx').on(table.dashboardId),
 }));
 
+export const widgetData = sqliteTable('WidgetData', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  widgetInstanceId: integer('widgetInstanceId').notNull().references(() => widgetInstance.id, { onDelete: 'cascade' }),
+  key: text('key').notNull(),
+  value: text('value').notNull(), // JSON string
+  createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
+}, (table) => ({
+  widgetKeyIdx: unique().on(table.widgetInstanceId, table.key),
+  widgetInstanceIdx: index('widgetData_instance_idx').on(table.widgetInstanceId),
+}));
+
 // Database configuration
 const getDatabasePath = (): string => {
   const isDevelopment = process.env.NODE_ENV === 'development'

@@ -28,6 +28,9 @@ import type {
   UpdateTodoItemRequest,
   BatchUpdateTodoItemsRequest
 } from '@/types/todo'
+import type {
+  WidgetData
+} from '@/lib/repositories/WidgetDataRepository'
 
 // Service result types for better error handling
 export interface ServiceResult<T> {
@@ -151,6 +154,19 @@ export interface IDashboardSettingsService {
   ensureSettingsExist(dashboardId: number): Promise<ServiceResult<DashboardSettings>>
 }
 
+// Widget data service interface
+export interface IWidgetDataService {
+  getAllData(widgetInstanceId: number): Promise<ServiceListResult<WidgetData>>
+  getData(widgetInstanceId: number, key: string): Promise<ServiceResult<WidgetData | null>>
+  getValue<T = any>(widgetInstanceId: number, key: string): Promise<ServiceResult<T | null>>
+  setData(widgetInstanceId: number, key: string, value: any): Promise<ServiceResult<WidgetData>>
+  updateData(widgetInstanceId: number, key: string, value: any): Promise<ServiceResult<WidgetData>>
+  deleteData(widgetInstanceId: number, key: string): Promise<ServiceResult<boolean>>
+  deleteAllData(widgetInstanceId: number): Promise<ServiceResult<boolean>>
+  setMultiple(widgetInstanceId: number, data: Record<string, any>): Promise<ServiceResult<WidgetData[]>>
+  getMultiple<T = Record<string, any>>(widgetInstanceId: number, keys: string[]): Promise<ServiceResult<T>>
+}
+
 // Service factory interface
 export interface IServiceFactory {
   createWidgetService(): IWidgetService
@@ -161,4 +177,5 @@ export interface IServiceFactory {
   createLoggerService(): ILoggerService
   createDashboardService(): IDashboardService
   createDashboardSettingsService(): IDashboardSettingsService
+  createWidgetDataService(): IWidgetDataService
 }

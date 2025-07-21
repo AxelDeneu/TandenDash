@@ -43,6 +43,13 @@
       "when": 1752962998340,
       "tag": "0005_mighty_morph",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1753100986461,
+      "tag": "0006_stiff_blindfold",
+      "breakpoints": true
     }
   ]
 }

@@ -25,6 +25,11 @@ import type {
   UpdateTodoItemRequest,
   BatchUpdateTodoItemsRequest
 } from '@/types/todo'
+import type {
+  WidgetData,
+  CreateWidgetDataRequest,
+  UpdateWidgetDataRequest
+} from './WidgetDataRepository'
 
 // Widget repository interface
 export interface IWidgetRepository {
@@ -101,6 +106,17 @@ export interface IDashboardSettingsRepository {
   delete(dashboardId: number): Promise<boolean>
 }
 
+// Widget data repository interface
+export interface IWidgetDataRepository {
+  findByWidgetInstanceId(widgetInstanceId: number): Promise<WidgetData[]>
+  findByKey(widgetInstanceId: number, key: string): Promise<WidgetData | null>
+  create(data: CreateWidgetDataRequest): Promise<WidgetData>
+  update(widgetInstanceId: number, key: string, data: UpdateWidgetDataRequest): Promise<WidgetData>
+  upsert(data: CreateWidgetDataRequest): Promise<WidgetData>
+  delete(widgetInstanceId: number, key: string): Promise<boolean>
+  deleteAll(widgetInstanceId: number): Promise<boolean>
+}
+
 // Repository factory interface for dependency injection
 export interface IRepositoryFactory {
   createWidgetRepository(): IWidgetRepository
@@ -110,4 +126,5 @@ export interface IRepositoryFactory {
   createModeStateRepository(): IModeStateRepository
   createDashboardRepository(): IDashboardRepository
   createDashboardSettingsRepository(): IDashboardSettingsRepository
+  createWidgetDataRepository(): IWidgetDataRepository
 }

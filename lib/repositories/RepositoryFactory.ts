@@ -5,6 +5,7 @@ import { TodoListRepository, TodoItemRepository } from './TodoRepository'
 import { ModeStateRepository } from './ModeStateRepository'
 import { DashboardRepository } from './DashboardRepository'
 import { DashboardSettingsRepository } from './DashboardSettingsRepository'
+import { WidgetDataRepository } from './WidgetDataRepository'
 import { db } from '../db'
 
 export class RepositoryFactory implements IRepositoryFactory {
@@ -16,6 +17,7 @@ export class RepositoryFactory implements IRepositoryFactory {
   private static modeStateRepository?: ModeStateRepository
   private static dashboardRepository?: DashboardRepository
   private static dashboardSettingsRepository?: DashboardSettingsRepository
+  private static widgetDataRepository?: WidgetDataRepository
 
   createWidgetRepository() {
     if (!RepositoryFactory.widgetRepository) {
@@ -66,6 +68,13 @@ export class RepositoryFactory implements IRepositoryFactory {
     return RepositoryFactory.dashboardSettingsRepository
   }
 
+  createWidgetDataRepository() {
+    if (!RepositoryFactory.widgetDataRepository) {
+      RepositoryFactory.widgetDataRepository = new WidgetDataRepository()
+    }
+    return RepositoryFactory.widgetDataRepository
+  }
+
   // Method to clear singleton instances (useful for testing)
   static clearInstances() {
     RepositoryFactory.widgetRepository = undefined
@@ -75,6 +84,7 @@ export class RepositoryFactory implements IRepositoryFactory {
     RepositoryFactory.modeStateRepository = undefined
     RepositoryFactory.dashboardRepository = undefined
     RepositoryFactory.dashboardSettingsRepository = undefined
+    RepositoryFactory.widgetDataRepository = undefined
   }
 }
 

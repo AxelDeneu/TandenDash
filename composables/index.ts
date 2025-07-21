@@ -11,6 +11,7 @@ export { usePageOperations } from './data/usePageOperations'
 export { useWidgetLoader } from './data/useWidgetLoader'
 export { useDashboard } from './data/useDashboard'
 export { useDashboardSettings } from './data/useDashboardSettings'
+export { useWidgetData, useWidgetDataKey } from './data/useWidgetData'
 
 // UI composables
 export { useEditMode } from './ui/useEditMode'
@@ -39,3 +40,4 @@ export type { UseWidgetPlugins } from './widgets/useWidgetPlugins'
 export type { UseFloatingDock, DockPosition } from './ui/useFloatingDock'
 export type { UseCarouselNavigation } from './ui/useCarouselNavigation'
 export type { UseWidgetLoader } from './data/useWidgetLoader'
+export type { UseWidgetData } from './data/useWidgetData'

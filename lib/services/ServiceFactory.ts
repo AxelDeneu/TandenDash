@@ -8,6 +8,7 @@ import { ModeService } from './ModeService'
 import { LoggerService } from './LoggerService'
 import { DashboardService } from './DashboardService'
 import { DashboardSettingsService } from './DashboardSettingsService'
+import { WidgetDataService } from './WidgetDataService'
 
 export class ServiceFactory implements IServiceFactory {
   constructor(
@@ -23,6 +24,7 @@ export class ServiceFactory implements IServiceFactory {
   private loggerService?: ILoggerService
   private dashboardService?: DashboardService
   private dashboardSettingsService?: DashboardSettingsService
+  private widgetDataService?: WidgetDataService
 
   createWidgetService() {
     if (!this.widgetService) {
@@ -98,5 +100,13 @@ export class ServiceFactory implements IServiceFactory {
       this.dashboardSettingsService = new DashboardSettingsService(dashboardSettingsRepository)
     }
     return this.dashboardSettingsService
+  }
+
+  createWidgetDataService() {
+    if (!this.widgetDataService) {
+      const widgetDataRepository = this.repositoryFactory.createWidgetDataRepository()
+      this.widgetDataService = new WidgetDataService(widgetDataRepository)
+    }
+    return this.widgetDataService
   }
 }
