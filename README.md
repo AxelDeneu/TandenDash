@@ -201,7 +201,7 @@ export const MyDisplayPlugin: WidgetPlugin = {
 |--------|-------------|--------------|
 | 🕐 **Clock** | Digital timepiece | 12/24hr formats, timezone support, custom styling, animations |
 | 🌤️ **Weather** | Weather conditions | Location-based, temperature, conditions, weather icons |
-| 📅 **Calendar** | Date display | Touch-friendly navigation, event display, month/year views |
+| 📅 **Calendar** | Advanced calendar | Multiple views (month/week/day), event management, iCal sync support |
 | 📝 **Note** | Text display | Markdown support, custom fonts, styling, text alignment |
 | ⏲️ **Timer** | Countdown timer | Custom intervals, visual alerts, multiple timer support |
 

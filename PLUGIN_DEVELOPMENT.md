@@ -71,7 +71,9 @@ widgets/MyWidget/
 ├── index.vue          # Main component
 ├── definition.ts      # Types and defaults
 ├── plugin.ts          # Plugin definition (must export MyWidgetWidgetPlugin)
-└── api.ts             # Optional: API routes for backend functionality
+├── api.ts             # Optional: API routes for backend functionality
+├── package.json       # Optional: Widget-specific npm dependencies
+└── node_modules/      # Generated: Widget's isolated dependencies
 ```
 
 ### 2. Define Widget Types and Defaults
@@ -218,6 +220,72 @@ export const MyWidgetWidgetPlugin: WidgetPlugin<WidgetConfig> = {
 }
 ```
 
+## Widget Dependencies
+
+### Installing Widget-Specific Packages
+
+Widgets can have their own npm dependencies, completely isolated from the main application and other widgets.
+
+#### Creating a Widget with Dependencies
+
+1. **Create a `package.json` in your widget directory:**
+
+**`widgets/MyWidget/package.json`**
+```json
+{
+  "name": "@tandendash/widget-mywidget",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21"
+  }
+}
+```
+
+2. **Install dependencies:**
+
+When you run `npm install` in the project root, it automatically installs widget dependencies:
+
+```bash
+npm install  # This also runs npm run widgets:install
+```
+
+Or manually install widget dependencies:
+
+```bash
+npm run widgets:install
+```
+
+3. **Use the dependencies in your widget:**
+
+**`widgets/MyWidget/index.vue`**
+```vue
+<script setup lang="ts">
+import Chart from 'chart.js/auto'
+import moment from 'moment'
+import { debounce } from 'lodash'
+
+// These imports work because they're installed in widgets/MyWidget/node_modules/
+</script>
+```
+
+#### How It Works
+
+- Each widget has its own `node_modules` directory
+- Dependencies are completely isolated between widgets
+- Two widgets can use different versions of the same package
+- No conflicts with the main application dependencies
+- Imports work naturally with Node.js module resolution
+
+#### Best Practices
+
+1. **Keep dependencies minimal** - Only include what you actually need
+2. **Use specific versions** - Avoid using `latest` or `*`
+3. **Document required dependencies** - List them in your widget documentation
+4. **Test with clean installs** - Ensure your widget works on fresh installations
+
 ## Widget Component
 
 ### Component Props
@@ -255,6 +323,159 @@ watch(() => props.updateInterval, (newInterval) => {
 })
 </script>
 ```
+
+## Widget Data Storage
+
+### Persistent Storage per Instance
+
+TandenDash provides a powerful data storage system that allows each widget instance to store its own persistent data. This is perfect for storing user preferences, cached data, or any information specific to a widget instance.
+
+#### Using the useWidgetData Composable
+
+The `useWidgetData` composable provides persistent storage for each widget instance. The widget receives its instance ID automatically through the `id` prop.
+
+**`widgets/MyWidget/index.vue`**
+```vue
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useWidgetData } from '@/composables/data/useWidgetData'
+import type { WidgetConfig } from './definition'
+
+interface Props extends WidgetConfig {
+  id?: number  // This is provided automatically by WidgetCard
+}
+
+const props = defineProps<Props>()
+
+// Initialize widget data storage
+// Note: During widget creation, id might be undefined. The composable handles this gracefully.
+const widgetData = useWidgetData(props.id)
+
+// Store a single value
+async function saveUserPreference(theme: string) {
+  await widgetData.set('theme', theme)
+}
+
+// Retrieve a value with type safety
+const theme = widgetData.get<string>('theme') || 'light'
+
+// Store multiple values at once
+async function saveSettings() {
+  await widgetData.setMultiple({
+    theme: 'dark',
+    fontSize: 16,
+    showLabels: true,
+    lastUpdated: new Date().toISOString()
+  })
+}
+
+// Remove a value
+async function resetTheme() {
+  await widgetData.remove('theme')
+}
+
+// Clear all data for this instance
+async function resetWidget() {
+  await widgetData.clear()
+}
+
+// Access reactive state
+const isLoading = widgetData.loading
+const hasError = widgetData.error
+const allKeys = widgetData.keys  // Reactive list of all stored keys
+</script>
+```
+
+#### Storage Features
+
+1. **Instance Isolation**: Each widget instance has its own storage space
+2. **Type Safety**: Full TypeScript support with generic types
+3. **Reactive State**: Loading, error, and data states are reactive
+4. **Automatic JSON Serialization**: Complex objects are automatically serialized
+5. **Optimistic Updates**: UI updates immediately while saving in background
+6. **Error Recovery**: Failed updates automatically revert to previous state
+
+#### API Reference
+
+```typescript
+interface UseWidgetData {
+  // State
+  data: Ref<Map<string, any>>      // All stored data
+  loading: Ref<boolean>            // Loading state
+  error: Ref<Error | null>         // Error state
+  
+  // Methods
+  get<T>(key: string): T | undefined
+  set(key: string, value: any): Promise<void>
+  setMultiple(data: Record<string, any>): Promise<void>
+  remove(key: string): Promise<void>
+  clear(): Promise<void>
+  refresh(): Promise<void>
+  
+  // Computed
+  keys: Ref<string[]>              // All stored keys
+  size: Ref<number>                // Number of stored items
+  isEmpty: Ref<boolean>            // Whether storage is empty
+}
+```
+
+#### Example: Storing User Tasks
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useWidgetData } from '@/composables/data/useWidgetData'
+
+interface Task {
+  id: string
+  title: string
+  completed: boolean
+  createdAt: string
+}
+
+const props = defineProps<{ id?: number }>()
+const widgetData = useWidgetData(props.id)
+
+// Load tasks on mount
+const tasks = ref<Task[]>(widgetData.get<Task[]>('tasks') || [])
+
+// Add a new task
+async function addTask(title: string) {
+  const newTask: Task = {
+    id: Date.now().toString(),
+    title,
+    completed: false,
+    createdAt: new Date().toISOString()
+  }
+  
+  tasks.value.push(newTask)
+  await widgetData.set('tasks', tasks.value)
+}
+
+// Toggle task completion
+async function toggleTask(id: string) {
+  const task = tasks.value.find(t => t.id === id)
+  if (task) {
+    task.completed = !task.completed
+    await widgetData.set('tasks', tasks.value)
+  }
+}
+
+// Clear completed tasks
+async function clearCompleted() {
+  tasks.value = tasks.value.filter(t => !t.completed)
+  await widgetData.set('tasks', tasks.value)
+}
+</script>
+```
+
+#### Best Practices
+
+1. **Use meaningful keys**: Choose descriptive keys like 'userSettings' instead of 'data1'
+2. **Handle loading states**: Show loading indicators during async operations
+3. **Type your data**: Always use TypeScript generics for type safety
+4. **Batch updates**: Use `setMultiple` when updating multiple values
+5. **Clean up**: Remove unused data to keep storage efficient
 
 ## API Routes
 
@@ -999,6 +1220,203 @@ export const CalendarWidgetPlugin: WidgetPlugin<WidgetConfig> = {
 }
 ```
 
+### Complete Example: Counter Widget with Data Storage
+
+Here's a complete example of a widget that uses data storage and external dependencies:
+
+**`widgets/Counter/package.json`**
+```json
+{
+  "name": "@tandendash/widget-counter",
+  "version": "1.0.0",
+  "dependencies": {
+    "animate.css": "^4.1.1"
+  }
+}
+```
+
+**`widgets/Counter/definition.ts`**
+```typescript
+import { z } from 'zod'
+import type { BaseWidgetConfig } from '@/types/widget'
+
+export interface WidgetConfig extends BaseWidgetConfig {
+  title: string
+  incrementBy: number
+  animateChanges: boolean
+}
+
+export const widgetDefaults: WidgetConfig = {
+  title: 'My Counter',
+  incrementBy: 1,
+  animateChanges: true,
+  minWidth: 200,
+  minHeight: 150
+}
+
+export const WidgetConfigSchema = z.object({
+  title: z.string(),
+  incrementBy: z.number().min(1).max(10),
+  animateChanges: z.boolean(),
+  minWidth: z.number().min(100),
+  minHeight: z.number().min(100)
+})
+
+export const widgetConfig = {
+  groups: [
+    {
+      id: 'general',
+      label: 'General Settings',
+      defaultOpen: true,
+      options: {
+        title: {
+          type: 'text',
+          label: 'Widget Title',
+          description: 'Title displayed at the top'
+        },
+        incrementBy: {
+          type: 'slider',
+          label: 'Increment By',
+          description: 'Amount to increment on each click',
+          min: 1,
+          max: 10,
+          step: 1
+        },
+        animateChanges: {
+          type: 'toggle',
+          label: 'Animate Changes',
+          description: 'Show animations when counter changes'
+        }
+      }
+    }
+  ]
+}
+```
+
+**`widgets/Counter/index.vue`**
+```vue
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
+import { useWidgetData } from '@/composables/data/useWidgetData'
+import 'animate.css'
+import type { WidgetConfig } from './definition'
+
+interface Props extends WidgetConfig {
+  id?: number
+}
+
+const props = defineProps<Props>()
+
+// Initialize widget data storage
+const widgetData = useWidgetData(props.id)
+
+// Load saved count or start at 0
+const count = ref<number>(widgetData.get<number>('count') || 0)
+const animationClass = ref('')
+
+// Save count whenever it changes
+watch(count, async (newCount) => {
+  await widgetData.set('count', newCount)
+  
+  // Trigger animation
+  if (props.animateChanges) {
+    animationClass.value = 'animate__animated animate__pulse'
+    setTimeout(() => {
+      animationClass.value = ''
+    }, 1000)
+  }
+})
+
+// Increment function
+function increment() {
+  count.value += props.incrementBy
+}
+
+// Reset function
+async function reset() {
+  count.value = 0
+  await widgetData.remove('count')
+}
+
+// Load last updated time
+const lastUpdated = ref<string | null>(null)
+
+onMounted(async () => {
+  lastUpdated.value = widgetData.get<string>('lastUpdated') || null
+  await widgetData.set('lastUpdated', new Date().toISOString())
+})
+</script>
+
+<template>
+  <div class="h-full w-full p-4 flex flex-col">
+    <h3 class="text-lg font-bold mb-4">{{ title }}</h3>
+    
+    <div class="flex-1 flex items-center justify-center">
+      <div 
+        class="text-5xl font-bold" 
+        :class="animationClass"
+      >
+        {{ count }}
+      </div>
+    </div>
+    
+    <div class="flex gap-2 mt-4">
+      <button
+        @click="increment"
+        class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+      >
+        +{{ incrementBy }}
+      </button>
+      <button
+        @click="reset"
+        class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
+      >
+        Reset
+      </button>
+    </div>
+    
+    <div v-if="lastUpdated" class="text-xs text-muted-foreground mt-2">
+      Last opened: {{ new Date(lastUpdated).toLocaleString() }}
+    </div>
+  </div>
+</template>
+```
+
+**`widgets/Counter/plugin.ts`**
+```typescript
+import type { WidgetPlugin } from '@/lib/widgets/WidgetCore'
+import type { WidgetConfig } from './definition'
+import { WidgetConfigSchema, widgetDefaults } from './definition'
+import CounterComponent from './index.vue'
+
+export const CounterWidgetPlugin: WidgetPlugin<WidgetConfig> = {
+  id: 'counter',
+  name: 'Counter',
+  description: 'A persistent counter with animations',
+  version: '1.0.0',
+  icon: '🔢',
+  category: 'utility',
+  tags: ['counter', 'tally', 'count'],
+  component: CounterComponent,
+  defaultConfig: widgetDefaults,
+  configSchema: WidgetConfigSchema,
+  settings: {
+    allowResize: true,
+    allowMove: true,
+    allowDelete: true,
+    allowConfigure: true
+  },
+  permissions: []
+}
+```
+
+This example demonstrates:
+- Using `useWidgetData` for persistent storage
+- Installing and using external npm packages (animate.css)
+- Reactive data that persists across page reloads
+- Configuration options that affect widget behavior
+- Tracking metadata like last updated time
+
 ### Clock Widget
 
 ```typescript
@@ -1037,7 +1455,9 @@ widgets/MyWidget/
 ├── index.vue                 # Main component
 ├── definition.ts             # Types, defaults, and validation schema
 ├── plugin.ts                 # Plugin manifest
-└── api.ts                    # Optional: API routes for backend functionality
+├── api.ts                    # Optional: API routes for backend functionality
+├── package.json              # Optional: Widget-specific npm dependencies
+└── node_modules/             # Generated: Widget's isolated dependencies
 ```
 
 Everything you need is contained within the widget directory. No modifications to core files are required.
