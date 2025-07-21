@@ -24,46 +24,33 @@ export function useWidgetI18n(options: WidgetI18nOptions) {
       // Get current locale
       const currentLocale = locale.value as string
       
-      // Try to load widget translations
-      const translationPath = `/widgets/${options.widgetName}/lang/${currentLocale}.json`
+      let translations: any = null
       
+      // Try to import the translations from the widget's lang directory
       try {
-        // Import widget-specific translations dynamically
-        // Note: Dynamic imports need to be handled differently in production
-        let translations: any
-        
-        // Try dynamic import with full path
-        try {
-          const module = await import(/* @vite-ignore */ translationPath)
-          translations = module.default || module
-        } catch (importError) {
-          // If dynamic import fails, translations will remain undefined
-          console.warn(`Could not load translations from ${translationPath}`)
-        }
-        
-        if (translations) {
-          // Merge translations under widget namespace
-          mergeLocaleMessage(currentLocale, {
-            [namespace]: translations
-          })
-        }
-      } catch (e) {
-        // If locale file doesn't exist, try fallback
+        // Use a more reliable path for the import
+        const module = await import(`../../widgets/${options.widgetName}/lang/${currentLocale}.json`)
+        translations = module.default || module
+      } catch (importError) {
+        // Try fallback locale if main locale fails
         if (options.fallbackLocale && options.fallbackLocale !== currentLocale) {
-          const fallbackPath = `/widgets/${options.widgetName}/lang/${options.fallbackLocale}.json`
           try {
-            const fallbackModule = await import(/* @vite-ignore */ fallbackPath)
-            const fallbackTranslations = fallbackModule.default || fallbackModule
-            
-            if (fallbackTranslations) {
-              mergeLocaleMessage(currentLocale, {
-                [namespace]: fallbackTranslations
-              })
-            }
+            const fallbackModule = await import(`../../widgets/${options.widgetName}/lang/${options.fallbackLocale}.json`)
+            translations = fallbackModule.default || fallbackModule
+            console.warn(`Using fallback locale '${options.fallbackLocale}' for widget ${options.widgetName}`)
           } catch (fallbackError) {
-            console.warn(`No translations found for widget ${options.widgetName}`)
+            console.warn(`No translations found for widget ${options.widgetName} in '${currentLocale}' or '${options.fallbackLocale}'`)
           }
+        } else {
+          console.warn(`No translations found for widget ${options.widgetName} in locale '${currentLocale}'`)
         }
+      }
+      
+      if (translations) {
+        // Merge translations under widget namespace
+        mergeLocaleMessage(currentLocale, {
+          [namespace]: translations
+        })
       }
     } catch (err) {
       error.value = err as Error
@@ -119,10 +106,8 @@ export function useWidgetI18n(options: WidgetI18nOptions) {
     return currentMessages[namespace] || {}
   })
   
-  // Load translations on mount
-  onMounted(() => {
-    loadTranslations()
-  })
+  // Load translations immediately
+  loadTranslations()
   
   // Reload translations when locale changes
   const reloadOnLocaleChange = () => {

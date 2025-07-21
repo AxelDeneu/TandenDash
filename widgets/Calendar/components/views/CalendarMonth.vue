@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { getCalendarMonth, getWeekNumber } from '../../utils/date-helpers'
 import type { CalendarEvent, CalendarDay } from '../../types'
+import translations from '../../lang/index'
 
 interface Props {
   currentDate: Date
@@ -23,9 +26,31 @@ const emit = defineEmits<{
   'select-event': [event: CalendarEvent]
 }>()
 
+// Merge translations immediately
+const { mergeLocaleMessage } = useI18n()
+Object.entries(translations).forEach(([lang, messages]) => {
+  mergeLocaleMessage(lang, { widget_Calendar: messages })
+})
+
+// i18n
+const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
+
 // Get calendar days
 const calendarDays = computed(() => {
   return getCalendarMonth(props.currentDate, props.weekStartsOn)
+})
+
+// Day names
+const dayNames = computed(() => {
+  const names = props.compactMode ? 
+    [t('weekDays.sun'), t('weekDays.mon'), t('weekDays.tue'), t('weekDays.wed'), t('weekDays.thu'), t('weekDays.fri'), t('weekDays.sat')] :
+    [t('weekDays.sunday'), t('weekDays.monday'), t('weekDays.tuesday'), t('weekDays.wednesday'), t('weekDays.thursday'), t('weekDays.friday'), t('weekDays.saturday')]
+  
+  // Adjust for Monday start
+  if (props.weekStartsOn === 1) {
+    return [...names.slice(1), names[0]]
+  }
+  return names
 })
 
 // Group days by week
@@ -105,11 +130,11 @@ const selectEvent = (event: CalendarEvent, e: Event) => {
       
       <!-- Day headers -->
       <div
-        v-for="(day, index) in (compactMode ? ['S', 'M', 'T', 'W', 'T', 'F', 'S'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'])"
+        v-for="(day, index) in dayNames"
         :key="index"
-        :class="(index === 0 || index === 6) ? weekendColor : ''"
+        :class="(weekStartsOn === 0 ? (index === 0 || index === 6) : (index === 5 || index === 6)) ? weekendColor : ''"
       >
-        {{ weekStartsOn === 1 && index < 6 ? (compactMode ? ['M', 'T', 'W', 'T', 'F', 'S', 'S'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])[index] : day }}
+        {{ day }}
       </div>
     </div>
     

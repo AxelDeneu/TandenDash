@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Settings, RefreshCw } from '@/lib/icons'
+import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
+import { useI18n } from 'vue-i18n'
 import type { WidgetConfig } from '../../definition'
 import SyncStatus from '../SyncStatus.vue'
 import type { SyncStatus as SyncStatusType } from '../../composables/useCalendarSync'
+import translations from '../../lang/index'
 
 interface Props extends WidgetConfig {
   syncStatus?: SyncStatusType
@@ -17,6 +20,17 @@ const emit = defineEmits<{
   sync: []
   'update:config': [config: Partial<WidgetConfig>]
 }>()
+
+// i18n - Merge translations immediately
+const { mergeLocaleMessage } = useI18n()
+
+// Merge translations for all locales immediately
+Object.entries(translations).forEach(([lang, messages]) => {
+  mergeLocaleMessage(lang, { widget_Calendar: messages })
+})
+
+// Now use the widget i18n composable
+const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 const showSettings = ref(false)
 
@@ -62,7 +76,7 @@ function handleSync() {
     <button
       @click="showSettings = !showSettings"
       class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-      title="Calendar settings"
+      :title="t('settings.calendarSettings')"
     >
       <Settings class="w-5 h-5" />
     </button>
@@ -80,7 +94,7 @@ function handleSync() {
         v-if="showSettings"
         class="absolute right-0 top-full mt-2 w-96 rounded-lg shadow-lg border bg-background p-4 space-y-4 z-50"
       >
-        <h3 class="font-medium text-lg">Calendar Settings</h3>
+        <h3 class="font-medium text-lg">{{ t('settings.title') }}</h3>
         
         <!-- Sync Status -->
         <SyncStatus
@@ -96,7 +110,7 @@ function handleSync() {
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <label for="sync-enabled" class="text-sm font-medium">
-              Enable Calendar Sync
+              {{ t('settings.enableSync') }}
             </label>
             <input
               id="sync-enabled"
@@ -109,20 +123,20 @@ function handleSync() {
           <div v-if="localConfig.syncEnabled" class="space-y-3">
             <div>
               <label for="sync-url" class="block text-sm font-medium mb-1">
-                iCal URL
+                {{ t('settings.icalUrl') }}
               </label>
               <input
                 id="sync-url"
                 type="url"
                 v-model="localConfig.syncUrl"
-                placeholder="https://calendar.example.com/feed.ics"
+                :placeholder="t('placeholders.icalUrl')"
                 class="w-full px-3 py-2 border rounded-md text-sm focus:ring-primary focus:border-primary"
               />
             </div>
             
             <div>
               <label for="sync-interval" class="block text-sm font-medium mb-1">
-                Sync Interval (minutes)
+                {{ t('settings.syncInterval') }}
               </label>
               <input
                 id="sync-interval"
@@ -143,13 +157,13 @@ function handleSync() {
             @click="showSettings = false"
             class="px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            Cancel
+            {{ t('settings.cancel') }}
           </button>
           <button
             @click="updateConfig"
             class="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Save Changes
+            {{ t('settings.saveChanges') }}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { 
   Dialog,
   DialogContent,
@@ -21,7 +22,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { format, addHours } from 'date-fns'
+import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import type { CalendarEvent } from '../types'
+import translations from '../lang/index'
 
 interface Props {
   modelValue: boolean
@@ -43,6 +46,15 @@ const emit = defineEmits<{
   'save': [event: Partial<CalendarEvent>]
   'delete': []
 }>()
+
+// Merge translations immediately
+const { mergeLocaleMessage } = useI18n()
+Object.entries(translations).forEach(([lang, messages]) => {
+  mergeLocaleMessage(lang, { widget_Calendar: messages })
+})
+
+// i18n
+const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 // Form data
 const formData = ref({
@@ -66,7 +78,7 @@ const isOpen = computed({
 
 const isEditMode = computed(() => !!props.event)
 
-const modalTitle = computed(() => isEditMode.value ? 'Edit Event' : 'New Event')
+const modalTitle = computed(() => isEditMode.value ? t('event.editEvent') : t('event.newEvent'))
 
 // Initialize form when modal opens
 function initializeForm() {
@@ -173,7 +185,7 @@ function handleSave() {
 
 // Delete event
 function handleDelete() {
-  if (confirm('Are you sure you want to delete this event?')) {
+  if (confirm(t('event.confirmDelete'))) {
     emit('delete')
     closeModal()
   }
@@ -206,40 +218,40 @@ function closeModal() {
       <DialogHeader>
         <DialogTitle>{{ modalTitle }}</DialogTitle>
         <DialogDescription>
-          {{ isEditMode ? 'Make changes to your event' : 'Add a new event to your calendar' }}
+          {{ isEditMode ? t('event.makeChanges') : t('event.addNew') }}
         </DialogDescription>
       </DialogHeader>
       
       <div class="space-y-4 py-4">
         <!-- Title -->
         <div class="space-y-2">
-          <Label for="title">Title</Label>
+          <Label for="title">{{ t('form.title') }}</Label>
           <Input
             id="title"
             v-model="formData.title"
-            placeholder="Event title"
+            :placeholder="t('placeholders.eventTitle')"
             required
           />
         </div>
         
         <!-- Description -->
         <div class="space-y-2">
-          <Label for="description">Description</Label>
+          <Label for="description">{{ t('form.description') }}</Label>
           <Textarea
             id="description"
             v-model="formData.description"
-            placeholder="Event description (optional)"
+            :placeholder="t('placeholders.eventDescription')"
             rows="3"
           />
         </div>
         
         <!-- Location -->
         <div class="space-y-2">
-          <Label for="location">Location</Label>
+          <Label for="location">{{ t('form.location') }}</Label>
           <Input
             id="location"
             v-model="formData.location"
-            placeholder="Event location (optional)"
+            :placeholder="t('placeholders.eventLocation')"
           />
         </div>
         
@@ -249,13 +261,13 @@ function closeModal() {
             id="all-day"
             v-model:checked="formData.allDay"
           />
-          <Label for="all-day">All day event</Label>
+          <Label for="all-day">{{ t('form.allDay') }}</Label>
         </div>
         
         <!-- Date and time -->
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
-            <Label for="start-date">Start date</Label>
+            <Label for="start-date">{{ t('form.startDate') }}</Label>
             <Input
               id="start-date"
               type="date"
@@ -264,7 +276,7 @@ function closeModal() {
             />
           </div>
           <div class="space-y-2" v-if="!formData.allDay">
-            <Label for="start-time">Start time</Label>
+            <Label for="start-time">{{ t('form.startTime') }}</Label>
             <Input
               id="start-time"
               type="time"
@@ -276,7 +288,7 @@ function closeModal() {
         
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
-            <Label for="end-date">End date</Label>
+            <Label for="end-date">{{ t('form.endDate') }}</Label>
             <Input
               id="end-date"
               type="date"
@@ -285,7 +297,7 @@ function closeModal() {
             />
           </div>
           <div class="space-y-2" v-if="!formData.allDay">
-            <Label for="end-time">End time</Label>
+            <Label for="end-time">{{ t('form.endTime') }}</Label>
             <Input
               id="end-time"
               type="time"
@@ -297,13 +309,13 @@ function closeModal() {
         
         <!-- Category -->
         <div class="space-y-2" v-if="categories && categories.length > 0">
-          <Label for="category">Category</Label>
+          <Label for="category">{{ t('form.category') }}</Label>
           <Select v-model="formData.category">
             <SelectTrigger id="category">
-              <SelectValue placeholder="Select a category" />
+              <SelectValue :placeholder="t('form.selectCategory')" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="none">{{ t('form.none') }}</SelectItem>
               <SelectItem 
                 v-for="category in categories" 
                 :key="category"
@@ -317,7 +329,7 @@ function closeModal() {
         
         <!-- Color -->
         <div class="space-y-2">
-          <Label>Color</Label>
+          <Label>{{ t('form.color') }}</Label>
           <div class="flex gap-2">
             <button
               v-for="color in (eventColors || ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'])"
@@ -337,13 +349,13 @@ function closeModal() {
           variant="destructive"
           @click="handleDelete"
         >
-          Delete
+          {{ t('event.deleteEvent') }}
         </Button>
         <Button variant="outline" @click="closeModal">
-          Cancel
+          {{ t('form.cancel') }}
         </Button>
         <Button @click="handleSave" :disabled="!isValid">
-          {{ isEditMode ? 'Save Changes' : 'Create Event' }}
+          {{ isEditMode ? t('event.saveChanges') : t('event.createEvent') }}
         </Button>
       </DialogFooter>
     </DialogContent>

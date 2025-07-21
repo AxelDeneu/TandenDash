@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RefreshCw, AlertTriangle, Check } from '@/lib/icons'
+import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { formatRelativeTime } from '../utils/date-helpers'
 import type { SyncStatus } from '../composables/useCalendarSync'
+import translations from '../lang/index'
 
 interface Props {
   status: SyncStatus
@@ -17,16 +20,25 @@ const emit = defineEmits<{
   sync: []
 }>()
 
+// Merge translations immediately
+const { mergeLocaleMessage } = useI18n()
+Object.entries(translations).forEach(([lang, messages]) => {
+  mergeLocaleMessage(lang, { widget_Calendar: messages })
+})
+
+// i18n
+const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
+
 // Format last sync time
 const lastSyncText = computed(() => {
-  if (!props.status.lastSync) return 'Never synced'
+  if (!props.status.lastSync) return t('sync.neverSynced')
   return formatRelativeTime(props.status.lastSync)
 })
 
 // Format next sync time
 const nextSyncText = computed(() => {
   if (!props.nextSyncTime) return ''
-  return `Next sync ${formatRelativeTime(props.nextSyncTime)}`
+  return `${t('sync.nextSync')} ${formatRelativeTime(props.nextSyncTime)}`
 })
 
 // Status icon and color
@@ -63,14 +75,14 @@ const statusColor = computed(() => {
     <!-- Status Info -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between">
-        <h3 class="font-medium">Calendar Sync</h3>
+        <h3 class="font-medium">{{ t('sync.calendarSync') }}</h3>
         <button
           v-if="canSync"
           @click="$emit('sync')"
           class="px-3 py-1 text-sm rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           :disabled="status.syncing"
         >
-          Sync Now
+          {{ t('sync.syncNow') }}
         </button>
       </div>
       
@@ -79,12 +91,12 @@ const statusColor = computed(() => {
           {{ status.error }}
         </p>
         <p v-else-if="status.syncing">
-          Syncing calendar...
+          {{ t('sync.syncing') }}
         </p>
         <p v-else>
           {{ lastSyncText }}
           <span v-if="status.eventsCount > 0">
-            • {{ status.eventsCount }} events synced
+            • {{ status.eventsCount }} {{ t('sync.eventsSynced') }}
           </span>
         </p>
         <p v-if="nextSyncTime && !status.syncing" class="text-xs mt-0.5">

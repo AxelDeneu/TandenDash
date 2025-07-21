@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays, List, Plus, RefreshCw } from '@/lib/icons'
+import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
+import { useI18n } from 'vue-i18n'
 import type { WidgetConfig } from './definition'
 import CalendarMonth from './components/views/CalendarMonth.vue'
 import CalendarWeek from './components/views/CalendarWeek.vue'
@@ -12,12 +14,27 @@ import { useCalendarViews } from './composables/useCalendarViews'
 import { useCalendarEvents } from './composables/useCalendarEvents'
 import { useCalendarSync } from './composables/useCalendarSync'
 import type { CalendarEvent } from './types'
+import translations from './lang/index'
 
 interface Props extends WidgetConfig {
   id?: number
 }
 
 const props = defineProps<Props>()
+
+// i18n - Merge translations immediately
+const { locale, mergeLocaleMessage } = useI18n()
+
+// Merge translations for all locales immediately
+Object.entries(translations).forEach(([lang, messages]) => {
+  mergeLocaleMessage(lang, { widget_Calendar: messages })
+})
+
+// Now use the widget i18n composable
+const { t, loading: translationsLoading, enableAutoReload } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
+
+// Enable auto-reload on locale change
+enableAutoReload()
 
 // Composables - Simple direct initialization
 const views = useCalendarViews(props.defaultView, props.firstDayOfWeek === 'monday' ? 1 : 0)
@@ -156,7 +173,7 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
           v-if="navigationButtons && views.canNavigate.value"
           @click="views.navigatePrevious()"
           class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          aria-label="Previous"
+          :aria-label="t('navigation.previous')"
         >
           <ChevronLeft class="w-5 h-5" />
         </button>
@@ -166,14 +183,14 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
           @click="views.navigateToToday()"
           class="px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
-          Today
+          {{ t('navigation.today') }}
         </button>
         
         <button
           v-if="navigationButtons && views.canNavigate.value"
           @click="views.navigateNext()"
           class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          aria-label="Next"
+          :aria-label="t('navigation.next')"
         >
           <ChevronRight class="w-5 h-5" />
         </button>
@@ -190,14 +207,14 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
         <div
           v-if="syncEnabled && sync?.status.value.lastSync"
           class="flex items-center gap-1 text-sm text-muted-foreground"
-          :title="`Last synced: ${sync?.status.value.lastSync.toLocaleString()}`"
+          :title="`${t('sync.lastSynced')} ${sync?.status.value.lastSync.toLocaleString()}`"
         >
           <RefreshCw 
             class="w-4 h-4" 
             :class="{ 'animate-spin': sync?.status.value.syncing }"
           />
           <span v-if="!sync?.status.value.syncing">
-            {{ sync?.status.value.eventsCount }} synced
+            {{ sync?.status.value.eventsCount }} {{ t('sync.synced') }}
           </span>
         </div>
         <!-- View buttons -->
@@ -206,34 +223,34 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
             @click="switchToView('month')"
             class="px-3 py-1.5 text-sm transition-colors"
             :class="views.viewType.value === 'month' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
-            title="Month view"
+            :title="t('views.monthView')"
           >
-            Month
+            {{ t('views.month') }}
           </button>
           <button
             @click="switchToView('week')"
             class="px-3 py-1.5 text-sm transition-colors"
             :class="views.viewType.value === 'week' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
-            title="Week view"
+            :title="t('views.weekView')"
           >
-            Week
+            {{ t('views.week') }}
           </button>
           <button
             @click="switchToView('day')"
             class="px-3 py-1.5 text-sm transition-colors"
             :class="views.viewType.value === 'day' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
-            title="Day view"
+            :title="t('views.dayView')"
           >
-            Day
+            {{ t('views.day') }}
           </button>
           <button
             v-if="showEvents"
             @click="switchToView('list')"
             class="px-3 py-1.5 text-sm transition-colors"
             :class="views.viewType.value === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'"
-            title="List view"
+            :title="t('views.listView')"
           >
-            List
+            {{ t('views.list') }}
           </button>
         </div>
         
@@ -242,7 +259,7 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
           v-if="showEvents && allowEventCreation"
           @click="handleEventCreate(views.selectedDate.value || new Date())"
           class="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-          title="Add event"
+          :title="t('event.addEvent')"
         >
           <Plus class="w-5 h-5" />
         </button>
