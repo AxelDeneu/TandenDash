@@ -19,6 +19,10 @@ export class PageRepository implements IPageRepository {
     return await db.select().from(pages)
   }
 
+  async findByDashboardId(dashboardId: number): Promise<Page[]> {
+    return await db.select().from(pages).where(eq(pages.dashboardId, dashboardId))
+  }
+
   async findByName(name: string): Promise<Page | null> {
     const results = await db.select().from(pages).where(eq(pages.name, name))
     return results[0] || null
@@ -48,6 +52,7 @@ export class PageRepository implements IPageRepository {
     
     const [created] = await db.insert(pages).values({
       name: validatedData.name,
+      dashboardId: validatedData.dashboardId || null,
       snapping: validatedData.snapping ?? false,
       gridRows: validatedData.gridRows ?? 6,
       gridCols: validatedData.gridCols ?? 6,

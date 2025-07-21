@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 const createPageSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  dashboardId: z.number().optional(),
   snapping: z.boolean().optional().default(false),
   gridRows: z.number().int().min(1).max(20).optional().default(6),
   gridCols: z.number().int().min(1).max(20).optional().default(6),

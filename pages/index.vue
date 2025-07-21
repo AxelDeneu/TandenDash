@@ -14,21 +14,29 @@ import {
   useCarouselNavigation,
   useWidgetLoader,
   useDarkMode,
-  useWidgetPlugins
+  useWidgetPlugins,
+  useDashboard
 } from '@/composables'
 import { getGridConfig } from '~/lib/utils/grid'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
 import DialogManager from '@/components/dashboard/DialogManager.vue'
+import DashboardSelector from '@/components/dashboard/DashboardSelector.vue'
 import LoadingPlaceholder from '@/components/common/LoadingPlaceholder.vue'
 import { FloatingDock, type DockAction } from '@/components/ui/dock'
+import { Button } from '@/components/ui/button'
 import type { Page, WidgetInstance, WidgetPosition } from '@/types'
+
+// Dashboard state - must be initialized first
+const dashboardComposable = useDashboard()
+const showDashboardSelector = ref(false)
+const currentDashboardId = computed(() => dashboardComposable.currentDashboard.value?.id || null)
 
 // New architecture composables
 const context = useComposableContext()
 const editModeComposable = useEditMode()
 const widgetOperations = useWidgetOperations()
 const widgetUI = useWidgetUI()
-const pageOperations = usePageOperations()
+const pageOperations = usePageOperations(currentDashboardId)
 const pageUIComposable = usePageUI()
 const floatingDock = useFloatingDock({
   autoHideDelay: 30000
@@ -44,7 +52,11 @@ const pages = computed(() => pageOperations.pages.value)
 const widgetLoader = useWidgetLoader()
 const { carouselRef, swipeContainer, currentPageIndex, currentPage, setupSwipeHandlers } = useCarouselNavigation(pages)
 const dragAndDrop = useDragAndDrop(updateWidgetPosition)
-const isLoadingPages = computed(() => pageOperations.loading.value)
+
+// Loading states
+const initialLoading = ref(true)
+const isLoadingPages = computed(() => pageOperations.loading.value || dashboardComposable.isLoading.value)
+const isLoading = computed(() => initialLoading.value || isLoadingPages.value)
 const editMode = computed(() => editModeComposable.isEditMode.value)
 
 // Extract page UI values to avoid Ref issues in template
@@ -148,8 +160,15 @@ watch([widgetUI.isDragging, widgetUI.isResizing], ([dragging, resizing], [prevDr
   }
 })
 
+
 // Dock actions configuration
 const dockActions = computed<DockAction[]>(() => [
+  {
+    id: 'dashboard-selector',
+    icon: 'LayoutGrid',
+    label: 'Dashboards',
+    active: showDashboardSelector.value
+  },
   {
     id: 'add-widget',
     icon: 'Plus',
@@ -173,6 +192,9 @@ const dockActions = computed<DockAction[]>(() => [
 // Handle dock action clicks
 function handleDockAction(actionId: string, event: MouseEvent): void {
   switch (actionId) {
+    case 'dashboard-selector':
+      showDashboardSelector.value = true
+      break
     case 'add-widget':
       if (currentPage.value) {
         pageUIComposable.openAddWidgetDialog(currentPage.value.id)
@@ -291,7 +313,19 @@ onMounted(async () => {
   // Initialize widget system first to avoid warnings
   await widgetPlugins.initialize()
   
-  await pageOperations.fetchPages()
+  // Load default dashboard first
+  try {
+    await dashboardComposable.fetchDefaultDashboard()
+    // Pages will be loaded automatically via the watcher when dashboard is set
+  } catch (error) {
+    logger.error('Failed to load default dashboard', error as Error)
+    // Continue without dashboard if it fails
+    await pageOperations.fetchPages()
+  } finally {
+    // Set initial loading to false after dashboard load attempt
+    initialLoading.value = false
+  }
+  
   cleanupEventListeners = dragAndDrop.setupEventListeners(dashboardContainer, currentPage)
   setupSwipeHandlers(pages, editMode)
   widgetLoader.setupAutoLoader(pages)
@@ -310,17 +344,26 @@ onUnmounted(() => {
     
     <!-- Loading state for pages -->
     <LoadingPlaceholder 
-      v-if="isLoadingPages" 
+      v-if="isLoading" 
       type="page" 
       message="Loading dashboard..."
       :show-skeleton="true"
     />
     
     <!-- Show message if no pages exist -->
-    <div v-else-if="!pages || pages.length === 0" class="flex items-center justify-center h-full">
+    <div v-else-if="!initialLoading && (!pages || pages.length === 0)" class="flex items-center justify-center h-full">
       <div class="text-center space-y-4">
         <h2 class="text-2xl font-semibold text-muted-foreground">No pages found</h2>
         <p class="text-muted-foreground">Create your first dashboard page to get started.</p>
+        
+        <!-- Show create button only if dashboard exists -->
+        <Button 
+          v-if="currentDashboardId"
+          size="touch-default"
+          @click="pageUIComposable.openAddPageDialog()"
+        >
+          Créer une page
+        </Button>
       </div>
     </div>
     
@@ -393,5 +436,8 @@ onUnmounted(() => {
       @edit-page="handleEditPage"
       @update:new-page-name="pageUIComposable.updateNewPageName($event)"
     />
+
+    <!-- Dashboard Selector -->
+    <DashboardSelector v-model="showDashboardSelector" />
   </div>
 </template>
