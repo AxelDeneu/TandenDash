@@ -54,17 +54,17 @@ const handleSubmit = () => {
   <Dialog :open="props.open" @update:open="val => { if (!val) emit('close') }">
     <DialogContent v-if="props.page">
       <DialogHeader>
-        <DialogTitle>Edit Page Settings</DialogTitle>
+        <DialogTitle>{{ $t('dashboard.editPageSettings') }}</DialogTitle>
       </DialogHeader>
       <div class="sr-only">Dialog for editing page settings including name, grid snapping, and grid dimensions</div>
       
       <div class="space-y-4">
         <div>
-          <Label for="page-name">Page Name</Label>
+          <Label for="page-name">{{ $t('pages.pageName') }}</Label>
           <Input 
             id="page-name"
             v-model="formData.name" 
-            placeholder="Enter page name" 
+            :placeholder="$t('pages.pageNamePlaceholder')" 
             class="mt-1"
           />
         </div>
@@ -74,12 +74,12 @@ const handleSubmit = () => {
             id="page-snapping"
             v-model:model-value="formData.snapping"
           />
-          <Label for="page-snapping">Enable Grid Snapping</Label>
+          <Label for="page-snapping">{{ $t('dashboard.enableSnapping') }}</Label>
         </div>
         
         <div v-if="formData.snapping" class="grid grid-cols-2 gap-3">
           <div>
-            <Label for="grid-rows">Grid Rows</Label>
+            <Label for="grid-rows">{{ $t('dashboard.gridRows') }}</Label>
             <Input 
               id="grid-rows"
               v-model.number="formData.gridRows"
@@ -90,7 +90,7 @@ const handleSubmit = () => {
             />
           </div>
           <div>
-            <Label for="grid-cols">Grid Columns</Label>
+            <Label for="grid-cols">{{ $t('dashboard.gridColumns') }}</Label>
             <Input 
               id="grid-cols"
               v-model.number="formData.gridCols"
@@ -104,10 +104,10 @@ const handleSubmit = () => {
 
         <!-- Page Margins Section -->
         <div class="border-t pt-4">
-          <h3 class="text-sm font-medium mb-3">Page Margins (pixels)</h3>
+          <h3 class="text-sm font-medium mb-3">{{ $t('dashboard.pageMargins') }}</h3>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <Label for="margin-top">Top</Label>
+              <Label for="margin-top">{{ $t('dashboard.marginTop') }}</Label>
               <Input 
                 id="margin-top"
                 v-model.number="formData.marginTop"
@@ -119,7 +119,7 @@ const handleSubmit = () => {
               />
             </div>
             <div>
-              <Label for="margin-right">Right</Label>
+              <Label for="margin-right">{{ $t('dashboard.marginRight') }}</Label>
               <Input 
                 id="margin-right"
                 v-model.number="formData.marginRight"
@@ -131,7 +131,7 @@ const handleSubmit = () => {
               />
             </div>
             <div>
-              <Label for="margin-bottom">Bottom</Label>
+              <Label for="margin-bottom">{{ $t('dashboard.marginBottom') }}</Label>
               <Input 
                 id="margin-bottom"
                 v-model.number="formData.marginBottom"
@@ -143,7 +143,7 @@ const handleSubmit = () => {
               />
             </div>
             <div>
-              <Label for="margin-left">Left</Label>
+              <Label for="margin-left">{{ $t('dashboard.marginLeft') }}</Label>
               <Input 
                 id="margin-left"
                 v-model.number="formData.marginLeft"
@@ -156,16 +156,16 @@ const handleSubmit = () => {
             </div>
           </div>
           <p class="text-xs text-muted-foreground mt-2">
-            Set margins to keep widgets away from screen edges. Useful for touch screens.
+            {{ $t('dashboard.marginDescription') }}
           </p>
         </div>
       </div>
       
       <DialogFooter class="mt-6">
         <DialogClose as-child>
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline">{{ $t('common.cancel') }}</Button>
         </DialogClose>
-        <Button @click="handleSubmit">Save Changes</Button>
+        <Button @click="handleSubmit">{{ $t('common.save') }}</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

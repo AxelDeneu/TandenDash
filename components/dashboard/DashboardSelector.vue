@@ -2,9 +2,9 @@
   <Dialog v-model:open="isOpen">
     <DialogContent class="max-w-2xl">
       <DialogHeader>
-        <DialogTitle>Sélectionner un dashboard</DialogTitle>
+        <DialogTitle>{{ $t('dashboard.selectDashboard') }}</DialogTitle>
         <DialogDescription>
-          Choisissez un dashboard ou créez-en un nouveau
+          {{ $t('dashboard.chooseOrCreate') }}
         </DialogDescription>
       </DialogHeader>
 
@@ -12,7 +12,7 @@
       <div v-if="dashboard.isLoading.value" class="py-8">
         <div class="flex justify-center items-center space-x-2">
           <Loader2 class="h-6 w-6 animate-spin" />
-          <span>Chargement des dashboards...</span>
+          <span>{{ $t('dashboard.loadingDashboards') }}</span>
         </div>
       </div>
 
@@ -43,7 +43,7 @@
             variant="secondary" 
             class="absolute top-2 right-2"
           >
-            Par défaut
+            {{ $t('dashboard.byDefault') }}
           </Badge>
 
           <!-- Current badge -->
@@ -52,14 +52,14 @@
             variant="default" 
             class="absolute top-2 left-2"
           >
-            Actuel
+            {{ $t('dashboard.current') }}
           </Badge>
 
           <div class="space-y-2">
             <h3 class="font-semibold text-lg">{{ db.name }}</h3>
             
             <div class="text-sm text-muted-foreground">
-              <p>Créé le {{ formatDate(db.createdAt) }}</p>
+              <p>{{ $t('dashboard.createdOn', { date: formatDate(db.createdAt) }) }}</p>
             </div>
 
             <!-- Actions -->
@@ -70,7 +70,7 @@
                 @click.stop="editDashboard(db)"
               >
                 <Edit2 class="w-3 h-3 mr-1" />
-                Éditer
+                {{ $t('common.edit') }}
               </Button>
               
               <Button 
@@ -79,7 +79,7 @@
                 @click.stop="duplicateDashboard(db)"
               >
                 <Copy class="w-3 h-3 mr-1" />
-                Dupliquer
+                {{ $t('dashboard.duplicate') }}
               </Button>
 
               <Button 
@@ -102,14 +102,14 @@
         >
           <div class="text-center space-y-2">
             <Plus class="w-8 h-8 mx-auto text-muted-foreground group-hover:text-primary transition-colors" />
-            <p class="font-medium">Nouveau dashboard</p>
+            <p class="font-medium">{{ $t('dashboard.newDashboard') }}</p>
           </div>
         </div>
       </div>
 
       <DialogFooter>
         <Button variant="outline" @click="isOpen = false">
-          Fermer
+          {{ $t('common.close') }}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -120,7 +120,7 @@
     <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>
-          {{ editingDashboard ? 'Modifier le dashboard' : 'Créer un dashboard' }}
+          {{ editingDashboard ? $t('dashboard.editDashboard') : $t('dashboard.createDashboard') }}
         </DialogTitle>
       </DialogHeader>
 
@@ -128,11 +128,11 @@
         <!-- General section -->
         <div class="space-y-4">
           <div class="space-y-2">
-            <Label for="dashboard-name">Nom du dashboard</Label>
+            <Label for="dashboard-name">{{ $t('dashboard.dashboardName') }}</Label>
             <Input
               id="dashboard-name"
               v-model="dashboardForm.name"
-              placeholder="Ex: Salon, Bureau, Cuisine..."
+              :placeholder="$t('dashboard.dashboardNamePlaceholder')"
               @keyup.enter="saveDashboard"
             />
           </div>
@@ -146,7 +146,7 @@
               for="is-default" 
               class="text-sm font-normal cursor-pointer"
             >
-              Définir comme dashboard par défaut
+              {{ $t('dashboard.setAsDefault') }}
             </Label>
           </div>
         </div>
@@ -157,14 +157,14 @@
           
           <!-- Regional Settings -->
           <div class="space-y-4">
-            <h3 class="text-sm font-medium">Paramètres régionaux</h3>
+            <h3 class="text-sm font-medium">{{ $t('dashboard.regionalSettings') }}</h3>
             
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <Label for="locale">Langue</Label>
+                <Label for="locale">{{ $t('dashboard.language') }}</Label>
                 <Select v-model="settingsForm.locale">
                   <SelectTrigger id="locale">
-                    <SelectValue placeholder="Sélectionner une langue" />
+                    <SelectValue :placeholder="$t('dashboard.selectLanguage')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fr">Français</SelectItem>
@@ -176,10 +176,10 @@
               </div>
 
               <div class="space-y-2">
-                <Label for="timezone">Fuseau horaire</Label>
+                <Label for="timezone">{{ $t('dashboard.timezone') }}</Label>
                 <Select v-model="settingsForm.timezone">
                   <SelectTrigger id="timezone">
-                    <SelectValue placeholder="Sélectionner un fuseau" />
+                    <SelectValue :placeholder="$t('dashboard.selectTimezone')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
@@ -193,10 +193,10 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <Label for="dateFormat">Format de date</Label>
+                <Label for="dateFormat">{{ $t('dashboard.dateFormat') }}</Label>
                 <Select v-model="settingsForm.dateFormat">
                   <SelectTrigger id="dateFormat">
-                    <SelectValue placeholder="Format de date" />
+                    <SelectValue :placeholder="$t('dashboard.dateFormat')" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
@@ -207,7 +207,7 @@
               </div>
 
               <div class="space-y-2">
-                <Label>Format d'heure</Label>
+                <Label>{{ $t('dashboard.timeFormat') }}</Label>
                 <RadioGroup v-model="settingsForm.timeFormat" class="flex gap-4">
                   <div class="flex items-center space-x-2">
                     <RadioGroupItem value="24h" id="24h" />
@@ -226,33 +226,33 @@
 
           <!-- Units Settings -->
           <div class="space-y-4">
-            <h3 class="text-sm font-medium">Unités de mesure</h3>
+            <h3 class="text-sm font-medium">{{ $t('dashboard.measurementUnits') }}</h3>
             
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <Label>Système de mesure</Label>
+                <Label>{{ $t('dashboard.measurementSystem') }}</Label>
                 <RadioGroup v-model="settingsForm.measurementSystem" class="space-y-2">
                   <div class="flex items-center space-x-2">
                     <RadioGroupItem value="metric" id="metric" />
-                    <Label for="metric" class="font-normal">Métrique</Label>
+                    <Label for="metric" class="font-normal">{{ $t('dashboard.metric') }}</Label>
                   </div>
                   <div class="flex items-center space-x-2">
                     <RadioGroupItem value="imperial" id="imperial" />
-                    <Label for="imperial" class="font-normal">Impérial</Label>
+                    <Label for="imperial" class="font-normal">{{ $t('dashboard.imperial') }}</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div class="space-y-2">
-                <Label>Température</Label>
+                <Label>{{ $t('dashboard.temperature') }}</Label>
                 <RadioGroup v-model="settingsForm.temperatureUnit" class="space-y-2">
                   <div class="flex items-center space-x-2">
                     <RadioGroupItem value="celsius" id="celsius" />
-                    <Label for="celsius" class="font-normal">Celsius (°C)</Label>
+                    <Label for="celsius" class="font-normal">{{ $t('dashboard.celsius') }}</Label>
                   </div>
                   <div class="flex items-center space-x-2">
                     <RadioGroupItem value="fahrenheit" id="fahrenheit" />
-                    <Label for="fahrenheit" class="font-normal">Fahrenheit (°F)</Label>
+                    <Label for="fahrenheit" class="font-normal">{{ $t('dashboard.fahrenheit') }}</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -263,21 +263,21 @@
 
           <!-- Theme -->
           <div class="space-y-4">
-            <h3 class="text-sm font-medium">Apparence</h3>
+            <h3 class="text-sm font-medium">{{ $t('dashboard.appearance') }}</h3>
             <div class="space-y-2">
-              <Label>Thème</Label>
+              <Label>{{ $t('dashboard.theme') }}</Label>
               <RadioGroup v-model="settingsForm.theme" class="flex gap-4">
                 <div class="flex items-center space-x-2">
                   <RadioGroupItem value="light" id="light" />
-                  <Label for="light" class="font-normal">Clair</Label>
+                  <Label for="light" class="font-normal">{{ $t('theme.light') }}</Label>
                 </div>
                 <div class="flex items-center space-x-2">
                   <RadioGroupItem value="dark" id="dark" />
-                  <Label for="dark" class="font-normal">Sombre</Label>
+                  <Label for="dark" class="font-normal">{{ $t('theme.dark') }}</Label>
                 </div>
                 <div class="flex items-center space-x-2">
                   <RadioGroupItem value="auto" id="auto" />
-                  <Label for="auto" class="font-normal">Auto</Label>
+                  <Label for="auto" class="font-normal">{{ $t('dashboard.auto') }}</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -287,10 +287,10 @@
 
       <DialogFooter>
         <Button variant="outline" @click="cancelEdit">
-          Annuler
+          {{ $t('common.cancel') }}
         </Button>
         <Button @click="saveDashboard" :disabled="!dashboardForm.name.trim()">
-          {{ editingDashboard ? 'Enregistrer' : 'Créer' }}
+          {{ editingDashboard ? $t('common.save') : $t('common.create') }}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -300,19 +300,18 @@
   <Dialog v-model:open="isDeleteDialogOpen">
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Supprimer le dashboard</DialogTitle>
+        <DialogTitle>{{ $t('dashboard.deleteDashboard') }}</DialogTitle>
         <DialogDescription>
-          Êtes-vous sûr de vouloir supprimer le dashboard "{{ deletingDashboard?.name }}" ?
-          Cette action est irréversible.
+          {{ $t('dashboard.deleteDashboardConfirm', { name: deletingDashboard?.name }) }}
         </DialogDescription>
       </DialogHeader>
 
       <DialogFooter>
         <Button variant="outline" @click="isDeleteDialogOpen = false">
-          Annuler
+          {{ $t('common.cancel') }}
         </Button>
         <Button variant="destructive" @click="deleteDashboard">
-          Supprimer
+          {{ $t('common.delete') }}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -430,7 +429,8 @@ const editDashboard = async (db: Dashboard) => {
 }
 
 const duplicateDashboard = async (db: Dashboard) => {
-  const newName = `${db.name} (copie)`
+  const { t } = useI18n()
+  const newName = t('dashboard.dashboardCopy', { name: db.name })
   await dashboard.duplicateDashboard(db.id, newName)
 }
 

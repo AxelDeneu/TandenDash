@@ -13,7 +13,7 @@
         </div>
         
         <div class="error-content">
-          <h3 class="error-title">Widget Error</h3>
+          <h3 class="error-title">{{ $t('errors.widgetError') }}</h3>
           <p class="error-message">{{ errorMessage }}</p>
           
           <div class="error-actions">
@@ -24,7 +24,7 @@
               :disabled="isRetrying"
             >
               <RefreshCw class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRetrying }" />
-              Retry
+              {{ $t('errors.retry') }}
             </Button>
             
             <Button 
@@ -33,7 +33,7 @@
               @click="showDetails = !showDetails"
             >
               <ChevronDown class="w-4 h-4 mr-2" :class="{ 'rotate-180': showDetails }" />
-              Details
+              {{ $t('common.details') }}
             </Button>
             
             <Button 
@@ -42,24 +42,24 @@
               @click="removeWidget"
             >
               <X class="w-4 h-4 mr-2" />
-              Remove
+              {{ $t('common.remove') }}
             </Button>
           </div>
           
           <!-- Error details -->
           <div v-if="showDetails" class="error-details">
             <div class="details-section">
-              <h4>Error Details</h4>
+              <h4>{{ $t('errors.errorDetails') }}</h4>
               <pre class="error-stack">{{ errorDetails }}</pre>
             </div>
             
             <div class="details-section">
-              <h4>Widget Info</h4>
+              <h4>{{ $t('errors.widgetInfo') }}</h4>
               <ul class="widget-info">
-                <li><strong>Plugin ID:</strong> {{ widgetInfo.pluginId }}</li>
-                <li><strong>Instance ID:</strong> {{ widgetInfo.instanceId }}</li>
-                <li><strong>Error Time:</strong> {{ formatTime(errorTime) }}</li>
-                <li><strong>Recovery Attempts:</strong> {{ recoveryAttempts }}</li>
+                <li><strong>{{ $t('errors.pluginId') }}:</strong> {{ widgetInfo.pluginId }}</li>
+                <li><strong>{{ $t('errors.instanceId') }}:</strong> {{ widgetInfo.instanceId }}</li>
+                <li><strong>{{ $t('errors.errorTime') }}:</strong> {{ formatTime(errorTime) }}</li>
+                <li><strong>{{ $t('errors.recoveryAttempts') }}:</strong> {{ recoveryAttempts }}</li>
               </ul>
             </div>
           </div>
@@ -105,10 +105,13 @@ const isRetrying = ref(false)
 const showDetails = ref(false)
 const autoRetryTimeout = ref<NodeJS.Timeout | null>(null)
 
+// Import i18n
+const { t } = useI18n()
+
 // Computed properties
 const errorMessage = computed(() => {
-  if (!currentError.value) return 'Unknown error occurred'
-  return currentError.value.message || 'An unexpected error occurred'
+  if (!currentError.value) return t('errors.unknownError')
+  return currentError.value.message || t('errors.unexpectedError')
 })
 
 const errorDetails = computed(() => {
@@ -187,7 +190,7 @@ async function retry(): Promise<void> {
       emit('recovered')
       console.log(`Widget ${props.instanceId} recovered successfully`)
     } else {
-      throw new Error('Recovery failed')
+      throw new Error(t('errors.recoveryFailed'))
     }
     
   } catch (error) {
@@ -204,7 +207,7 @@ function removeWidget(): void {
 }
 
 function formatTime(date: Date | null): string {
-  if (!date) return 'Unknown'
+  if (!date) return t('common.unknown')
   return date.toLocaleTimeString()
 }
 

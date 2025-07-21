@@ -16,7 +16,12 @@
     "settings": "Settings",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "create": "Create",
+    "unknown": "Unknown",
+    "redirecting": "Redirecting to dashboard...",
+    "details": "Details",
+    "remove": "Remove"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -37,7 +42,53 @@
     "snapToGrid": "Snap to Grid",
     "widgetConfiguration": "Widget Configuration",
     "removeWidget": "Remove Widget",
-    "resizeWidget": "Resize Widget"
+    "resizeWidget": "Resize Widget",
+    "loadingDashboard": "Loading dashboard...",
+    "createPage": "Create Page",
+    "cannotDeleteLastPage": "Cannot delete the last page",
+    "deletePageConfirm": "Delete page \"{name}\"?",
+    "deleteWidgetConfirm": "Delete this widget?",
+    "widgetTypeConfiguration": "{type} Configuration",
+    "pageMargins": "Page Margins (pixels)",
+    "marginTop": "Top",
+    "marginRight": "Right",
+    "marginBottom": "Bottom",
+    "marginLeft": "Left",
+    "marginDescription": "Set margins to keep widgets away from screen edges. Useful for touch screens.",
+    "editPageSettings": "Edit Page Settings",
+    "selectDashboard": "Select a dashboard",
+    "chooseOrCreate": "Choose a dashboard or create a new one",
+    "loadingDashboards": "Loading dashboards...",
+    "byDefault": "Default",
+    "current": "Current",
+    "createdOn": "Created on {date}",
+    "duplicate": "Duplicate",
+    "newDashboard": "New dashboard",
+    "editDashboard": "Edit dashboard",
+    "createDashboard": "Create dashboard",
+    "dashboardName": "Dashboard name",
+    "dashboardNamePlaceholder": "E.g.: Living room, Office, Kitchen...",
+    "setAsDefault": "Set as default dashboard",
+    "regionalSettings": "Regional settings",
+    "language": "Language",
+    "selectLanguage": "Select a language",
+    "timezone": "Timezone",
+    "selectTimezone": "Select a timezone",
+    "dateFormat": "Date format",
+    "timeFormat": "Time format",
+    "measurementUnits": "Measurement units",
+    "measurementSystem": "Measurement system",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "temperature": "Temperature",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "celsius": "Celsius (°C)",
+    "fahrenheit": "Fahrenheit (°F)",
+    "auto": "Auto",
+    "deleteDashboard": "Delete dashboard",
+    "deleteDashboardConfirm": "Are you sure you want to delete the dashboard \"{name}\"? This action cannot be undone.",
+    "dashboardCopy": "{name} (copy)"
   },
   "widgets": {
     "title": "Widgets",
@@ -51,7 +102,9 @@
     },
     "noWidgets": "No widgets available",
     "configuration": "Configuration",
-    "preview": "Preview"
+    "preview": "Preview",
+    "chooseColor": "Choose a color...",
+    "addTag": "Add tag..."
   },
   "pages": {
     "pageName": "Page Name",
@@ -76,13 +129,33 @@
     "failedToSave": "Failed to save",
     "failedToDelete": "Failed to delete",
     "required": "This field is required",
-    "invalidFormat": "Invalid format"
+    "invalidFormat": "Invalid format",
+    "widgetError": "Widget Error",
+    "maxRetriesReached": "Max retries reached",
+    "retry": "Retry",
+    "retryCount": "Retry ({current}/{max})",
+    "unexpectedError": "An unexpected error occurred",
+    "failedToRecover": "Failed to recover widget",
+    "tryAgain": "Try Again",
+    "reloadPage": "Reload Page",
+    "showDetails": "Show Details",
+    "errorDetails": "Error Details",
+    "widgetInfo": "Widget Info",
+    "pluginId": "Plugin ID",
+    "instanceId": "Instance ID",
+    "errorTime": "Error Time",
+    "recoveryAttempts": "Recovery Attempts",
+    "unknownError": "Unknown error occurred",
+    "recoveryFailed": "Recovery failed",
+    "defaultMessage": "An unexpected error occurred. Please try again."
   },
   "navigation": {
     "previous": "Previous",
     "next": "Next",
     "home": "Home",
-    "back": "Back"
+    "back": "Back",
+    "previousSlide": "Previous Slide",
+    "nextSlide": "Next Slide"
   },
   "dock": {
     "dragToMove": "Drag to move dock",
@@ -91,7 +164,12 @@
       "bottom": "Bottom", 
       "left": "Left",
       "right": "Right"
-    }
+    },
+    "dashboards": "Dashboards",
+    "addWidget": "Add Widget",
+    "pageSettings": "Page Settings",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode"
   },
   "theme": {
     "light": "Light",
@@ -105,6 +183,14 @@
     "closeDialog": "Close dialog",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
+  },
+  "contextMenu": {
+    "widgets": "Widgets",
+    "pages": "Pages",
+    "addWidget": "Add Widget",
+    "addPage": "Add Page",
+    "renamePage": "Rename Page",
+    "deletePage": "Delete Page"
   },
   "validation": {
     "required": "This field is required",

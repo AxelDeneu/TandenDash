@@ -15,7 +15,7 @@ export default defineNuxtConfig({
       { code: 'de', iso: 'de-DE', file: 'de.json', name: 'Deutsch' }
     ],
     defaultLocale: process.env.NUXT_DEFAULT_LOCALE || 'en',
-    langDir: 'lang/',
+    langDir: '../lang/',
     lazy: true,
     strategy: 'no_prefix',
     detectBrowserLanguage: false,

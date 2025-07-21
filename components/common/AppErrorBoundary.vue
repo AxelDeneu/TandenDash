@@ -11,17 +11,17 @@
         </div>
         
         <div class="error-content">
-          <h2 class="error-title">Something went wrong</h2>
+          <h2 class="error-title">{{ $t('errors.somethingWentWrong') }}</h2>
           <p class="error-message">{{ errorMessage }}</p>
           
           <div class="error-actions">
             <Button @click="retry" :disabled="isRetrying">
               <RefreshCw class="w-4 h-4 mr-2" :class="{ 'animate-spin': isRetrying }" />
-              Try Again
+              {{ $t('errors.tryAgain') }}
             </Button>
             
             <Button variant="outline" @click="reloadPage">
-              Reload Page
+              {{ $t('errors.reloadPage') }}
             </Button>
             
             <Button 
@@ -30,12 +30,12 @@
               v-if="isDevelopment"
             >
               <ChevronDown class="w-4 h-4 mr-2" :class="{ 'rotate-180': showDetails }" />
-              Show Details
+              {{ $t('errors.showDetails') }}
             </Button>
           </div>
           
           <div v-if="showDetails && isDevelopment" class="error-details">
-            <h3>Error Details</h3>
+            <h3>{{ $t('errors.errorDetails') }}</h3>
             <pre class="error-stack">{{ errorDetails }}</pre>
           </div>
         </div>
@@ -55,8 +55,10 @@ interface Props {
   maxRetries?: number
 }
 
+const { t } = useI18n()
+
 const props = withDefaults(defineProps<Props>(), {
-  fallbackMessage: 'An unexpected error occurred. Please try again.',
+  fallbackMessage: '',
   enableRetry: true,
   maxRetries: 3
 })
@@ -80,11 +82,12 @@ const isDevelopment = computed(() => {
 
 // Computed properties
 const errorMessage = computed(() => {
-  if (!currentError.value) return props.fallbackMessage
+  const fallback = props.fallbackMessage || t('errors.defaultMessage')
+  if (!currentError.value) return fallback
   if (isDevelopment.value) {
-    return currentError.value.message || props.fallbackMessage
+    return currentError.value.message || fallback
   }
-  return props.fallbackMessage
+  return fallback
 })
 
 const errorDetails = computed(() => {

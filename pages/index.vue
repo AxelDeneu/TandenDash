@@ -29,7 +29,7 @@ onMounted(async () => {
   <div class="h-screen w-screen flex items-center justify-center">
     <LoadingPlaceholder 
       type="page" 
-      message="Redirecting to dashboard..."
+      :message="$t('common.redirecting')"
       :show-skeleton="true"
     />
   </div>

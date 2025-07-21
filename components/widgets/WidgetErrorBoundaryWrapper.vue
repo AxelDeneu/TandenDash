@@ -2,7 +2,7 @@
   <div class="widget-error-boundary">
     <slot v-if="!hasError" />
     <div v-else class="widget-error-fallback p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-      <h4 class="font-semibold text-destructive mb-2">Widget Error</h4>
+      <h4 class="font-semibold text-destructive mb-2">{{ $t('errors.widgetError') }}</h4>
       <p class="text-sm text-muted-foreground mb-3">{{ errorMessage }}</p>
       <Button
         v-if="canRetry"
@@ -11,7 +11,7 @@
         @click="retry"
         :disabled="retryCount >= maxRetries"
       >
-        {{ retryCount >= maxRetries ? 'Max retries reached' : `Retry (${retryCount}/${maxRetries})` }}
+        {{ retryCount >= maxRetries ? $t('errors.maxRetriesReached') : $t('errors.retryCount', { current: retryCount, max: maxRetries }) }}
       </Button>
     </div>
   </div>
@@ -21,6 +21,7 @@
 import { ref, onErrorCaptured, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useWidgetPlugins } from '@/composables'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   widgetId: string
@@ -37,6 +38,7 @@ const emit = defineEmits<{
   retry: []
 }>()
 
+const { t } = useI18n()
 const widgetPlugins = useWidgetPlugins()
 const hasError = ref(false)
 const errorMessage = ref('')
@@ -46,7 +48,7 @@ const canRetry = ref(true)
 // Capture errors from child components
 onErrorCaptured((error: Error) => {
   hasError.value = true
-  errorMessage.value = error.message || 'An unexpected error occurred'
+  errorMessage.value = error.message || t('errors.unexpectedError')
   
   // Register error with widget system if instance ID is provided
   if (props.instanceId) {
@@ -82,7 +84,7 @@ const retry = async () => {
     } catch (error) {
       // Recovery failed
       hasError.value = true
-      errorMessage.value = 'Failed to recover widget'
+      errorMessage.value = t('errors.failedToRecover')
     }
   }
 }

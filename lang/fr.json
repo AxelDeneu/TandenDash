@@ -16,7 +16,12 @@
     "settings": "Paramètres",
     "confirm": "Confirmer",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "create": "Créer",
+    "unknown": "Inconnu",
+    "redirecting": "Redirection vers le tableau de bord...",
+    "details": "Détails",
+    "remove": "Retirer"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -37,7 +42,53 @@
     "snapToGrid": "Aligner sur la grille",
     "widgetConfiguration": "Configuration du widget",
     "removeWidget": "Supprimer le widget",
-    "resizeWidget": "Redimensionner le widget"
+    "resizeWidget": "Redimensionner le widget",
+    "loadingDashboard": "Chargement du tableau de bord...",
+    "createPage": "Créer une page",
+    "cannotDeleteLastPage": "Impossible de supprimer la dernière page",
+    "deletePageConfirm": "Supprimer la page \"{name}\" ?",
+    "deleteWidgetConfirm": "Supprimer ce widget ?",
+    "widgetTypeConfiguration": "Configuration {type}",
+    "pageMargins": "Marges de la page (pixels)",
+    "marginTop": "Haut",
+    "marginRight": "Droite",
+    "marginBottom": "Bas",
+    "marginLeft": "Gauche",
+    "marginDescription": "Définir des marges pour éloigner les widgets des bords de l'écran. Utile pour les écrans tactiles.",
+    "editPageSettings": "Modifier les paramètres de la page",
+    "selectDashboard": "Sélectionner un dashboard",
+    "chooseOrCreate": "Choisissez un dashboard ou créez-en un nouveau",
+    "loadingDashboards": "Chargement des dashboards...",
+    "byDefault": "Par défaut",
+    "current": "Actuel",
+    "createdOn": "Créé le {date}",
+    "duplicate": "Dupliquer",
+    "newDashboard": "Nouveau dashboard",
+    "editDashboard": "Modifier le dashboard",
+    "createDashboard": "Créer un dashboard",
+    "dashboardName": "Nom du dashboard",
+    "dashboardNamePlaceholder": "Ex: Salon, Bureau, Cuisine...",
+    "setAsDefault": "Définir comme dashboard par défaut",
+    "regionalSettings": "Paramètres régionaux",
+    "language": "Langue",
+    "selectLanguage": "Sélectionner une langue",
+    "timezone": "Fuseau horaire",
+    "selectTimezone": "Sélectionner un fuseau",
+    "dateFormat": "Format de date",
+    "timeFormat": "Format d'heure",
+    "measurementUnits": "Unités de mesure",
+    "measurementSystem": "Système de mesure",
+    "metric": "Métrique",
+    "imperial": "Impérial",
+    "temperature": "Température",
+    "appearance": "Apparence",
+    "theme": "Thème",
+    "celsius": "Celsius (°C)",
+    "fahrenheit": "Fahrenheit (°F)",
+    "auto": "Auto",
+    "deleteDashboard": "Supprimer le dashboard",
+    "deleteDashboardConfirm": "Êtes-vous sûr de vouloir supprimer le dashboard \"{name}\" ? Cette action est irréversible.",
+    "dashboardCopy": "{name} (copie)"
   },
   "widgets": {
     "title": "Widgets",
@@ -51,7 +102,9 @@
     },
     "noWidgets": "Aucun widget disponible",
     "configuration": "Configuration",
-    "preview": "Aperçu"
+    "preview": "Aperçu",
+    "chooseColor": "Choisir une couleur...",
+    "addTag": "Ajouter un tag..."
   },
   "pages": {
     "pageName": "Nom de la page",
@@ -76,13 +129,33 @@
     "failedToSave": "Échec de l'enregistrement",
     "failedToDelete": "Échec de la suppression",
     "required": "Ce champ est requis",
-    "invalidFormat": "Format invalide"
+    "invalidFormat": "Format invalide",
+    "widgetError": "Erreur du widget",
+    "maxRetriesReached": "Nombre maximum de tentatives atteint",
+    "retry": "Réessayer",
+    "retryCount": "Réessayer ({current}/{max})",
+    "unexpectedError": "Une erreur inattendue s'est produite",
+    "failedToRecover": "Échec de la récupération du widget",
+    "tryAgain": "Réessayer",
+    "reloadPage": "Recharger la page",
+    "showDetails": "Afficher les détails",
+    "errorDetails": "Détails de l'erreur",
+    "widgetInfo": "Informations du widget",
+    "pluginId": "ID du plugin",
+    "instanceId": "ID de l'instance",
+    "errorTime": "Heure de l'erreur",
+    "recoveryAttempts": "Tentatives de récupération",
+    "unknownError": "Une erreur inconnue s'est produite",
+    "recoveryFailed": "La récupération a échoué",
+    "defaultMessage": "Une erreur inattendue s'est produite. Veuillez réessayer."
   },
   "navigation": {
     "previous": "Précédent",
     "next": "Suivant",
     "home": "Accueil",
-    "back": "Retour"
+    "back": "Retour",
+    "previousSlide": "Diapositive précédente",
+    "nextSlide": "Diapositive suivante"
   },
   "dock": {
     "dragToMove": "Glisser pour déplacer le dock",
@@ -91,7 +164,12 @@
       "bottom": "Bas",
       "left": "Gauche",
       "right": "Droite"
-    }
+    },
+    "dashboards": "Tableaux de bord",
+    "addWidget": "Ajouter un widget",
+    "pageSettings": "Paramètres de la page",
+    "lightMode": "Mode clair",
+    "darkMode": "Mode sombre"
   },
   "theme": {
     "light": "Clair",
@@ -105,6 +183,14 @@
     "closeDialog": "Fermer la boîte de dialogue",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
+  },
+  "contextMenu": {
+    "widgets": "Widgets",
+    "pages": "Pages",
+    "addWidget": "Ajouter un widget",
+    "addPage": "Ajouter une page",
+    "renamePage": "Renommer la page",
+    "deletePage": "Supprimer la page"
   },
   "validation": {
     "required": "Ce champ est requis",

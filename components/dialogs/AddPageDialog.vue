@@ -33,12 +33,12 @@ const updatePageName = (value: string) => {
   <Dialog :open="props.open" @update:open="val => { if (!val) emit('close') }">
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Add Page</DialogTitle>
+        <DialogTitle>{{ $t('dashboard.addPage') }}</DialogTitle>
       </DialogHeader>
-      <Input :model-value="localPageName" @update:model-value="updatePageName" placeholder="Page name" class="mb-4" />
+      <Input :model-value="localPageName" @update:model-value="updatePageName" :placeholder="$t('pages.pageNamePlaceholder')" class="mb-4" />
       <DialogFooter>
-        <Button @click="() => emit('add')">Add</Button>
-        <DialogClose as-child><Button variant="secondary">Cancel</Button></DialogClose>
+        <Button @click="() => emit('add')">{{ $t('common.add') }}</Button>
+        <DialogClose as-child><Button variant="secondary">{{ $t('common.cancel') }}</Button></DialogClose>
       </DialogFooter>
     </DialogContent>
   </Dialog>
