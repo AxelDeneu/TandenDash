@@ -4,9 +4,13 @@ import { cn } from '../../lib/utils';
 import { fontSizeStyle, toPixels } from '../../lib/utils/font-sizes';
 import { applySecondsAnimation } from './animations';
 import type { ClockWidgetConfig } from "./definition";
+import { ClockWidgetPlugin } from './plugin';
 
 // Define props
 const props = defineProps<ClockWidgetConfig>();
+
+// i18n setup
+const { t, locale } = useWidgetI18n(ClockWidgetPlugin.id);
 
 // Reactive time and date
 const time = ref('');
@@ -15,7 +19,7 @@ const date = ref('');
 // Update time
 const updateTime = () => {
   const now = new Date();
-  time.value = now.toLocaleTimeString(undefined, {
+  time.value = now.toLocaleTimeString(locale.value, {
     hour12: props.format === '12',
     hour: '2-digit',
     minute: '2-digit',
@@ -23,7 +27,7 @@ const updateTime = () => {
   });
 
   if (props.showDate) {
-    date.value = now.toLocaleDateString(undefined, {
+    date.value = now.toLocaleDateString(locale.value, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -50,6 +54,11 @@ onMounted(() => {
 });
 onUnmounted(() => {
   clearInterval(interval);
+});
+
+// Watch for locale changes
+watch(locale, () => {
+  updateTime();
 });
 
 // Dynamic classes

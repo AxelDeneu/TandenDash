@@ -90,14 +90,26 @@ export type MyWidgetConfig = z.infer<typeof MyWidgetConfig>
 <template>
   <div class="widget-container">
     <h2>{{ props.title }}</h2>
+    <p>{{ t('messages.welcome') }}</p>
+    <time>{{ currentTime }}</time>
     <!-- Widget content -->
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { MyWidgetConfig } from './definition'
+import { MyWidgetPlugin } from './plugin'
 
 const props = defineProps<MyWidgetConfig>()
+
+// Initialize i18n
+const { t, locale } = useWidgetI18n(MyWidgetPlugin.id)
+
+// Example: locale-aware time formatting
+const currentTime = computed(() => {
+  return new Date().toLocaleTimeString(locale.value)
+})
 </script>
 ```
 
@@ -108,8 +120,11 @@ import { defineWidgetPlugin } from '@/lib/widgets/definePlugin'
 import MyWidgetComponent from './index.vue'
 import { MyWidgetConfig } from './definition'
 
-export default defineWidgetPlugin({
-  id: 'my-widget',
+// Export widget ID for use in components
+export const MY_WIDGET_ID = 'my-widget'
+
+export const MyWidgetPlugin = defineWidgetPlugin({
+  id: MY_WIDGET_ID,
   name: 'My Widget',
   description: 'A custom widget',
   version: '1.0.0',
@@ -125,6 +140,9 @@ export default defineWidgetPlugin({
     canConfigure: true
   }
 })
+
+// Export default for auto-discovery
+export default MyWidgetPlugin
 ```
 
 ## Widget Plugin Interface
@@ -265,7 +283,18 @@ widgets/YourWidget/
 └── plugin.ts
 ```
 
-2. **Create translation files** for each supported language:
+2. **Export your widget ID constant** in `plugin.ts`:
+```typescript
+export const YOUR_WIDGET_ID = 'your-widget'
+
+export const YourWidgetPlugin: WidgetPlugin<YourWidgetConfig> = {
+  id: YOUR_WIDGET_ID,
+  name: 'Your Widget',
+  // ... rest of plugin definition
+}
+```
+
+3. **Create translation files** for each supported language:
 
 Example `lang/en.json`:
 ```json
@@ -273,13 +302,11 @@ Example `lang/en.json`:
   "title": "Your Widget",
   "settings": {
     "label": "Settings",
-    "option1": "Option 1",
-    "option2": "Option 2"
+    "option1": "Option 1"
   },
   "messages": {
     "loading": "Loading...",
-    "error": "An error occurred",
-    "success": "Success!"
+    "error": "An error occurred"
   }
 }
 ```
@@ -290,27 +317,38 @@ Example `lang/fr.json`:
   "title": "Votre Widget",
   "settings": {
     "label": "Paramètres",
-    "option1": "Option 1", 
-    "option2": "Option 2"
+    "option1": "Option 1"
   },
   "messages": {
     "loading": "Chargement...",
-    "error": "Une erreur s'est produite",
-    "success": "Succès !"
+    "error": "Une erreur s'est produite"
   }
 }
 ```
 
-3. **Use translations in your widget**:
+4. **Use translations in your widget**:
 
 ```vue
 <script setup lang="ts">
-import { useWidgetI18n } from '@/composables'
+import { YourWidgetPlugin } from './plugin'
 
-// Initialize widget i18n with your widget name
-const { t } = useWidgetI18n({ 
-  widgetName: 'YourWidget',
-  fallbackLocale: 'en' // Optional: fallback language if translation is missing
+// Initialize widget i18n - no import needed, it's auto-imported!
+const { t, locale } = useWidgetI18n(YourWidgetPlugin.id)
+
+// Use locale for date/time formatting
+const formattedDate = computed(() => {
+  return new Date().toLocaleDateString(locale.value, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+})
+
+// Watch for locale changes
+watch(locale, () => {
+  // Update any locale-dependent data
+  refreshData()
 })
 </script>
 
@@ -318,17 +356,57 @@ const { t } = useWidgetI18n({
   <div>
     <h2>{{ t('title') }}</h2>
     <p>{{ t('messages.loading') }}</p>
-    <button>{{ t('settings.label') }}</button>
+    <time>{{ formattedDate }}</time>
   </div>
 </template>
+```
+
+### How it works
+
+1. **Automatic loading**: The `01.widget-i18n.ts` plugin automatically loads all widget translations at startup
+2. **Namespacing**: Widget translations are namespaced as `widget_${widgetId}` (lowercase)
+3. **Auto-imports**: `useWidgetI18n` is globally available - no import needed
+4. **Reactive locale**: The locale ref updates automatically when the user changes language
+
+### Working with dates, times, and units
+
+When displaying dates, times, or measurements, always use the locale:
+
+```typescript
+// Dates and times
+const time = now.toLocaleTimeString(locale.value, {
+  hour: '2-digit',
+  minute: '2-digit'
+})
+
+// Numbers and units
+const temperature = computed(() => {
+  const temp = props.unit === 'fahrenheit' ? 
+    convertToFahrenheit(value) : value
+  return `${temp}° ${props.unit === 'fahrenheit' ? 'F' : 'C'}`
+})
+```
+
+### API Integration
+
+When calling external APIs, pass the locale and unit preferences:
+
+```typescript
+const response = await $fetch('/api/data', {
+  query: { 
+    locale: locale.value,
+    units: props.measurementSystem
+  }
+})
 ```
 
 ### Best practices
 
 1. **Always provide English translations** as the fallback language
-2. **Use nested keys** to organize translations logically
-3. **Keep translation keys consistent** across all language files
-4. **Test your widget** in different languages to ensure proper display
+2. **Export widget ID as a constant** to avoid typos and enable refactoring
+3. **Use the locale for all user-facing formatting** (dates, times, numbers)
+4. **Watch locale changes** to update dynamic content
+5. **Test your widget** in different languages
 
 ### Available languages
 
@@ -340,7 +418,7 @@ The application currently supports:
 
 ### Dynamic locale changes
 
-Widget translations are automatically reloaded when the user changes the application language. No additional code is needed to handle locale changes.
+Widget translations are automatically reloaded when the user changes the application language. The `locale` ref from `useWidgetI18n` is reactive and will trigger updates in your computed properties and watchers.
 
 ## Widget Dependencies
 
@@ -671,10 +749,14 @@ onErrorCaptured((err) => {
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { ClockWidgetConfig } from './definition'
+import { ClockWidgetPlugin } from './plugin'
 
 const props = defineProps<ClockWidgetConfig>()
+
+// Initialize i18n
+const { locale } = useWidgetI18n(ClockWidgetPlugin.id)
 
 const time = ref('')
 const date = ref('')
@@ -682,9 +764,17 @@ let timer: number
 
 function updateTime() {
   const now = new Date()
-  time.value = now.toLocaleTimeString()
-  date.value = now.toLocaleDateString()
+  time.value = now.toLocaleTimeString(locale.value)
+  date.value = now.toLocaleDateString(locale.value, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
+
+// Update when locale changes
+watch(locale, updateTime)
 
 onMounted(() => {
   updateTime()
