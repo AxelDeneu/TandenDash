@@ -14,9 +14,9 @@
       >
         <AccordionTrigger class="text-left">
           <div>
-            <h3 class="font-medium">{{ group.label }}</h3>
+            <h3 class="font-medium">{{ resolveLabel(group.label) }}</h3>
             <p v-if="group.description" class="text-sm text-muted-foreground">
-              {{ group.description }}
+              {{ resolveLabel(group.description) }}
             </p>
           </div>
         </AccordionTrigger>
@@ -56,15 +56,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject, provide } from 'vue'
 import type { EnhancedWidgetConfig } from '@/types/widget-options'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Separator } from '@/components/ui/separator'
 import OptionField from './OptionField.vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   config: EnhancedWidgetConfig
   modelValue: Record<string, any>
+  widgetType?: string
 }
 
 const props = defineProps<Props>()
@@ -72,6 +74,36 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update:modelValue': [value: Record<string, any>]
 }>()
+
+// Get i18n instance
+const { t } = useI18n()
+
+// Provide widget type to children
+if (props.widgetType) {
+  provide('widgetType', props.widgetType)
+}
+
+// Function to resolve labels with @ prefix as translation keys
+const resolveLabel = (label: string | undefined): string => {
+  if (!label) return ''
+  
+  if (label.startsWith('@')) {
+    const key = label.substring(1)
+    // Try widget-specific translation first
+    if (props.widgetType) {
+      const widgetKey = `widget_${props.widgetType}.${key}`
+      const translation = t(widgetKey)
+      // If translation is found (not the same as the key), return it
+      if (translation !== widgetKey) {
+        return translation
+      }
+    }
+    // Fallback to global translation
+    return t(key)
+  }
+  
+  return label
+}
 
 // Get default open groups
 const defaultOpenGroups = computed(() => {

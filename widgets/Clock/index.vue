@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { cn } from '../../lib/utils';
 import { applySecondsAnimation } from './animations';
 import { fontSizeStyle, toPixels } from '../../lib/utils/font-sizes';
 import type { ClockWidgetConfig } from "./definition";
+import translations from './lang/index';
 
 // Define props
 const props = defineProps<ClockWidgetConfig>();
+
+// Load translations
+const { mergeLocaleMessage } = useI18n();
+
+// Merge translations for all available locales
+Object.entries(translations).forEach(([locale, messages]) => {
+  mergeLocaleMessage(locale, { widget_Clock: messages });
+});
 
 // Reactive time and date
 const time = ref('');

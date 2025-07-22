@@ -1,11 +1,11 @@
 <template>
   <div v-if="shouldShow" class="space-y-2">
     <Label :for="fieldId" class="text-sm font-medium">
-      {{ definition.label }}
+      {{ resolveLabel(definition.label) }}
     </Label>
     
     <p v-if="definition.description" class="text-xs text-muted-foreground">
-      {{ definition.description }}
+      {{ resolveLabel(definition.description) }}
     </p>
 
     <!-- Toggle/Switch -->
@@ -16,7 +16,7 @@
         @update:model-value="$emit('update:modelValue', $event)"
       />
       <Label :for="fieldId" class="text-sm">
-        {{ definition.label }}
+        {{ resolveLabel(definition.label) }}
       </Label>
     </div>
 
@@ -26,7 +26,7 @@
       :id="fieldId"
       type="text"
       :model-value="modelValue"
-      :placeholder="definition.placeholder"
+      :placeholder="resolveLabel(definition.placeholder)"
       @update:model-value="$emit('update:modelValue', $event)"
     />
 
@@ -74,9 +74,9 @@
           :value="option.value"
         >
           <div class="flex flex-col">
-            <span>{{ option.label }}</span>
+            <span>{{ resolveLabel(option.label) }}</span>
             <span v-if="option.description" class="text-xs text-muted-foreground">
-              {{ option.description }}
+              {{ resolveLabel(option.description) }}
             </span>
           </div>
         </SelectItem>
@@ -107,9 +107,9 @@
               class="h-4 w-4" 
             />
             <div>
-              <div class="font-medium">{{ option.label }}</div>
+              <div class="font-medium">{{ resolveLabel(option.label) }}</div>
               <div v-if="option.description" class="text-xs text-muted-foreground">
-                {{ option.description }}
+                {{ resolveLabel(option.description) }}
               </div>
             </div>
           </div>
@@ -134,7 +134,7 @@
             :is="getIcon(action.icon)" 
             class="h-4 w-4" 
           />
-          {{ action.label }}
+          {{ resolveLabel(action.label) }}
         </Button>
       </div>
       
@@ -160,9 +160,9 @@
           class="text-sm cursor-pointer flex-1"
         >
           <div>
-            <div>{{ option.label }}</div>
+            <div>{{ resolveLabel(option.label) }}</div>
             <div v-if="option.description" class="text-xs text-muted-foreground">
-              {{ option.description }}
+              {{ resolveLabel(option.description) }}
             </div>
           </div>
         </Label>
@@ -212,13 +212,13 @@
       :model-value="modelValue || []"
       @update:model-value="$emit('update:modelValue', $event)"
     >
-      <TagsInputInput :placeholder="definition.placeholder || $t('widgets.addTag')" />
+      <TagsInputInput :placeholder="resolveLabel(definition.placeholder) || $t('widgets.addTag')" />
     </TagsInput>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch, inject } from 'vue'
 import type { WidgetOptionDefinition } from '@/types/widget-options'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -230,6 +230,7 @@ import { Slider } from '@/components/ui/slider'
 import { TagsInput, TagsInputInput } from '@/components/ui/tags-input'
 import { Button } from '@/components/ui/button'
 import { AlignVerticalJustifyCenter, AlignHorizontalJustifyCenter, Palette, Plus, Trash2 } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   fieldKey: string
@@ -243,6 +244,34 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update:modelValue': [value: any]
 }>()
+
+// Get i18n instance
+const { t } = useI18n()
+
+// Inject widget type from parent
+const widgetType = inject<string>('widgetType', '')
+
+// Function to resolve labels with @ prefix as translation keys
+const resolveLabel = (label: string | undefined): string => {
+  if (!label) return ''
+  
+  if (label.startsWith('@')) {
+    const key = label.substring(1)
+    // Try widget-specific translation first
+    if (widgetType) {
+      const widgetKey = `widget_${widgetType}.${key}`
+      const translation = t(widgetKey)
+      // If translation is found (not the same as the key), return it
+      if (translation !== widgetKey) {
+        return translation
+      }
+    }
+    // Fallback to global translation
+    return t(key)
+  }
+  
+  return label
+}
 
 // Generate unique field ID
 const fieldId = computed(() => `field-${props.fieldKey}`)
@@ -300,8 +329,9 @@ const shouldShow = computed(() => {
 
 // Get placeholder for select fields
 const getSelectPlaceholder = () => {
-  if (props.definition.placeholder) return props.definition.placeholder
-  if (effectiveOptions.value?.length) return `Select ${props.definition.label.toLowerCase()}...`
+  if (props.definition.placeholder) return resolveLabel(props.definition.placeholder)
+  const label = resolveLabel(props.definition.label)
+  if (effectiveOptions.value?.length) return `Select ${label.toLowerCase()}...`
   return 'Select an option...'
 }
 

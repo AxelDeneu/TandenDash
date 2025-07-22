@@ -210,7 +210,7 @@ const handleSave = async () => {
         <WidgetOptionsForm 
           :options-def="optionsDef" 
           :enhanced-config="enhancedConfig"
-          :widget-type="widgetDisplayName"
+          :widget-type="selectedWidgetType"
           v-model="widgetOptions" 
         />
       </div>

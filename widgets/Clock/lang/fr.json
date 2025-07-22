@@ -1,0 +1,175 @@
+{
+  "config": {
+    "groups": {
+      "display": {
+        "label": "Options d'affichage",
+        "description": "Configurer les informations à afficher"
+      },
+      "appearance": {
+        "label": "Apparence",
+        "description": "Personnaliser les couleurs et les tailles"
+      },
+      "animations": {
+        "label": "Animations",
+        "description": "Configurer les mouvements et transitions"
+      },
+      "spacing": {
+        "label": "Espacement et disposition",
+        "description": "Ajuster l'espacement et le positionnement"
+      }
+    },
+    "options": {
+      "showSeconds": {
+        "label": "Afficher les secondes",
+        "description": "Afficher les secondes dans l'heure"
+      },
+      "showDate": {
+        "label": "Afficher la date",
+        "description": "Afficher la date actuelle sous l'heure"
+      },
+      "format": {
+        "label": "Format de l'heure",
+        "description": "Choisir entre le format 12 heures ou 24 heures",
+        "options": {
+          "12": {
+            "label": "12 heures",
+            "description": "1:30 PM"
+          },
+          "24": {
+            "label": "24 heures",
+            "description": "13:30"
+          }
+        }
+      },
+      "alignment": {
+        "label": "Disposition",
+        "description": "Organiser les éléments de temps",
+        "options": {
+          "vertical": {
+            "label": "Vertical",
+            "description": "Empiler l'heure et la date verticalement"
+          },
+          "horizontal": {
+            "label": "Horizontal",
+            "description": "Placer l'heure et la date côte à côte"
+          }
+        }
+      },
+      "hourSize": {
+        "label": "Taille des heures",
+        "description": "Taille de police pour les chiffres des heures"
+      },
+      "minuteSize": {
+        "label": "Taille des minutes",
+        "description": "Taille de police pour les chiffres des minutes"
+      },
+      "secondSize": {
+        "label": "Taille des secondes",
+        "description": "Taille de police pour les chiffres des secondes"
+      },
+      "separatorSize": {
+        "label": "Taille du séparateur",
+        "description": "Taille de police pour le séparateur d'heure (:)"
+      },
+      "hourColor": {
+        "label": "Couleur des heures",
+        "description": "Couleur pour les chiffres des heures"
+      },
+      "minuteColor": {
+        "label": "Couleur des minutes",
+        "description": "Couleur pour les chiffres des minutes"
+      },
+      "secondColor": {
+        "label": "Couleur des secondes",
+        "description": "Couleur pour les chiffres des secondes"
+      },
+      "backgroundColor": {
+        "label": "Couleur de fond",
+        "description": "Couleur de fond du widget"
+      },
+      "animateSeparator": {
+        "label": "Animer le séparateur",
+        "description": "Faire clignoter ou pulser le séparateur d'heure"
+      },
+      "animateSeconds": {
+        "label": "Animer les secondes",
+        "description": "Ajouter des effets d'animation aux secondes"
+      },
+      "secondsAnimation": {
+        "label": "Type d'animation des secondes",
+        "description": "Choisir le style d'animation pour les secondes",
+        "options": {
+          "bounce": {
+            "label": "Rebond",
+            "description": "Effet de rebond au changement de seconde"
+          },
+          "spin": {
+            "label": "Rotation",
+            "description": "Rotation au changement de seconde"
+          },
+          "fade": {
+            "label": "Fondu",
+            "description": "Fondu entrant/sortant au changement de seconde"
+          }
+        }
+      },
+      "separator": {
+        "label": "Séparateur d'heure",
+        "description": "Caractère pour séparer les composants de temps",
+        "placeholder": ":"
+      },
+      "timeSeparatorSpacing": {
+        "label": "Espacement du séparateur",
+        "description": "Espacement horizontal autour du séparateur",
+        "options": {
+          "mx-0": {
+            "label": "Aucun",
+            "description": "0px"
+          },
+          "mx-1": {
+            "label": "Petit",
+            "description": "4px"
+          },
+          "mx-2": {
+            "label": "Moyen",
+            "description": "8px"
+          },
+          "mx-3": {
+            "label": "Grand",
+            "description": "12px"
+          },
+          "mx-4": {
+            "label": "Très grand",
+            "description": "16px"
+          }
+        }
+      },
+      "dateSpacing": {
+        "label": "Espacement de la date",
+        "description": "Espacement vertical entre l'heure et la date",
+        "options": {
+          "mt-0": {
+            "label": "Aucun",
+            "description": "0px"
+          },
+          "mt-1": {
+            "label": "Petit",
+            "description": "4px"
+          },
+          "mt-2": {
+            "label": "Moyen",
+            "description": "8px"
+          },
+          "mt-4": {
+            "label": "Grand",
+            "description": "16px"
+          },
+          "mt-6": {
+            "label": "Très grand",
+            "description": "24px"
+          }
+        }
+      }
+    }
+  }
+}

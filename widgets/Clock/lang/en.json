@@ -1,0 +1,175 @@
+{
+  "config": {
+    "groups": {
+      "display": {
+        "label": "Display Options",
+        "description": "Configure what information to show"
+      },
+      "appearance": {
+        "label": "Appearance",
+        "description": "Customize colors and sizes"
+      },
+      "animations": {
+        "label": "Animations",
+        "description": "Configure movement and transitions"
+      },
+      "spacing": {
+        "label": "Spacing & Layout",
+        "description": "Fine-tune spacing and positioning"
+      }
+    },
+    "options": {
+      "showSeconds": {
+        "label": "Show Seconds",
+        "description": "Display seconds in the time"
+      },
+      "showDate": {
+        "label": "Show Date",
+        "description": "Display the current date below the time"
+      },
+      "format": {
+        "label": "Time Format",
+        "description": "Choose between 12-hour or 24-hour format",
+        "options": {
+          "12": {
+            "label": "12 Hour",
+            "description": "1:30 PM"
+          },
+          "24": {
+            "label": "24 Hour",
+            "description": "13:30"
+          }
+        }
+      },
+      "alignment": {
+        "label": "Layout",
+        "description": "Arrange time elements",
+        "options": {
+          "vertical": {
+            "label": "Vertical",
+            "description": "Stack time and date vertically"
+          },
+          "horizontal": {
+            "label": "Horizontal",
+            "description": "Place time and date side by side"
+          }
+        }
+      },
+      "hourSize": {
+        "label": "Hour Size",
+        "description": "Font size for hour digits"
+      },
+      "minuteSize": {
+        "label": "Minute Size",
+        "description": "Font size for minute digits"
+      },
+      "secondSize": {
+        "label": "Second Size",
+        "description": "Font size for second digits"
+      },
+      "separatorSize": {
+        "label": "Separator Size",
+        "description": "Font size for time separator (:)"
+      },
+      "hourColor": {
+        "label": "Hour Color",
+        "description": "Color for hour digits"
+      },
+      "minuteColor": {
+        "label": "Minute Color",
+        "description": "Color for minute digits"
+      },
+      "secondColor": {
+        "label": "Second Color",
+        "description": "Color for second digits"
+      },
+      "backgroundColor": {
+        "label": "Background Color",
+        "description": "Background color for the widget"
+      },
+      "animateSeparator": {
+        "label": "Animate Separator",
+        "description": "Make the time separator blink or pulse"
+      },
+      "animateSeconds": {
+        "label": "Animate Seconds",
+        "description": "Add animation effects to seconds"
+      },
+      "secondsAnimation": {
+        "label": "Seconds Animation Type",
+        "description": "Choose the animation style for seconds",
+        "options": {
+          "bounce": {
+            "label": "Bounce",
+            "description": "Bouncy effect on second change"
+          },
+          "spin": {
+            "label": "Spin",
+            "description": "Rotate on second change"
+          },
+          "fade": {
+            "label": "Fade",
+            "description": "Fade in/out on second change"
+          }
+        }
+      },
+      "separator": {
+        "label": "Time Separator",
+        "description": "Character to separate time components",
+        "placeholder": ":"
+      },
+      "timeSeparatorSpacing": {
+        "label": "Separator Spacing",
+        "description": "Horizontal spacing around the separator",
+        "options": {
+          "mx-0": {
+            "label": "None",
+            "description": "0px"
+          },
+          "mx-1": {
+            "label": "Small",
+            "description": "4px"
+          },
+          "mx-2": {
+            "label": "Medium",
+            "description": "8px"
+          },
+          "mx-3": {
+            "label": "Large",
+            "description": "12px"
+          },
+          "mx-4": {
+            "label": "Extra Large",
+            "description": "16px"
+          }
+        }
+      },
+      "dateSpacing": {
+        "label": "Date Spacing",
+        "description": "Vertical spacing between time and date",
+        "options": {
+          "mt-0": {
+            "label": "None",
+            "description": "0px"
+          },
+          "mt-1": {
+            "label": "Small",
+            "description": "4px"
+          },
+          "mt-2": {
+            "label": "Medium",
+            "description": "8px"
+          },
+          "mt-4": {
+            "label": "Large",
+            "description": "16px"
+          },
+          "mt-6": {
+            "label": "Extra Large",
+            "description": "24px"
+          }
+        }
+      }
+    }
+  }
+}

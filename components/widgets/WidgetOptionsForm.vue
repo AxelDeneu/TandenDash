@@ -60,6 +60,7 @@ const handleChange = (key: string, value: any) => {
         <EnhancedWidgetOptionsForm
           :config="enhancedConfig"
           :model-value="modelValue"
+          :widget-type="widgetType"
           @update:model-value="$emit('update:modelValue', $event)"
         />
       </CardContent>

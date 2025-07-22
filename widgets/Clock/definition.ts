@@ -53,50 +53,50 @@ export const widgetConfig = {
   groups: [
     {
       id: 'display',
-      label: 'Display Options',
-      description: 'Configure what information to show',
+      label: '@config.groups.display.label',
+      description: '@config.groups.display.description',
       defaultOpen: true,
       options: {
         showSeconds: {
           type: 'toggle',
-          label: 'Show Seconds',
-          description: 'Display seconds in the time'
+          label: '@config.options.showSeconds.label',
+          description: '@config.options.showSeconds.description'
         },
         showDate: {
           type: 'toggle',
-          label: 'Show Date',
-          description: 'Display the current date below the time'
+          label: '@config.options.showDate.label',
+          description: '@config.options.showDate.description'
         },
         format: {
           type: 'radio',
-          label: 'Time Format',
-          description: 'Choose between 12-hour or 24-hour format',
+          label: '@config.options.format.label',
+          description: '@config.options.format.description',
           options: [
-            { value: '12', label: '12 Hour', description: '1:30 PM' },
-            { value: '24', label: '24 Hour', description: '13:30' }
+            { value: '12', label: '@config.options.format.options.12.label', description: '@config.options.format.options.12.description' },
+            { value: '24', label: '@config.options.format.options.24.label', description: '@config.options.format.options.24.description' }
           ]
         },
         alignment: {
           type: 'radio',
-          label: 'Layout',
-          description: 'Arrange time elements',
+          label: '@config.options.alignment.label',
+          description: '@config.options.alignment.description',
           options: [
-            { value: 'vertical', label: 'Vertical', description: 'Stack time and date vertically', icon: 'AlignVertical' },
-            { value: 'horizontal', label: 'Horizontal', description: 'Place time and date side by side', icon: 'AlignHorizontal' }
+            { value: 'vertical', label: '@config.options.alignment.options.vertical.label', description: '@config.options.alignment.options.vertical.description', icon: 'AlignVertical' },
+            { value: 'horizontal', label: '@config.options.alignment.options.horizontal.label', description: '@config.options.alignment.options.horizontal.description', icon: 'AlignHorizontal' }
           ]
         }
       }
     },
     {
       id: 'appearance',
-      label: 'Appearance',
-      description: 'Customize colors and sizes',
+      label: '@config.groups.appearance.label',
+      description: '@config.groups.appearance.description',
       collapsible: true,
       options: {
         hourSize: {
           type: 'slider',
-          label: 'Hour Size',
-          description: 'Font size for hour digits',
+          label: '@config.options.hourSize.label',
+          description: '@config.options.hourSize.description',
           min: 12,
           max: 96,
           step: 2,
@@ -104,8 +104,8 @@ export const widgetConfig = {
         },
         minuteSize: {
           type: 'slider',
-          label: 'Minute Size',
-          description: 'Font size for minute digits',
+          label: '@config.options.minuteSize.label',
+          description: '@config.options.minuteSize.description',
           min: 12,
           max: 96,
           step: 2,
@@ -113,8 +113,8 @@ export const widgetConfig = {
         },
         secondSize: {
           type: 'slider',
-          label: 'Second Size',
-          description: 'Font size for second digits',
+          label: '@config.options.secondSize.label',
+          description: '@config.options.secondSize.description',
           min: 12,
           max: 96,
           step: 2,
@@ -123,8 +123,8 @@ export const widgetConfig = {
         },
         separatorSize: {
           type: 'slider',
-          label: 'Separator Size',
-          description: 'Font size for time separator (:)',
+          label: '@config.options.separatorSize.label',
+          description: '@config.options.separatorSize.description',
           min: 12,
           max: 72,
           step: 2,
@@ -132,56 +132,56 @@ export const widgetConfig = {
         },
         hourColor: {
           type: 'select',
-          label: 'Hour Color',
-          description: 'Color for hour digits',
+          label: '@config.options.hourColor.label',
+          description: '@config.options.hourColor.description',
           options: COLOR_OPTIONS
         },
         minuteColor: {
           type: 'select',
-          label: 'Minute Color',
-          description: 'Color for minute digits',
+          label: '@config.options.minuteColor.label',
+          description: '@config.options.minuteColor.description',
           options: COLOR_OPTIONS
         },
         secondColor: {
           type: 'select',
-          label: 'Second Color',
-          description: 'Color for second digits',
+          label: '@config.options.secondColor.label',
+          description: '@config.options.secondColor.description',
           options: COLOR_OPTIONS,
           dependencies: { showSeconds: true }
         },
         backgroundColor: {
           type: 'select',
-          label: 'Background Color',
-          description: 'Background color for the widget',
+          label: '@config.options.backgroundColor.label',
+          description: '@config.options.backgroundColor.description',
           options: BACKGROUND_COLOR_OPTIONS
         }
       }
     },
     {
       id: 'animations',
-      label: 'Animations',
-      description: 'Configure movement and transitions',
+      label: '@config.groups.animations.label',
+      description: '@config.groups.animations.description',
       collapsible: true,
       options: {
         animateSeparator: {
           type: 'toggle',
-          label: 'Animate Separator',
-          description: 'Make the time separator blink or pulse'
+          label: '@config.options.animateSeparator.label',
+          description: '@config.options.animateSeparator.description'
         },
         animateSeconds: {
           type: 'toggle',
-          label: 'Animate Seconds',
-          description: 'Add animation effects to seconds',
+          label: '@config.options.animateSeconds.label',
+          description: '@config.options.animateSeconds.description',
           dependencies: { showSeconds: true }
         },
         secondsAnimation: {
           type: 'select',
-          label: 'Seconds Animation Type',
-          description: 'Choose the animation style for seconds',
+          label: '@config.options.secondsAnimation.label',
+          description: '@config.options.secondsAnimation.description',
           options: [
-            { value: 'bounce', label: 'Bounce', description: 'Bouncy effect on second change' },
-            { value: 'spin', label: 'Spin', description: 'Rotate on second change' },
-            { value: 'fade', label: 'Fade', description: 'Fade in/out on second change' }
+            { value: 'bounce', label: '@config.options.secondsAnimation.options.bounce.label', description: '@config.options.secondsAnimation.options.bounce.description' },
+            { value: 'spin', label: '@config.options.secondsAnimation.options.spin.label', description: '@config.options.secondsAnimation.options.spin.description' },
+            { value: 'fade', label: '@config.options.secondsAnimation.options.fade.label', description: '@config.options.secondsAnimation.options.fade.description' }
           ],
           dependencies: { showSeconds: true, animateSeconds: true }
         }
@@ -189,38 +189,38 @@ export const widgetConfig = {
     },
     {
       id: 'spacing',
-      label: 'Spacing & Layout',
-      description: 'Fine-tune spacing and positioning',
+      label: '@config.groups.spacing.label',
+      description: '@config.groups.spacing.description',
       collapsible: true,
       options: {
         separator: {
           type: 'text',
-          label: 'Time Separator',
-          description: 'Character to separate time components',
-          placeholder: ':'
+          label: '@config.options.separator.label',
+          description: '@config.options.separator.description',
+          placeholder: '@config.options.separator.placeholder'
         },
         timeSeparatorSpacing: {
           type: 'select',
-          label: 'Separator Spacing',
-          description: 'Horizontal spacing around the separator',
+          label: '@config.options.timeSeparatorSpacing.label',
+          description: '@config.options.timeSeparatorSpacing.description',
           options: [
-            { value: 'mx-0', label: 'None', description: '0px' },
-            { value: 'mx-1', label: 'Small', description: '4px' },
-            { value: 'mx-2', label: 'Medium', description: '8px' },
-            { value: 'mx-3', label: 'Large', description: '12px' },
-            { value: 'mx-4', label: 'Extra Large', description: '16px' }
+            { value: 'mx-0', label: '@config.options.timeSeparatorSpacing.options.mx-0.label', description: '@config.options.timeSeparatorSpacing.options.mx-0.description' },
+            { value: 'mx-1', label: '@config.options.timeSeparatorSpacing.options.mx-1.label', description: '@config.options.timeSeparatorSpacing.options.mx-1.description' },
+            { value: 'mx-2', label: '@config.options.timeSeparatorSpacing.options.mx-2.label', description: '@config.options.timeSeparatorSpacing.options.mx-2.description' },
+            { value: 'mx-3', label: '@config.options.timeSeparatorSpacing.options.mx-3.label', description: '@config.options.timeSeparatorSpacing.options.mx-3.description' },
+            { value: 'mx-4', label: '@config.options.timeSeparatorSpacing.options.mx-4.label', description: '@config.options.timeSeparatorSpacing.options.mx-4.description' }
           ]
         },
         dateSpacing: {
           type: 'select',
-          label: 'Date Spacing',
-          description: 'Vertical spacing between time and date',
+          label: '@config.options.dateSpacing.label',
+          description: '@config.options.dateSpacing.description',
           options: [
-            { value: 'mt-0', label: 'None', description: '0px' },
-            { value: 'mt-1', label: 'Small', description: '4px' },
-            { value: 'mt-2', label: 'Medium', description: '8px' },
-            { value: 'mt-4', label: 'Large', description: '16px' },
-            { value: 'mt-6', label: 'Extra Large', description: '24px' }
+            { value: 'mt-0', label: '@config.options.dateSpacing.options.mt-0.label', description: '@config.options.dateSpacing.options.mt-0.description' },
+            { value: 'mt-1', label: '@config.options.dateSpacing.options.mt-1.label', description: '@config.options.dateSpacing.options.mt-1.description' },
+            { value: 'mt-2', label: '@config.options.dateSpacing.options.mt-2.label', description: '@config.options.dateSpacing.options.mt-2.description' },
+            { value: 'mt-4', label: '@config.options.dateSpacing.options.mt-4.label', description: '@config.options.dateSpacing.options.mt-4.description' },
+            { value: 'mt-6', label: '@config.options.dateSpacing.options.mt-6.label', description: '@config.options.dateSpacing.options.mt-6.description' }
           ],
           dependencies: { showDate: true }
         }
