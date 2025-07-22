@@ -1,4 +1,5 @@
 {
+  "name": "Clock",
   "config": {
     "groups": {
       "display": {

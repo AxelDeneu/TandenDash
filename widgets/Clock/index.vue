@@ -15,7 +15,7 @@ const { mergeLocaleMessage } = useI18n();
 
 // Merge translations for all available locales
 Object.entries(translations).forEach(([locale, messages]) => {
-  mergeLocaleMessage(locale, { widget_Clock: messages });
+  mergeLocaleMessage(locale, { widget_clock: messages });
 });
 
 // Reactive time and date

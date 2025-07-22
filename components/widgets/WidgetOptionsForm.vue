@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Vue imports
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 // UI component imports
 import { Switch } from '@/components/ui/switch'
@@ -23,6 +24,24 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update:modelValue': [value: Record<string, any>]
 }>()
+
+// Get i18n instance
+const { t } = useI18n()
+
+// Get translated widget name
+const widgetDisplayName = computed(() => {
+  if (!props.widgetType) return ''
+  
+  // Try to get translated name from widget's own translations
+  const translatedName = t(`widget_${props.widgetType}.name`)
+  
+  // If translation not found (returns the key), use widgetType with capital first letter
+  if (translatedName === `widget_${props.widgetType}.name`) {
+    return props.widgetType.charAt(0).toUpperCase() + props.widgetType.slice(1)
+  }
+  
+  return translatedName
+})
 
 // Use enhanced config if available
 const useEnhanced = computed(() => !!props.enhancedConfig)
@@ -53,7 +72,7 @@ const handleChange = (key: string, value: any) => {
     <Card>
       <CardHeader>
         <CardTitle class="flex items-center gap-2">
-          <span>{{ widgetType }} Configuration</span>
+          <span>{{ t('dashboard.widgetTypeConfiguration', { type: widgetDisplayName }) }}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
