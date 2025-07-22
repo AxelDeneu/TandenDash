@@ -21,7 +21,7 @@
         class="mt-2"
       >
         <RefreshCw class="w-4 h-4 mr-2" />
-        Retry
+        {{ t('actions.retry') }}
       </Button>
     </div>
 
@@ -84,7 +84,7 @@
 
       <!-- Last Updated -->
       <div v-if="weather.lastUpdated.value" class="text-xs text-muted-foreground opacity-60 mt-2">
-        Updated {{ formatLastUpdated(weather.lastUpdated.value) }}
+        {{ t('states.updated') }} {{ formatLastUpdated(weather.lastUpdated.value) }}
       </div>
     </div>
 
@@ -92,7 +92,7 @@
     <div v-else class="text-center space-y-4">
       <CloudOff class="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
       <p class="text-sm text-muted-foreground">
-        Configure a location to see weather
+        {{ t('states.noLocation') }}
       </p>
     </div>
   </div>
@@ -106,13 +106,18 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { WeatherWidgetConfig } from './definition'
 import { useWeather } from './composables/useWeather'
+import { WeatherWidgetPlugin } from './plugin'
 
 const props = defineProps<WeatherWidgetConfig>()
+
+// i18n
+const { t, locale } = useWidgetI18n(WeatherWidgetPlugin.id)
 
 // Initialize weather composable
 const weather = useWeather({
   location: props.location,
   unit: props.unit,
+  locale: locale.value,
   autoRefresh: true,
   refreshInterval: 10 * 60 * 1000 // 10 minutes
 })
@@ -155,15 +160,20 @@ const formatLastUpdated = (date: Date) => {
   const now = new Date()
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
   
-  if (diffInSeconds < 60) return 'just now'
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`
+  if (diffInSeconds < 60) return t('time.justNow')
+  if (diffInSeconds < 3600) return t('time.minutesAgo', { count: Math.floor(diffInSeconds / 60) })
+  if (diffInSeconds < 86400) return t('time.hoursAgo', { count: Math.floor(diffInSeconds / 3600) })
   return date.toLocaleDateString()
 }
 
 // Watch for location changes
 watch(() => props.location, (newLocation) => {
   weather.updateLocation(newLocation)
+})
+
+// Watch for locale changes
+watch(locale, () => {
+  weather.fetchWeather()
 })
 
 // Lifecycle

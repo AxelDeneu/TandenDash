@@ -1,0 +1,14 @@
+{
+  "actions": {
+    "retry": "Retry"
+  },
+  "states": {
+    "noLocation": "Configure a location to see weather",
+    "updated": "Updated"
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago"
+  }
+}

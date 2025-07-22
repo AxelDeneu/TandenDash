@@ -1,0 +1,14 @@
+{
+  "actions": {
+    "retry": "Wiederholen"
+  },
+  "states": {
+    "noLocation": "Standort konfigurieren, um Wetter anzuzeigen",
+    "updated": "Aktualisiert"
+  },
+  "time": {
+    "justNow": "gerade eben",
+    "minutesAgo": "vor {count}m",
+    "hoursAgo": "vor {count}h"
+  }
+}

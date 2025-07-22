@@ -12,12 +12,13 @@ export interface WeatherData {
 export interface UseWeatherOptions {
   location: string
   unit?: 'celsius' | 'fahrenheit'
+  locale?: string
   autoRefresh?: boolean
   refreshInterval?: number // in milliseconds
 }
 
 export function useWeather(options: UseWeatherOptions) {
-  const { location, unit = 'celsius', autoRefresh = true, refreshInterval = 600000 } = options // 10 minutes default
+  const { location, unit = 'celsius', locale = 'en', autoRefresh = true, refreshInterval = 600000 } = options // 10 minutes default
 
   // State
   const data = ref<WeatherData | null>(null)
@@ -31,9 +32,8 @@ export function useWeather(options: UseWeatherOptions) {
   const temperature = computed(() => {
     if (!data.value) return ''
     
-    const temp = unit === 'fahrenheit' 
-      ? Math.round(data.value.temperature * 9/5 + 32)
-      : data.value.temperature
+    // Temperature is already in the correct unit from the API
+    const temp = data.value.temperature
       
     return `${temp}°${unit === 'fahrenheit' ? 'F' : 'C'}`
   })
@@ -59,7 +59,7 @@ export function useWeather(options: UseWeatherOptions) {
 
     try {
       const response = await $fetch<WeatherData>('/api/widgets/weather/current', {
-        query: { location }
+        query: { location, unit, locale }
       })
 
       data.value = response

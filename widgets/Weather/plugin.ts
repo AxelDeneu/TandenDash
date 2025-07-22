@@ -54,8 +54,10 @@ class WeatherDataProvider implements IDataProvider<any> {
   }
 }
 
+export const WEATHER_WIDGET_ID = 'weather'
+
 export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
-  id: 'weather',
+  id: WEATHER_WIDGET_ID,
   name: 'Weather Widget',
   description: 'Display current weather conditions for any location with customizable display options',
   version: '1.0.0',

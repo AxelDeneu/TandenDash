@@ -1,0 +1,14 @@
+{
+  "actions": {
+    "retry": "Reintentar"
+  },
+  "states": {
+    "noLocation": "Configure una ubicación para ver el clima",
+    "updated": "Actualizado"
+  },
+  "time": {
+    "justNow": "ahora mismo",
+    "minutesAgo": "hace {count}m",
+    "hoursAgo": "hace {count}h"
+  }
+}

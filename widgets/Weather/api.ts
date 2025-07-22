@@ -28,7 +28,7 @@ export const weatherApiRoutes: WidgetApiRoute[] = [
     method: 'GET',
     path: 'current',
     handler: async (event) => {
-      const { location } = getQuery(event) as { location?: string }
+      const { location, unit = 'celsius', locale = 'en' } = getQuery(event) as { location?: string; unit?: 'celsius' | 'fahrenheit'; locale?: string }
       
       if (!location) {
         throw createError({
@@ -38,7 +38,7 @@ export const weatherApiRoutes: WidgetApiRoute[] = [
       }
       
       // Check cache first
-      const cacheKey = location.toLowerCase()
+      const cacheKey = `${location.toLowerCase()}_${unit}_${locale}`
       const cached = cache.get(cacheKey)
       
       if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -56,8 +56,11 @@ export const weatherApiRoutes: WidgetApiRoute[] = [
       }
       
       try {
+        // Convert unit to OpenWeatherMap format
+        const apiUnits = unit === 'fahrenheit' ? 'imperial' : 'metric'
+        
         const response = await $fetch<OpenWeatherResponse>(
-          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=${apiUnits}&lang=${locale}`
         )
         
         const weatherData: WeatherData = {
