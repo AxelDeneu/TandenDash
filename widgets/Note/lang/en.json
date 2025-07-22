@@ -1,0 +1,177 @@
+{
+  "name": "Note",
+  "ui": {
+    "placeholder": "Tap to add your note...",
+    "editPlaceholder": "Enter your note here...",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "config": {
+    "groups": {
+      "content": {
+        "label": "Content",
+        "description": "Note content and formatting options"
+      },
+      "typography": {
+        "label": "Typography",
+        "description": "Font and text layout settings"
+      },
+      "styling": {
+        "label": "Styling",
+        "description": "Colors and spacing"
+      },
+      "borders": {
+        "label": "Borders & Effects",
+        "description": "Border and shadow settings"
+      }
+    },
+    "options": {
+      "content": {
+        "label": "Note Content",
+        "placeholder": "Enter your note here..."
+      },
+      "enableMarkdown": {
+        "label": "Enable Markdown",
+        "description": "Support basic markdown formatting"
+      },
+      "fontSize": {
+        "label": "Font Size",
+        "description": "Size of the text"
+      },
+      "fontFamily": {
+        "label": "Font Family",
+        "description": "Choose the font style",
+        "options": {
+          "sans": {
+            "label": "Sans Serif"
+          },
+          "serif": {
+            "label": "Serif"
+          },
+          "mono": {
+            "label": "Monospace"
+          }
+        }
+      },
+      "textAlign": {
+        "label": "Text Alignment",
+        "description": "How to align the text",
+        "options": {
+          "left": {
+            "label": "Left"
+          },
+          "center": {
+            "label": "Center"
+          },
+          "right": {
+            "label": "Right"
+          },
+          "justify": {
+            "label": "Justify"
+          }
+        }
+      },
+      "lineHeight": {
+        "label": "Line Height",
+        "description": "Space between lines"
+      },
+      "textColor": {
+        "label": "Text Color",
+        "description": "Color of the text",
+        "options": {
+          "default": {
+            "label": "Default"
+          },
+          "highContrast": {
+            "label": "High Contrast"
+          },
+          "mediumContrast": {
+            "label": "Medium Contrast"
+          },
+          "blue": {
+            "label": "Blue"
+          }
+        }
+      },
+      "backgroundColor": {
+        "label": "Background Color",
+        "description": "Note background color",
+        "options": {
+          "yellow": {
+            "label": "Yellow (Sticky Note)"
+          },
+          "default": {
+            "label": "Default"
+          },
+          "white": {
+            "label": "White/Dark"
+          },
+          "lightBlue": {
+            "label": "Light Blue"
+          },
+          "lightGreen": {
+            "label": "Light Green"
+          },
+          "lightPink": {
+            "label": "Light Pink"
+          }
+        }
+      },
+      "padding": {
+        "label": "Padding",
+        "description": "Space inside the note"
+      },
+      "borderRadius": {
+        "label": "Border Radius",
+        "description": "Roundness of corners"
+      },
+      "showBorder": {
+        "label": "Show Border",
+        "description": "Display a border around the note"
+      },
+      "borderColor": {
+        "label": "Border Color",
+        "description": "Color of the border",
+        "options": {
+          "yellow": {
+            "label": "Yellow"
+          },
+          "default": {
+            "label": "Default"
+          },
+          "gray": {
+            "label": "Gray"
+          },
+          "blue": {
+            "label": "Blue"
+          }
+        }
+      },
+      "borderWidth": {
+        "label": "Border Width",
+        "description": "Thickness of the border"
+      },
+      "shadowStyle": {
+        "label": "Shadow",
+        "description": "Drop shadow effect",
+        "options": {
+          "none": {
+            "label": "None"
+          },
+          "sm": {
+            "label": "Small"
+          },
+          "md": {
+            "label": "Medium"
+          },
+          "lg": {
+            "label": "Large"
+          },
+          "xl": {
+            "label": "Extra Large"
+          }
+        }
+      }
+    }
+  }
+}

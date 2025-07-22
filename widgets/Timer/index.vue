@@ -64,17 +64,17 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Play, Pause, RotateCcw } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { TimerWidgetConfig } from './definition'
 import { useTimer } from './composables/useTimer'
-import { useWidgetI18n } from '@/composables'
 
 const props = defineProps<TimerWidgetConfig>()
 
 // i18n
-const { t } = useWidgetI18n({ widgetName: 'Timer', fallbackLocale: 'en' })
+const { t } = useI18n()
 
 // Duration presets
 const durationPresets = [

@@ -134,65 +134,67 @@ export const widgetConfig: EnhancedWidgetConfig = {
   groups: [
     {
       id: 'view',
-      label: 'View Settings',
+      label: '@config.groups.view.label',
+      description: '@config.groups.view.description',
       defaultOpen: true,
       options: {
         defaultView: {
           type: 'select',
-          label: 'Default View',
-          description: 'Choose the default calendar view',
+          label: '@options.defaultView',
+          description: '@options.defaultViewDesc',
           options: [
-            { value: 'month', label: 'Month' },
-            { value: 'week', label: 'Week' },
-            { value: 'day', label: 'Day' },
-            { value: 'list', label: 'List' }
+            { value: 'month', label: '@views.month' },
+            { value: 'week', label: '@views.week' },
+            { value: 'day', label: '@views.day' },
+            { value: 'list', label: '@views.list' }
           ]
         },
         firstDayOfWeek: {
           type: 'radio',
-          label: 'First Day of Week',
-          description: 'Choose which day starts the week',
+          label: '@options.firstDayOfWeek',
+          description: '@options.firstDayOfWeekDesc',
           options: [
-            { value: 'sunday', label: 'Sunday' },
-            { value: 'monday', label: 'Monday' }
+            { value: 'sunday', label: '@weekDays.sunday' },
+            { value: 'monday', label: '@weekDays.monday' }
           ]
         },
         show24Hours: {
           type: 'toggle',
-          label: '24-Hour Format',
-          description: 'Use 24-hour time format instead of 12-hour'
+          label: '@options.24HourFormat',
+          description: '@options.24HourFormatDesc'
         },
         showWeekNumbers: {
           type: 'toggle',
-          label: 'Show Week Numbers',
-          description: 'Display week numbers in month view'
+          label: '@options.showWeekNumbers',
+          description: '@options.showWeekNumbersDesc'
         }
       }
     },
     {
       id: 'display',
-      label: 'Display Settings',
+      label: '@config.groups.display.label',
+      description: '@config.groups.display.description',
       collapsible: true,
       options: {
         showMonthYear: {
           type: 'toggle',
-          label: 'Show Month/Year Header',
-          description: 'Display the month and year at the top'
+          label: '@options.showMonthYear',
+          description: '@options.showMonthYearDesc'
         },
         navigationButtons: {
           type: 'toggle',
-          label: 'Show Navigation Buttons',
-          description: 'Display buttons to navigate between periods'
+          label: '@options.showNavButtons',
+          description: '@options.showNavButtonsDesc'
         },
         compactMode: {
           type: 'toggle',
-          label: 'Compact Mode',
-          description: 'Show abbreviated day names'
+          label: '@options.compactMode',
+          description: '@options.compactModeDesc'
         },
         fontSize: {
           type: 'slider',
-          label: 'Font Size',
-          description: 'Size of the calendar text',
+          label: '@options.fontSize',
+          description: '@options.fontSizeDesc',
           min: 10,
           max: 24,
           step: 1,
@@ -200,67 +202,68 @@ export const widgetConfig: EnhancedWidgetConfig = {
         },
         highlightToday: {
           type: 'toggle',
-          label: 'Highlight Today',
-          description: 'Highlight the current date'
+          label: '@options.highlightToday',
+          description: '@options.highlightTodayDesc'
         },
         todayColor: {
           type: 'select',
-          label: 'Today Highlight Color',
-          description: 'Color for highlighting today\'s date',
+          label: '@options.todayColor',
+          description: '@options.todayColorDesc',
           options: [
-            { value: 'bg-primary', label: 'Primary' },
-            { value: 'bg-blue-500', label: 'Blue' },
-            { value: 'bg-green-500', label: 'Green' },
-            { value: 'bg-yellow-500', label: 'Yellow' },
-            { value: 'bg-red-500', label: 'Red' }
+            { value: 'bg-primary', label: '@colors.primary' },
+            { value: 'bg-blue-500', label: '@colors.blue' },
+            { value: 'bg-green-500', label: '@colors.green' },
+            { value: 'bg-yellow-500', label: '@colors.yellow' },
+            { value: 'bg-red-500', label: '@colors.red' }
           ],
           dependencies: { highlightToday: true }
         },
         weekendColor: {
           type: 'select',
-          label: 'Weekend Text Color',
-          description: 'Color for weekend days',
+          label: '@options.weekendColor',
+          description: '@options.weekendColorDesc',
           options: [
-            { value: 'text-muted-foreground', label: 'Muted' },
-            { value: 'text-gray-500', label: 'Gray' },
-            { value: 'text-blue-500', label: 'Blue' },
-            { value: 'text-red-500', label: 'Red' }
+            { value: 'text-muted-foreground', label: '@colors.muted' },
+            { value: 'text-gray-500', label: '@colors.gray' },
+            { value: 'text-blue-500', label: '@colors.blue' },
+            { value: 'text-red-500', label: '@colors.red' }
           ]
         }
       }
     },
     {
       id: 'events',
-      label: 'Event Settings',
+      label: '@config.groups.events.label',
+      description: '@config.groups.events.description',
       collapsible: true,
       options: {
         showEvents: {
           type: 'toggle',
-          label: 'Show Events',
-          description: 'Display events on the calendar'
+          label: '@options.showEvents',
+          description: '@options.showEventsDesc'
         },
         allowEventCreation: {
           type: 'toggle',
-          label: 'Allow Event Creation',
-          description: 'Allow creating new events',
+          label: '@options.allowEventCreation',
+          description: '@options.allowEventCreationDesc',
           dependencies: { showEvents: true }
         },
         allowEventEditing: {
           type: 'toggle',
-          label: 'Allow Event Editing',
-          description: 'Allow editing existing events',
+          label: '@options.allowEventEditing',
+          description: '@options.allowEventEditingDesc',
           dependencies: { showEvents: true }
         },
         allowEventDeletion: {
           type: 'toggle',
-          label: 'Allow Event Deletion',
-          description: 'Allow deleting events',
+          label: '@options.allowEventDeletion',
+          description: '@options.allowEventDeletionDesc',
           dependencies: { showEvents: true }
         },
         defaultEventDuration: {
           type: 'slider',
-          label: 'Default Event Duration',
-          description: 'Default duration for new events',
+          label: '@options.defaultEventDuration',
+          description: '@options.defaultEventDurationDesc',
           min: 15,
           max: 480,
           step: 15,
@@ -271,25 +274,26 @@ export const widgetConfig: EnhancedWidgetConfig = {
     },
     {
       id: 'sync',
-      label: 'Synchronization',
+      label: '@config.groups.sync.label',
+      description: '@config.groups.sync.description',
       collapsible: true,
       options: {
         syncEnabled: {
           type: 'toggle',
-          label: 'Enable Sync',
-          description: 'Enable calendar synchronization'
+          label: '@options.enableSync',
+          description: '@options.enableSyncDesc'
         },
         syncUrl: {
           type: 'text',
-          label: 'iCal URL',
-          description: 'URL of the iCal calendar to sync',
-          placeholder: 'https://calendar.example.com/feed.ics',
+          label: '@options.syncUrl',
+          description: '@options.syncUrlDesc',
+          placeholder: '@placeholders.icalUrl',
           dependencies: { syncEnabled: true }
         },
         syncInterval: {
           type: 'slider',
-          label: 'Sync Interval',
-          description: 'How often to sync the calendar',
+          label: '@options.syncInterval',
+          description: '@options.syncIntervalDesc',
           min: 5,
           max: 1440,
           step: 5,
@@ -300,51 +304,52 @@ export const widgetConfig: EnhancedWidgetConfig = {
     },
     {
       id: 'appearance',
-      label: 'Appearance',
+      label: '@config.groups.appearance.label',
+      description: '@config.groups.appearance.description',
       collapsible: true,
       options: {
         backgroundColor: {
           type: 'select',
-          label: 'Background Color',
-          description: 'Calendar background color',
+          label: '@options.backgroundColor',
+          description: '@options.backgroundColorDesc',
           options: [
-            { value: 'bg-background', label: 'Default' },
-            { value: 'bg-white', label: 'White' },
-            { value: 'bg-gray-50', label: 'Light Gray' },
-            { value: 'bg-gray-100', label: 'Gray' }
+            { value: 'bg-background', label: '@colors.default' },
+            { value: 'bg-white', label: '@colors.white' },
+            { value: 'bg-gray-50', label: '@colors.lightGray' },
+            { value: 'bg-gray-100', label: '@colors.gray' }
           ]
         },
         textColor: {
           type: 'select',
-          label: 'Text Color',
-          description: 'Main text color',
+          label: '@options.textColor',
+          description: '@options.textColorDesc',
           options: [
-            { value: 'text-foreground', label: 'Default' },
-            { value: 'text-black', label: 'Black' },
-            { value: 'text-gray-800', label: 'Dark Gray' },
-            { value: 'text-gray-600', label: 'Gray' }
+            { value: 'text-foreground', label: '@colors.default' },
+            { value: 'text-black', label: '@colors.black' },
+            { value: 'text-gray-800', label: '@colors.darkGray' },
+            { value: 'text-gray-600', label: '@colors.gray' }
           ]
         },
         borderColor: {
           type: 'select',
-          label: 'Border Color',
-          description: 'Calendar border color',
+          label: '@options.borderColor',
+          description: '@options.borderColorDesc',
           options: [
-            { value: 'border-border', label: 'Default' },
-            { value: 'border-gray-200', label: 'Light Gray' },
-            { value: 'border-gray-300', label: 'Gray' },
-            { value: 'border-gray-400', label: 'Dark Gray' }
+            { value: 'border-border', label: '@colors.default' },
+            { value: 'border-gray-200', label: '@colors.lightGray' },
+            { value: 'border-gray-300', label: '@colors.gray' },
+            { value: 'border-gray-400', label: '@colors.darkGray' }
           ]
         },
         headerColor: {
           type: 'select',
-          label: 'Header Text Color',
-          description: 'Month/Year header text color',
+          label: '@options.headerColor',
+          description: '@options.headerColorDesc',
           options: [
-            { value: 'text-foreground', label: 'Default' },
-            { value: 'text-black', label: 'Black' },
-            { value: 'text-gray-800', label: 'Dark Gray' },
-            { value: 'text-primary', label: 'Primary' }
+            { value: 'text-foreground', label: '@colors.default' },
+            { value: 'text-black', label: '@colors.black' },
+            { value: 'text-gray-800', label: '@colors.darkGray' },
+            { value: 'text-primary', label: '@colors.primary' }
           ]
         }
       }

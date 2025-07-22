@@ -31,8 +31,6 @@ export { useWidgetPlugins } from './widgets/useWidgetPlugins'
 // Event composables
 export { useWidgetEventBus } from './events/useWidgetEventBus'
 
-// i18n composables
-export { useWidgetI18n, createWidgetTranslationHelper } from './i18n/useWidgetI18n'
 
 
 // Types

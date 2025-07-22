@@ -1,4 +1,5 @@
 {
+  "name": "Calendrier",
   "navigation": {
     "today": "Aujourd'hui",
     "previous": "Précédent",
@@ -197,5 +198,29 @@
     "darkGray": "Gris foncé",
     "black": "Noir",
     "muted": "Atténué"
+  },
+  "config": {
+    "groups": {
+      "view": {
+        "label": "Paramètres d'affichage",
+        "description": "Configurer l'affichage du calendrier"
+      },
+      "display": {
+        "label": "Paramètres d'affichage",
+        "description": "Personnaliser l'apparence du calendrier"
+      },
+      "events": {
+        "label": "Paramètres des événements",
+        "description": "Configurer la gestion des événements"
+      },
+      "sync": {
+        "label": "Synchronisation",
+        "description": "Configurer la synchronisation du calendrier"
+      },
+      "appearance": {
+        "label": "Apparence",
+        "description": "Personnaliser les couleurs du calendrier"
+      }
+    }
   }
 }

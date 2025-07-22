@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Settings, RefreshCw } from '@/lib/icons'
-import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { useI18n } from 'vue-i18n'
 import type { WidgetConfig } from '../../definition'
 import SyncStatus from '../SyncStatus.vue'
@@ -22,15 +21,12 @@ const emit = defineEmits<{
 }>()
 
 // i18n - Merge translations immediately
-const { mergeLocaleMessage } = useI18n()
+const { mergeLocaleMessage, t } = useI18n()
 
 // Merge translations for all locales immediately
 Object.entries(translations).forEach(([lang, messages]) => {
   mergeLocaleMessage(lang, { widget_Calendar: messages })
 })
-
-// Now use the widget i18n composable
-const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 const showSettings = ref(false)
 

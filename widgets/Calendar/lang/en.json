@@ -1,4 +1,5 @@
 {
+  "name": "Calendar",
   "navigation": {
     "today": "Today",
     "previous": "Previous",
@@ -197,5 +198,29 @@
     "darkGray": "Dark Gray",
     "black": "Black",
     "muted": "Muted"
+  },
+  "config": {
+    "groups": {
+      "view": {
+        "label": "View Settings",
+        "description": "Configure calendar display settings"
+      },
+      "display": {
+        "label": "Display Settings",
+        "description": "Customize calendar appearance"
+      },
+      "events": {
+        "label": "Event Settings",
+        "description": "Configure event management"
+      },
+      "sync": {
+        "label": "Synchronization",
+        "description": "Configure calendar synchronization"
+      },
+      "appearance": {
+        "label": "Appearance",
+        "description": "Customize calendar colors"
+      }
+    }
   }
 }

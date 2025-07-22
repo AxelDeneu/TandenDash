@@ -22,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { format, addHours } from 'date-fns'
-import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import type { CalendarEvent } from '../types'
 import translations from '../lang/index'
 
@@ -52,9 +51,6 @@ const { mergeLocaleMessage } = useI18n()
 Object.entries(translations).forEach(([lang, messages]) => {
   mergeLocaleMessage(lang, { widget_Calendar: messages })
 })
-
-// i18n
-const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 // Form data
 const formData = ref({

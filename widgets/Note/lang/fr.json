@@ -1,0 +1,177 @@
+{
+  "name": "Note",
+  "ui": {
+    "placeholder": "Appuyez pour ajouter votre note...",
+    "editPlaceholder": "Entrez votre note ici...",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  },
+  "config": {
+    "groups": {
+      "content": {
+        "label": "Contenu",
+        "description": "Contenu de la note et options de formatage"
+      },
+      "typography": {
+        "label": "Typographie",
+        "description": "Paramètres de police et de mise en page"
+      },
+      "styling": {
+        "label": "Style",
+        "description": "Couleurs et espacement"
+      },
+      "borders": {
+        "label": "Bordures et effets",
+        "description": "Paramètres de bordure et d'ombre"
+      }
+    },
+    "options": {
+      "content": {
+        "label": "Contenu de la note",
+        "placeholder": "Entrez votre note ici..."
+      },
+      "enableMarkdown": {
+        "label": "Activer Markdown",
+        "description": "Supporter le formatage markdown de base"
+      },
+      "fontSize": {
+        "label": "Taille de police",
+        "description": "Taille du texte"
+      },
+      "fontFamily": {
+        "label": "Famille de police",
+        "description": "Choisir le style de police",
+        "options": {
+          "sans": {
+            "label": "Sans empattement"
+          },
+          "serif": {
+            "label": "Avec empattement"
+          },
+          "mono": {
+            "label": "Monospace"
+          }
+        }
+      },
+      "textAlign": {
+        "label": "Alignement du texte",
+        "description": "Comment aligner le texte",
+        "options": {
+          "left": {
+            "label": "Gauche"
+          },
+          "center": {
+            "label": "Centre"
+          },
+          "right": {
+            "label": "Droite"
+          },
+          "justify": {
+            "label": "Justifié"
+          }
+        }
+      },
+      "lineHeight": {
+        "label": "Hauteur de ligne",
+        "description": "Espace entre les lignes"
+      },
+      "textColor": {
+        "label": "Couleur du texte",
+        "description": "Couleur du texte",
+        "options": {
+          "default": {
+            "label": "Par défaut"
+          },
+          "highContrast": {
+            "label": "Contraste élevé"
+          },
+          "mediumContrast": {
+            "label": "Contraste moyen"
+          },
+          "blue": {
+            "label": "Bleu"
+          }
+        }
+      },
+      "backgroundColor": {
+        "label": "Couleur de fond",
+        "description": "Couleur de fond de la note",
+        "options": {
+          "yellow": {
+            "label": "Jaune (Post-it)"
+          },
+          "default": {
+            "label": "Par défaut"
+          },
+          "white": {
+            "label": "Blanc/Sombre"
+          },
+          "lightBlue": {
+            "label": "Bleu clair"
+          },
+          "lightGreen": {
+            "label": "Vert clair"
+          },
+          "lightPink": {
+            "label": "Rose clair"
+          }
+        }
+      },
+      "padding": {
+        "label": "Espacement intérieur",
+        "description": "Espace à l'intérieur de la note"
+      },
+      "borderRadius": {
+        "label": "Rayon de bordure",
+        "description": "Arrondi des coins"
+      },
+      "showBorder": {
+        "label": "Afficher la bordure",
+        "description": "Afficher une bordure autour de la note"
+      },
+      "borderColor": {
+        "label": "Couleur de bordure",
+        "description": "Couleur de la bordure",
+        "options": {
+          "yellow": {
+            "label": "Jaune"
+          },
+          "default": {
+            "label": "Par défaut"
+          },
+          "gray": {
+            "label": "Gris"
+          },
+          "blue": {
+            "label": "Bleu"
+          }
+        }
+      },
+      "borderWidth": {
+        "label": "Épaisseur de bordure",
+        "description": "Épaisseur de la bordure"
+      },
+      "shadowStyle": {
+        "label": "Ombre",
+        "description": "Effet d'ombre portée",
+        "options": {
+          "none": {
+            "label": "Aucune"
+          },
+          "sm": {
+            "label": "Petite"
+          },
+          "md": {
+            "label": "Moyenne"
+          },
+          "lg": {
+            "label": "Grande"
+          },
+          "xl": {
+            "label": "Très grande"
+          }
+        }
+      }
+    }
+  }
+}

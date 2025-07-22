@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays, List, Plus, RefreshCw } from '@/lib/icons'
-import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { useI18n } from 'vue-i18n'
 import type { WidgetConfig } from './definition'
 import CalendarMonth from './components/views/CalendarMonth.vue'
@@ -14,7 +13,6 @@ import { useCalendarViews } from './composables/useCalendarViews'
 import { useCalendarEvents } from './composables/useCalendarEvents'
 import { useCalendarSync } from './composables/useCalendarSync'
 import type { CalendarEvent } from './types'
-import translations from './lang/index'
 
 interface Props extends WidgetConfig {
   id?: number
@@ -22,19 +20,8 @@ interface Props extends WidgetConfig {
 
 const props = defineProps<Props>()
 
-// i18n - Merge translations immediately
-const { locale, mergeLocaleMessage } = useI18n()
-
-// Merge translations for all locales immediately
-Object.entries(translations).forEach(([lang, messages]) => {
-  mergeLocaleMessage(lang, { widget_Calendar: messages })
-})
-
-// Now use the widget i18n composable
-const { t, loading: translationsLoading, enableAutoReload } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
-
-// Enable auto-reload on locale change
-enableAutoReload()
+// i18n
+const { t } = useI18n()
 
 // Composables - Simple direct initialization
 const views = useCalendarViews(props.defaultView, props.firstDayOfWeek === 'monday' ? 1 : 0)

@@ -25,7 +25,7 @@
         <div v-html="renderMarkdown(displayContent)" />
       </template>
       <template v-else>
-        {{ displayContent || 'Tap to add your note...' }}
+        {{ displayContent || t('widget_note.ui.placeholder') }}
       </template>
       <!-- Touch indicator -->
       <div v-if="!displayContent" class="absolute bottom-0 right-0 opacity-50">
@@ -46,7 +46,7 @@
           lineHeight: lineHeight,
           textAlign: textAlign
         }"
-        placeholder="Enter your note..."
+        :placeholder="t('widget_note.ui.editPlaceholder')"
         @blur="handleBlur"
         @keydown="handleKeydown"
         @click.stop
@@ -56,13 +56,13 @@
           class="px-4 py-2 text-base rounded-md bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 transition-transform"
           @click.stop="saveContent"
         >
-          Save
+          {{ t('widget_note.ui.save') }}
         </button>
         <button
           class="px-4 py-2 text-base rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/90 active:scale-95 transition-transform"
           @click.stop="cancelEdit"
         >
-          Cancel
+          {{ t('widget_note.ui.cancel') }}
         </button>
       </div>
     </div>
@@ -71,10 +71,14 @@
 
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { NoteWidgetConfig } from './definition'
 import { useWidgetOperations } from '@/composables/data/useWidgetOperations'
 
 const props = defineProps<NoteWidgetConfig & { id?: number }>()
+
+// i18n setup
+const { t } = useI18n()
 
 // State for direct editing
 const isEditing = ref(false)

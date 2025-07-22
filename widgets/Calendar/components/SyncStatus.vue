@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RefreshCw, AlertTriangle, Check } from '@/lib/icons'
-import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { formatRelativeTime } from '../utils/date-helpers'
 import type { SyncStatus } from '../composables/useCalendarSync'
 import translations from '../lang/index'
@@ -25,9 +24,6 @@ const { mergeLocaleMessage } = useI18n()
 Object.entries(translations).forEach(([lang, messages]) => {
   mergeLocaleMessage(lang, { widget_Calendar: messages })
 })
-
-// i18n
-const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 // Format last sync time
 const lastSyncText = computed(() => {

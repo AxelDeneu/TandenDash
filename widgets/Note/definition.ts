@@ -44,59 +44,65 @@ export const widgetConfig = {
   groups: [
     {
       id: 'content',
-      label: 'Content',
+      label: '@config.groups.content.label',
+      description: '@config.groups.content.description',
       defaultOpen: true,
       options: {
         content: {
           type: 'custom',
-          label: 'Note Content',
+          label: '@config.options.content.label',
           component: 'textarea',
           props: {
             rows: 6,
-            placeholder: 'Enter your note here...'
+            placeholder: '@config.options.content.placeholder'
           }
         },
         enableMarkdown: {
           type: 'toggle',
-          label: 'Enable Markdown',
-          description: 'Support basic markdown formatting'
+          label: '@config.options.enableMarkdown.label',
+          description: '@config.options.enableMarkdown.description'
         }
       }
     },
     {
       id: 'typography',
-      label: 'Typography',
+      label: '@config.groups.typography.label',
+      description: '@config.groups.typography.description',
       collapsible: true,
       options: {
         fontSize: {
           type: 'slider',
-          label: 'Font Size',
+          label: '@config.options.fontSize.label',
+          description: '@config.options.fontSize.description',
           min: 10,
           max: 32,
           unit: 'px'
         },
         fontFamily: {
           type: 'select',
-          label: 'Font Family',
+          label: '@config.options.fontFamily.label',
+          description: '@config.options.fontFamily.description',
           options: [
-            { value: 'font-sans', label: 'Sans Serif' },
-            { value: 'font-serif', label: 'Serif' },
-            { value: 'font-mono', label: 'Monospace' }
+            { value: 'font-sans', label: '@config.options.fontFamily.options.sans.label' },
+            { value: 'font-serif', label: '@config.options.fontFamily.options.serif.label' },
+            { value: 'font-mono', label: '@config.options.fontFamily.options.mono.label' }
           ]
         },
         textAlign: {
           type: 'radio',
-          label: 'Text Alignment',
+          label: '@config.options.textAlign.label',
+          description: '@config.options.textAlign.description',
           options: [
-            { value: 'left', label: 'Left' },
-            { value: 'center', label: 'Center' },
-            { value: 'right', label: 'Right' },
-            { value: 'justify', label: 'Justify' }
+            { value: 'left', label: '@config.options.textAlign.options.left.label' },
+            { value: 'center', label: '@config.options.textAlign.options.center.label' },
+            { value: 'right', label: '@config.options.textAlign.options.right.label' },
+            { value: 'justify', label: '@config.options.textAlign.options.justify.label' }
           ]
         },
         lineHeight: {
           type: 'slider',
-          label: 'Line Height',
+          label: '@config.options.lineHeight.label',
+          description: '@config.options.lineHeight.description',
           min: 1,
           max: 3,
           step: 0.1
@@ -105,41 +111,46 @@ export const widgetConfig = {
     },
     {
       id: 'styling',
-      label: 'Styling',
+      label: '@config.groups.styling.label',
+      description: '@config.groups.styling.description',
       collapsible: true,
       options: {
         textColor: {
           type: 'select',
-          label: 'Text Color',
+          label: '@config.options.textColor.label',
+          description: '@config.options.textColor.description',
           options: [
-            { value: 'text-foreground', label: 'Default' },
-            { value: 'text-gray-900 dark:text-gray-100', label: 'High Contrast' },
-            { value: 'text-gray-700 dark:text-gray-300', label: 'Medium Contrast' },
-            { value: 'text-blue-700 dark:text-blue-300', label: 'Blue' }
+            { value: 'text-foreground', label: '@config.options.textColor.options.default.label' },
+            { value: 'text-gray-900 dark:text-gray-100', label: '@config.options.textColor.options.highContrast.label' },
+            { value: 'text-gray-700 dark:text-gray-300', label: '@config.options.textColor.options.mediumContrast.label' },
+            { value: 'text-blue-700 dark:text-blue-300', label: '@config.options.textColor.options.blue.label' }
           ]
         },
         backgroundColor: {
           type: 'select',
-          label: 'Background Color',
+          label: '@config.options.backgroundColor.label',
+          description: '@config.options.backgroundColor.description',
           options: [
-            { value: 'bg-yellow-50 dark:bg-yellow-900/20', label: 'Yellow (Sticky Note)' },
-            { value: 'bg-background', label: 'Default' },
-            { value: 'bg-white dark:bg-gray-900', label: 'White/Dark' },
-            { value: 'bg-blue-50 dark:bg-blue-900/20', label: 'Light Blue' },
-            { value: 'bg-green-50 dark:bg-green-900/20', label: 'Light Green' },
-            { value: 'bg-pink-50 dark:bg-pink-900/20', label: 'Light Pink' }
+            { value: 'bg-yellow-50 dark:bg-yellow-900/20', label: '@config.options.backgroundColor.options.yellow.label' },
+            { value: 'bg-background', label: '@config.options.backgroundColor.options.default.label' },
+            { value: 'bg-white dark:bg-gray-900', label: '@config.options.backgroundColor.options.white.label' },
+            { value: 'bg-blue-50 dark:bg-blue-900/20', label: '@config.options.backgroundColor.options.lightBlue.label' },
+            { value: 'bg-green-50 dark:bg-green-900/20', label: '@config.options.backgroundColor.options.lightGreen.label' },
+            { value: 'bg-pink-50 dark:bg-pink-900/20', label: '@config.options.backgroundColor.options.lightPink.label' }
           ]
         },
         padding: {
           type: 'slider',
-          label: 'Padding',
+          label: '@config.options.padding.label',
+          description: '@config.options.padding.description',
           min: 0,
           max: 48,
           unit: 'px'
         },
         borderRadius: {
           type: 'slider',
-          label: 'Border Radius',
+          label: '@config.options.borderRadius.label',
+          description: '@config.options.borderRadius.description',
           min: 0,
           max: 24,
           unit: 'px'
@@ -148,27 +159,31 @@ export const widgetConfig = {
     },
     {
       id: 'borders',
-      label: 'Borders & Effects',
+      label: '@config.groups.borders.label',
+      description: '@config.groups.borders.description',
       collapsible: true,
       options: {
         showBorder: {
           type: 'toggle',
-          label: 'Show Border'
+          label: '@config.options.showBorder.label',
+          description: '@config.options.showBorder.description'
         },
         borderColor: {
           type: 'select',
-          label: 'Border Color',
+          label: '@config.options.borderColor.label',
+          description: '@config.options.borderColor.description',
           options: [
-            { value: 'border-yellow-200 dark:border-yellow-800', label: 'Yellow' },
-            { value: 'border-border', label: 'Default' },
-            { value: 'border-gray-200 dark:border-gray-700', label: 'Gray' },
-            { value: 'border-blue-200 dark:border-blue-700', label: 'Blue' }
+            { value: 'border-yellow-200 dark:border-yellow-800', label: '@config.options.borderColor.options.yellow.label' },
+            { value: 'border-border', label: '@config.options.borderColor.options.default.label' },
+            { value: 'border-gray-200 dark:border-gray-700', label: '@config.options.borderColor.options.gray.label' },
+            { value: 'border-blue-200 dark:border-blue-700', label: '@config.options.borderColor.options.blue.label' }
           ],
           dependencies: { showBorder: true }
         },
         borderWidth: {
           type: 'slider',
-          label: 'Border Width',
+          label: '@config.options.borderWidth.label',
+          description: '@config.options.borderWidth.description',
           min: 0,
           max: 8,
           unit: 'px',
@@ -176,13 +191,14 @@ export const widgetConfig = {
         },
         shadowStyle: {
           type: 'select',
-          label: 'Shadow',
+          label: '@config.options.shadowStyle.label',
+          description: '@config.options.shadowStyle.description',
           options: [
-            { value: 'none', label: 'None' },
-            { value: 'sm', label: 'Small' },
-            { value: 'md', label: 'Medium' },
-            { value: 'lg', label: 'Large' },
-            { value: 'xl', label: 'Extra Large' }
+            { value: 'none', label: '@config.options.shadowStyle.options.none.label' },
+            { value: 'sm', label: '@config.options.shadowStyle.options.sm.label' },
+            { value: 'md', label: '@config.options.shadowStyle.options.md.label' },
+            { value: 'lg', label: '@config.options.shadowStyle.options.lg.label' },
+            { value: 'xl', label: '@config.options.shadowStyle.options.xl.label' }
           ]
         }
       }

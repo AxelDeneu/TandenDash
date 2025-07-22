@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useWidgetI18n } from '@/composables/i18n/useWidgetI18n'
 import { getCalendarMonth, getWeekNumber } from '../../utils/date-helpers'
 import type { CalendarEvent, CalendarDay } from '../../types'
 import translations from '../../lang/index'
@@ -31,9 +30,6 @@ const { mergeLocaleMessage } = useI18n()
 Object.entries(translations).forEach(([lang, messages]) => {
   mergeLocaleMessage(lang, { widget_Calendar: messages })
 })
-
-// i18n
-const { t } = useWidgetI18n({ widgetName: 'Calendar', fallbackLocale: 'en' })
 
 // Get calendar days
 const calendarDays = computed(() => {
