@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { TimerWidgetPlugin } from './plugin'
 import { Play, Pause, RotateCcw } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -74,7 +74,7 @@ import { useTimer } from './composables/useTimer'
 const props = defineProps<TimerWidgetConfig>()
 
 // i18n
-const { t } = useI18n()
+const { t } = useWidgetI18n(TimerWidgetPlugin.id)
 
 // Duration presets
 const durationPresets = [

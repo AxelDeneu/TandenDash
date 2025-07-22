@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Settings, RefreshCw } from '@/lib/icons'
-import { useI18n } from 'vue-i18n'
+import { CALENDAR_WIDGET_ID } from '../../plugin'
 import type { WidgetConfig } from '../../definition'
 import SyncStatus from '../SyncStatus.vue'
 import type { SyncStatus as SyncStatusType } from '../../composables/useCalendarSync'
-import translations from '../../lang/index'
 
 interface Props extends WidgetConfig {
   syncStatus?: SyncStatusType
@@ -20,13 +19,8 @@ const emit = defineEmits<{
   'update:config': [config: Partial<WidgetConfig>]
 }>()
 
-// i18n - Merge translations immediately
-const { mergeLocaleMessage, t } = useI18n()
-
-// Merge translations for all locales immediately
-Object.entries(translations).forEach(([lang, messages]) => {
-  mergeLocaleMessage(lang, { widget_Calendar: messages })
-})
+// i18n
+const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
 
 const showSettings = ref(false)
 

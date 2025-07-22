@@ -22,6 +22,13 @@ export default defineNuxtConfig({
     vueI18n: './i18n.config.ts'
   },
   
+  // Auto-imports configuration
+  imports: {
+    dirs: [
+      'lib/utils'
+    ]
+  },
+  
   // Runtime configuration
   runtimeConfig: {
     // Private keys (server-only)

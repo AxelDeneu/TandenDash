@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { CALENDAR_WIDGET_ID } from '../plugin'
 import { 
   Dialog,
   DialogContent,
@@ -46,11 +46,8 @@ const emit = defineEmits<{
   'delete': []
 }>()
 
-// Merge translations immediately
-const { mergeLocaleMessage } = useI18n()
-Object.entries(translations).forEach(([lang, messages]) => {
-  mergeLocaleMessage(lang, { widget_Calendar: messages })
-})
+// i18n
+const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
 
 // Form data
 const formData = ref({

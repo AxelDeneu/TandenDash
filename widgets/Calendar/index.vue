@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays, List, Plus, RefreshCw } from '@/lib/icons'
-import { useI18n } from 'vue-i18n'
 import type { WidgetConfig } from './definition'
+import { CalendarWidgetPlugin } from './plugin'
 import CalendarMonth from './components/views/CalendarMonth.vue'
 import CalendarWeek from './components/views/CalendarWeek.vue'
 import CalendarDay from './components/views/CalendarDay.vue'
@@ -21,7 +21,7 @@ interface Props extends WidgetConfig {
 const props = defineProps<Props>()
 
 // i18n
-const { t } = useI18n()
+const { t } = useWidgetI18n(CalendarWidgetPlugin.id)
 
 // Composables - Simple direct initialization
 const views = useCalendarViews(props.defaultView, props.firstDayOfWeek === 'monday' ? 1 : 0)

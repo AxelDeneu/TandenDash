@@ -3,8 +3,10 @@ import type { WidgetConfig } from './definition'
 import { WidgetConfigSchema, widgetDefaults, widgetConfig } from './definition'
 import CalendarComponent from './index.vue'
 
+export const CALENDAR_WIDGET_ID = 'calendar'
+
 export const CalendarWidgetPlugin: WidgetPlugin<WidgetConfig> = {
-  id: 'calendar',
+  id: CALENDAR_WIDGET_ID,
   name: 'Calendar',
   description: 'A touch-friendly calendar widget for viewing dates and months',
   version: '1.0.0',

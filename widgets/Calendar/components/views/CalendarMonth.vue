@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { CALENDAR_WIDGET_ID } from '../../plugin'
 import { getCalendarMonth, getWeekNumber } from '../../utils/date-helpers'
 import type { CalendarEvent, CalendarDay } from '../../types'
-import translations from '../../lang/index'
 
 interface Props {
   currentDate: Date
@@ -25,11 +24,8 @@ const emit = defineEmits<{
   'select-event': [event: CalendarEvent]
 }>()
 
-// Merge translations immediately
-const { mergeLocaleMessage } = useI18n()
-Object.entries(translations).forEach(([lang, messages]) => {
-  mergeLocaleMessage(lang, { widget_Calendar: messages })
-})
+// i18n
+const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
 
 // Get calendar days
 const calendarDays = computed(() => {
