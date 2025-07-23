@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { format, startOfWeek, addDays, isSameDay, isToday } from 'date-fns'
+import { enUS, fr } from 'date-fns/locale'
+import { WidgetPlugin } from '../../plugin'
 import type { CalendarEvent } from '../../types'
 
 interface Props {
@@ -20,6 +22,14 @@ const emit = defineEmits<{
   'create-event': [date: Date, hour: number]
 }>()
 
+// i18n
+const { locale } = useWidgetI18n(WidgetPlugin.id)
+
+// Get the appropriate date-fns locale
+const dateFnsLocale = computed(() => {
+  return locale.value === 'fr' ? fr : enUS
+})
+
 // Hours to display
 const hours = computed(() => {
   const hoursArray = []
@@ -28,7 +38,7 @@ const hours = computed(() => {
       hour: i,
       label: props.show24Hours ? 
         i.toString().padStart(2, '0') + ':00' : 
-        format(new Date().setHours(i, 0, 0, 0), 'h a')
+        format(new Date().setHours(i, 0, 0, 0), 'h a', { locale: dateFnsLocale.value })
     })
   }
   return hoursArray
@@ -43,8 +53,8 @@ const weekDays = computed(() => {
     const date = addDays(start, i)
     days.push({
       date,
-      dayName: format(date, 'EEE'),
-      dayNumber: format(date, 'd'),
+      dayName: format(date, 'EEE', { locale: dateFnsLocale.value }),
+      dayNumber: format(date, 'd', { locale: dateFnsLocale.value }),
       isToday: isToday(date),
       isSelected: props.selectedDate ? isSameDay(date, props.selectedDate) : false,
       events: getEventsForDay(date)
@@ -96,6 +106,11 @@ function handleHourClick(day: Date, hour: number) {
 function handleEventClick(event: CalendarEvent, e: Event) {
   e.stopPropagation()
   emit('select-event', event)
+}
+
+// Format time with locale
+function formatEventTime(date: string): string {
+  return format(new Date(date), props.show24Hours ? 'HH:mm' : 'h:mm a', { locale: dateFnsLocale.value })
 }
 </script>
 
@@ -180,7 +195,7 @@ function handleEventClick(event: CalendarEvent, e: Event) {
               >
                 <div class="font-medium truncate">{{ event.title }}</div>
                 <div v-if="getEventStyle(event).height > '4%'" class="truncate opacity-75">
-                  {{ format(new Date(event.startDate), props.show24Hours ? 'HH:mm' : 'h:mm a') }}
+                  {{ formatEventTime(event.startDate) }}
                 </div>
               </div>
             </div>

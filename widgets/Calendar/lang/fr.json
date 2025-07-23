@@ -13,7 +13,8 @@
     "monthView": "Vue mois",
     "weekView": "Vue semaine",
     "dayView": "Vue jour",
-    "listView": "Vue liste"
+    "listView": "Vue liste",
+    "upcomingEvents": "Événements à venir"
   },
   "event": {
     "addEvent": "Ajouter un événement",
@@ -233,5 +234,10 @@
         "description": "Personnaliser les couleurs du calendrier"
       }
     }
+  },
+  "listView": {
+    "today": "Aujourd'hui",
+    "allDay": "Toute la journée",
+    "noUpcomingEvents": "Aucun événement à venir"
   }
 }

@@ -13,9 +13,11 @@ import {
   addDays,
   subDays
 } from 'date-fns'
+import { WidgetPlugin } from "../plugin";
 import type { CalendarView } from '../types'
 
 export function useCalendarViews(initialView: CalendarView['type'] = 'month', weekStartsOn: 0 | 1 = 0) {
+  const { t, locale } = useWidgetI18n(WidgetPlugin.id)
   // Current view type
   const viewType = ref<CalendarView['type']>(initialView)
   
@@ -140,18 +142,18 @@ export function useCalendarViews(initialView: CalendarView['type'] = 'month', we
     
     switch (viewType.value) {
       case 'month':
-        return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        return date.toLocaleDateString(locale.value, { month: 'long', year: 'numeric' })
       
       case 'week': {
         const start = viewBounds.value.start
         const end = viewBounds.value.end
-        const startMonth = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        const endMonth = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        const startMonth = start.toLocaleDateString(locale.value, { month: 'short', day: 'numeric' })
+        const endMonth = end.toLocaleDateString(locale.value, { month: 'short', day: 'numeric', year: 'numeric' })
         return `${startMonth} - ${endMonth}`
       }
       
       case 'day':
-        return date.toLocaleDateString('en-US', { 
+        return date.toLocaleDateString(locale.value, { 
           weekday: 'long', 
           month: 'long', 
           day: 'numeric', 
@@ -159,7 +161,7 @@ export function useCalendarViews(initialView: CalendarView['type'] = 'month', we
         })
       
       case 'list':
-        return 'Upcoming Events'
+        return t('views.upcomingEvents')
       
       default:
         return ''

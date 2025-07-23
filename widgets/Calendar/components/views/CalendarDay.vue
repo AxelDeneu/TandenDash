@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { format, isSameDay } from 'date-fns'
+import { enUS, fr } from 'date-fns/locale'
+import { WidgetPlugin } from '../../plugin'
 import type { CalendarEvent } from '../../types'
 
 interface Props {
@@ -17,6 +19,14 @@ const emit = defineEmits<{
   'create-event': [date: Date, hour: number]
 }>()
 
+// i18n
+const { locale } = useWidgetI18n(WidgetPlugin.id)
+
+// Get the appropriate date-fns locale
+const dateFnsLocale = computed(() => {
+  return locale.value === 'fr' ? fr : enUS
+})
+
 // Hours array
 const hours = computed(() => {
   const hoursArray = []
@@ -25,7 +35,7 @@ const hours = computed(() => {
       hour: i,
       label: props.show24Hours ? 
         i.toString().padStart(2, '0') + ':00' : 
-        format(new Date().setHours(i, 0, 0, 0), 'h a')
+        format(new Date().setHours(i, 0, 0, 0), 'h a', { locale: dateFnsLocale.value })
     })
   }
   return hoursArray
@@ -75,8 +85,8 @@ function formatEventTime(event: CalendarEvent) {
   const start = new Date(event.startDate)
   const end = new Date(event.endDate)
   
-  const startTime = format(start, props.show24Hours ? 'HH:mm' : 'h:mm a')
-  const endTime = format(end, props.show24Hours ? 'HH:mm' : 'h:mm a')
+  const startTime = format(start, props.show24Hours ? 'HH:mm' : 'h:mm a', { locale: dateFnsLocale.value })
+  const endTime = format(end, props.show24Hours ? 'HH:mm' : 'h:mm a', { locale: dateFnsLocale.value })
   
   return `${startTime} - ${endTime}`
 }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { format, isSameDay, startOfDay } from 'date-fns'
+import { enUS, fr } from 'date-fns/locale'
+import { WidgetPlugin } from '../../plugin'
 import type { CalendarEvent } from '../../types'
 
 interface Props {
@@ -10,10 +12,16 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t, locale } = useWidgetI18n(WidgetPlugin.id)
 
 const emit = defineEmits<{
   'select-event': [event: CalendarEvent]
 }>()
+
+// Get the appropriate date-fns locale
+const dateFnsLocale = computed(() => {
+  return locale.value === 'fr' ? fr : enUS
+})
 
 // Group events by day
 const eventsByDay = computed(() => {
@@ -50,15 +58,15 @@ const eventsByDay = computed(() => {
 function formatDayHeader(date: Date): string {
   const today = startOfDay(new Date())
   if (isSameDay(date, today)) {
-    return `Today • ${format(date, 'EEEE, MMMM d')}`
+    return `${t('listView.today')} • ${format(date, 'EEEE, MMMM d', { locale: dateFnsLocale.value })}`
   }
-  return format(date, 'EEEE, MMMM d, yyyy')
+  return format(date, 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale.value })
 }
 
 // Format event time
 function formatEventTime(event: CalendarEvent): string {
   if (event.allDay) {
-    return 'All day'
+    return t('listView.allDay')
   }
   
   const start = new Date(event.startDate)
@@ -73,7 +81,7 @@ function formatEventTime(event: CalendarEvent): string {
   }
   
   // Multi-day
-  return `${format(start, 'MMM d, ')}${startTime} - ${format(end, 'MMM d, ')}${endTime}`
+  return `${format(start, 'MMM d, ', { locale: dateFnsLocale.value })}${startTime} - ${format(end, 'MMM d, ', { locale: dateFnsLocale.value })}${endTime}`
 }
 
 // Handle event click
@@ -90,7 +98,7 @@ function isToday(date: Date): boolean {
 <template>
   <div class="h-full overflow-auto">
     <div v-if="eventsByDay.length === 0" class="p-4 text-center text-muted-foreground">
-      No upcoming events
+      {{ t('listView.noUpcomingEvents') }}
     </div>
     
     <div v-else class="space-y-4 p-4">

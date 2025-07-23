@@ -13,7 +13,8 @@
     "monthView": "Month view",
     "weekView": "Week view",
     "dayView": "Day view",
-    "listView": "List view"
+    "listView": "List view",
+    "upcomingEvents": "Upcoming Events"
   },
   "event": {
     "addEvent": "Add event",
@@ -233,5 +234,10 @@
         "description": "Customize calendar colors"
       }
     }
+  },
+  "listView": {
+    "today": "Today",
+    "allDay": "All day",
+    "noUpcomingEvents": "No upcoming events"
   }
 }
