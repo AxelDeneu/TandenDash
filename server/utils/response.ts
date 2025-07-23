@@ -1,4 +1,3 @@
-import { generateETag, checkETag } from '../middleware/compression'
 import { setResponseStatus, setHeader, getRequestURL, getQuery, createError, type H3Event } from 'h3'
 
 /**
@@ -90,18 +89,6 @@ export function sendCachedResponse<T>(
   const response = typeof data === 'object' && data !== null
     ? createApiResponse(data)
     : data
-
-  // Generate ETag
-  const etag = generateETag(response)
-  
-  // Check if client has cached version
-  if (checkETag(event, etag)) {
-    setResponseStatus(event, 304)
-    return null
-  }
-
-  // Set ETag header
-  setHeader(event, 'etag', etag)
 
   // Set cache control if specified
   if (options?.ttl) {

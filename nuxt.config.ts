@@ -3,7 +3,7 @@ import { resolve } from 'path'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', 'shadcn-nuxt', '@nuxtjs/i18n'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', 'shadcn-nuxt', '@nuxtjs/i18n', '~/modules/widget-api'],
   css: ['~/assets/css/main.css'],
   
   // i18n configuration

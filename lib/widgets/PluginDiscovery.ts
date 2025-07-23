@@ -60,10 +60,9 @@ export class PluginDiscovery {
           if (!match) continue
           
           const widgetName = match[1]
-          const pluginExportName = `${widgetName}WidgetPlugin`
           
-          // Get the named export
-          const plugin = module[pluginExportName]
+          // Get the standardized export
+          const plugin = module.WidgetPlugin
           
           if (plugin && plugin.id) {
             // Plugin is already in new format, register directly
@@ -75,7 +74,7 @@ export class PluginDiscovery {
             }
             console.log(`Auto-discovered widget: ${plugin.id}`)
           } else {
-            console.warn(`Plugin ${pluginExportName} not found in module ${path}`)
+            console.warn(`WidgetPlugin export not found in module ${path}`)
           }
         } catch (error) {
           console.error(`Failed to load plugin from ${path}:`, error)

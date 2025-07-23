@@ -5,5 +5,5 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 export interface WidgetApiRoute {
   method: HttpMethod
   path: string
-  handler: (event: H3Event) => Promise<any> | any
+  handler: string // Path to the handler file relative to widget directory
 }
