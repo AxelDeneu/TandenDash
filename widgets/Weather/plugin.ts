@@ -1,8 +1,8 @@
-import type { WidgetPlugin, IDataProvider } from '@/lib/widgets/WidgetCore'
+import type { WidgetPlugin as IWidgetPlugin, IDataProvider } from '@/lib/widgets/WidgetCore'
 import type { WeatherWidgetConfig } from './definition'
 import WeatherComponent from './index.vue'
 import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
-import { weatherApiRoutes } from './api'
+import { apiRoutes } from './api'
 
 // Weather data provider
 class WeatherDataProvider implements IDataProvider<any> {
@@ -54,10 +54,10 @@ class WeatherDataProvider implements IDataProvider<any> {
   }
 }
 
-export const WEATHER_WIDGET_ID = 'weather'
+export const WIDGET_ID = 'weather'
 
-export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
-  id: WEATHER_WIDGET_ID,
+export const WidgetPlugin: IWidgetPlugin<WeatherWidgetConfig> = {
+  id: WIDGET_ID,
   name: 'Weather Widget',
   description: 'Display current weather conditions for any location with customizable display options',
   version: '1.0.0',
@@ -76,5 +76,5 @@ export const WeatherWidgetPlugin: WidgetPlugin<WeatherWidgetConfig> = {
     allowDelete: true,
     allowConfigure: true
   },
-  apiRoutes: weatherApiRoutes
+  apiRoutes
 }

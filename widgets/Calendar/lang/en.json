@@ -45,7 +45,8 @@
     "eventTitle": "Event title",
     "eventDescription": "Event description (optional)",
     "eventLocation": "Event location (optional)",
-    "icalUrl": "https://calendar.example.com/feed.ics"
+    "icalUrl": "https://calendar.example.com/feed.ics",
+    "caldavUrl": "https://caldav.example.com/calendars/user/"
   },
   "sync": {
     "calendarSync": "Calendar Sync",
@@ -171,8 +172,18 @@
     "synchronization": "Synchronization",
     "enableSync": "Enable Sync",
     "enableSyncDesc": "Enable calendar synchronization",
+    "syncType": "Sync Type",
+    "syncTypeDesc": "Choose between read-only (one-way) or bidirectional synchronization",
+    "readonlySync": "Read-only (iCal)",
+    "bidirectionalSync": "Bidirectional (CalDAV)",
     "syncUrl": "iCal URL",
     "syncUrlDesc": "URL of the iCal calendar to sync",
+    "caldavUrl": "CalDAV Server URL",
+    "caldavUrlDesc": "Full CalDAV calendar URL (e.g., https://caldav.example.com/calendars/user/)",
+    "caldavUsername": "CalDAV Username",
+    "caldavUsernameDesc": "Your username or email for CalDAV authentication",
+    "caldavPassword": "CalDAV Password",
+    "caldavPasswordDesc": "Your CalDAV password (or app password for Google)",
     "syncInterval": "Sync Interval",
     "syncIntervalDesc": "How often to sync the calendar",
     "appearance": "Appearance",

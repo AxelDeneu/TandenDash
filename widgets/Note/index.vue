@@ -71,14 +71,14 @@
 
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
-import { NoteWidgetPlugin } from './plugin'
+import { WidgetPlugin } from './plugin'
 import type { NoteWidgetConfig } from './definition'
 import { useWidgetOperations } from '@/composables/data/useWidgetOperations'
 
 const props = defineProps<NoteWidgetConfig & { id?: number }>()
 
 // i18n setup
-const { t } = useWidgetI18n(NoteWidgetPlugin.id)
+const { t } = useWidgetI18n(WidgetPlugin.id)
 
 // State for direct editing
 const isEditing = ref(false)

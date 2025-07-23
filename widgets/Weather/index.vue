@@ -106,12 +106,12 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { WeatherWidgetConfig } from './definition'
 import { useWeather } from './composables/useWeather'
-import { WeatherWidgetPlugin } from './plugin'
+import { WidgetPlugin } from './plugin'
 
 const props = defineProps<WeatherWidgetConfig>()
 
 // i18n
-const { t, locale } = useWidgetI18n(WeatherWidgetPlugin.id)
+const { t, locale } = useWidgetI18n(WidgetPlugin.id)
 
 // Initialize weather composable
 const weather = useWeather({

@@ -45,7 +45,8 @@
     "eventTitle": "Titre de l'événement",
     "eventDescription": "Description de l'événement (optionnel)",
     "eventLocation": "Lieu de l'événement (optionnel)",
-    "icalUrl": "https://calendrier.exemple.com/flux.ics"
+    "icalUrl": "https://calendrier.exemple.com/flux.ics",
+    "caldavUrl": "https://caldav.exemple.com/calendriers/utilisateur/"
   },
   "sync": {
     "calendarSync": "Synchronisation du calendrier",
@@ -171,8 +172,18 @@
     "synchronization": "Synchronisation",
     "enableSync": "Activer la synchronisation",
     "enableSyncDesc": "Activer la synchronisation du calendrier",
+    "syncType": "Type de synchronisation",
+    "syncTypeDesc": "Choisir entre synchronisation unidirectionnelle (lecture seule) ou bidirectionnelle",
+    "readonlySync": "Lecture seule (iCal)",
+    "bidirectionalSync": "Bidirectionnelle (CalDAV)",
     "syncUrl": "URL iCal",
     "syncUrlDesc": "URL du calendrier iCal à synchroniser",
+    "caldavUrl": "URL du serveur CalDAV",
+    "caldavUrlDesc": "URL complète du calendrier CalDAV (ex: https://caldav.exemple.com/calendriers/utilisateur/)",
+    "caldavUsername": "Nom d'utilisateur CalDAV",
+    "caldavUsernameDesc": "Votre nom d'utilisateur ou email pour l'authentification CalDAV",
+    "caldavPassword": "Mot de passe CalDAV",
+    "caldavPasswordDesc": "Votre mot de passe CalDAV (ou mot de passe d'application pour Google)",
     "syncInterval": "Intervalle de synchronisation",
     "syncIntervalDesc": "Fréquence de synchronisation du calendrier",
     "appearance": "Apparence",

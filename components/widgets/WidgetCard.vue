@@ -4,7 +4,6 @@ import { GripVertical, MoveDiagonal2, Edit, Trash2 } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import type { WidgetInstance, WidgetPosition, Page } from '@/types'
 import { useWidgetPlugins } from '@/composables'
-import WidgetErrorBoundaryWrapper from './WidgetErrorBoundaryWrapper.vue'
 
 const props = defineProps<{
   widget: WidgetInstance
@@ -177,17 +176,11 @@ const widgetComponent = computed(() => {
       </div>
     </Transition>
     <div class="w-full h-full" data-testid="widget-content">
-      <WidgetErrorBoundaryWrapper
+      <component 
         v-if="widgetComponent"
-        :widget-id="widget.type"
-        :instance-id="`widget-${widget.id}`"
-        :max-retries="3"
-      >
-        <component 
-          :is="widgetComponent"
-          v-bind="widgetProps" 
-        />
-      </WidgetErrorBoundaryWrapper>
+        :is="widgetComponent"
+        v-bind="widgetProps" 
+      />
       <div v-else class="text-muted-foreground text-sm p-4 text-center">
         Widget type "{{ widget.type }}" not found
       </div>

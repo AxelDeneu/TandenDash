@@ -3,10 +3,10 @@ import type { ClockWidgetConfig } from './definition'
 import ClockComponent from './index.vue'
 import { widgetDefaults, WidgetConfigSchema, widgetConfig } from './definition'
 
-export const CLOCK_WIDGET_ID = 'clock'
+export const WIDGET_ID = 'clock'
 
-export const ClockWidgetPlugin: WidgetPlugin<ClockWidgetConfig> = {
-  id: CLOCK_WIDGET_ID,
+export const WidgetPlugin: WidgetPlugin<ClockWidgetConfig> = {
+  id: WIDGET_ID,
   name: 'Digital Clock',
   description: 'A customizable digital clock widget with multiple display formats and animations',
   version: '1.0.0',

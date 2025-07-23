@@ -4,13 +4,13 @@ import { cn } from '../../lib/utils';
 import { fontSizeStyle, toPixels } from '../../lib/utils/font-sizes';
 import { applySecondsAnimation } from './animations';
 import type { ClockWidgetConfig } from "./definition";
-import { ClockWidgetPlugin } from './plugin';
+import { WidgetPlugin } from './plugin';
 
 // Define props
 const props = defineProps<ClockWidgetConfig>();
 
 // i18n setup
-const { t, locale } = useWidgetI18n(ClockWidgetPlugin.id);
+const { t, locale } = useWidgetI18n(WidgetPlugin.id);
 
 // Reactive time and date
 const time = ref('');

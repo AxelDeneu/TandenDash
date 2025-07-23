@@ -99,3 +99,4 @@ npx drizzle-kit migrate
 - Never commit by yourself, I must valide your proposed commit
 - Never put yourself as a co-author in the commit
 - Never add hard-coded strings, always translatable strings
+- Never import widgets statically outside the widgets directory
