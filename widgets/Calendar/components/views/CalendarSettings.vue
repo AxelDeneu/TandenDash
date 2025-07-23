@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Settings, RefreshCw } from '@/lib/icons'
-import { CALENDAR_WIDGET_ID } from '../../plugin'
+import { WIDGET_ID } from '../../plugin'
 import type { WidgetConfig } from '../../definition'
 import SyncStatus from '../SyncStatus.vue'
 import type { SyncStatus as SyncStatusType } from '../../composables/useCalendarSync'
@@ -20,7 +20,7 @@ const emit = defineEmits<{
 }>()
 
 // i18n
-const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
+const { t } = useWidgetI18n(WIDGET_ID)
 
 const showSettings = ref(false)
 

@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays, List, Plus, RefreshCw } from '@/lib/icons'
 import type { WidgetConfig } from './definition'
-import { CalendarWidgetPlugin } from './plugin'
+import { WidgetPlugin } from './plugin'
 import CalendarMonth from './components/views/CalendarMonth.vue'
 import CalendarWeek from './components/views/CalendarWeek.vue'
 import CalendarDay from './components/views/CalendarDay.vue'
@@ -12,6 +12,7 @@ import EventModal from './components/EventModal.vue'
 import { useCalendarViews } from './composables/useCalendarViews'
 import { useCalendarEvents } from './composables/useCalendarEvents'
 import { useCalendarSync } from './composables/useCalendarSync'
+import { useCalDAVSync } from './composables/useCalDAVSync'
 import type { CalendarEvent } from './types'
 
 interface Props extends WidgetConfig {
@@ -21,16 +22,37 @@ interface Props extends WidgetConfig {
 const props = defineProps<Props>()
 
 // i18n
-const { t } = useWidgetI18n(CalendarWidgetPlugin.id)
+const { t } = useWidgetI18n(WidgetPlugin.id)
 
 // Composables - Simple direct initialization
 const views = useCalendarViews(props.defaultView, props.firstDayOfWeek === 'monday' ? 1 : 0)
 const events = useCalendarEvents(props.id!)  // ID always exists for widget instances
-const sync = props.syncEnabled ? useCalendarSync(props.id!, {
+
+// Use different sync based on sync type
+const syncIcal = props.syncEnabled && props.syncType === 'readonly' ? useCalendarSync(props.id!, {
   url: props.syncUrl || '',
   interval: props.syncInterval,
   enabled: props.syncEnabled
 }) : null
+
+const syncCalDAV = props.syncEnabled && props.syncType === 'bidirectional' ? useCalDAVSync(props.id!, {
+  enabled: props.syncEnabled,
+  serverUrl: props.caldavCalendarUrl || '',
+  username: props.caldavUsername || '',
+  password: props.caldavPassword || '',
+  interval: props.syncInterval
+}) : null
+
+// Unified sync interface
+const sync = syncIcal || syncCalDAV
+
+// Setup CalDAV sync callback if using bidirectional sync
+if (syncCalDAV) {
+  events.onCalDAVSync(async (action, event) => {
+    // Trigger immediate sync for the changed event
+    await syncCalDAV.syncCalDAV()
+  })
+}
 
 // Modal state
 const showEventModal = ref(false)
@@ -133,7 +155,11 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
   // In a real implementation, this would update the widget config
   // For now, we'll just update the sync settings
   if (config.syncEnabled !== undefined || config.syncUrl !== undefined || config.syncInterval !== undefined) {
-    sync?.scheduleSyncInterval()
+    if (syncIcal) {
+      syncIcal.scheduleSyncInterval()
+    } else if (syncCalDAV) {
+      syncCalDAV.scheduleSyncInterval()
+    }
   }
 }
 </script>
@@ -192,16 +218,16 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
       <div class="flex items-center gap-2">
         <!-- Sync status indicator -->
         <div
-          v-if="syncEnabled && sync?.status.value.lastSync"
+          v-if="syncEnabled && sync?.status.lastSync"
           class="flex items-center gap-1 text-sm text-muted-foreground"
-          :title="`${t('sync.lastSynced')} ${sync?.status.value.lastSync.toLocaleString()}`"
+          :title="`${t('sync.lastSynced')} ${sync?.status.lastSync.toLocaleString()}`"
         >
           <RefreshCw 
             class="w-4 h-4" 
-            :class="{ 'animate-spin': sync?.status.value.syncing }"
+            :class="{ 'animate-spin': sync?.status.syncing }"
           />
-          <span v-if="!sync?.status.value.syncing">
-            {{ sync?.status.value.eventsCount }} {{ t('sync.synced') }}
+          <span v-if="!sync?.status.syncing">
+            {{ sync?.status.eventsCount }} {{ t('sync.synced') }}
           </span>
         </div>
         <!-- View buttons -->
@@ -254,10 +280,11 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
         <!-- Settings button -->
         <CalendarSettings
           v-bind="props"
-          :sync-status="sync?.status.value"
-          :next-sync-time="sync?.nextSyncTime.value"
-          :can-sync="sync?.canSync.value"
-          @sync="sync?.syncCalendar"
+          :sync-status="sync?.status"
+          :next-sync-time="sync?.nextSyncTime"
+          :can-sync="sync?.canSync"
+          :sync-caldav="syncCalDAV"
+          @sync="sync?.syncCalendar || sync?.syncCalDAV"
           @update:config="handleConfigUpdate"
         />
       </div>

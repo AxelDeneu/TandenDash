@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { CALENDAR_WIDGET_ID } from '../plugin'
+import { WIDGET_ID } from '../plugin'
 import { 
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ const emit = defineEmits<{
 }>()
 
 // i18n
-const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
+const { t } = useWidgetI18n(WIDGET_ID)
 
 // Form data
 const formData = ref({

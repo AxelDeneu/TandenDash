@@ -11,7 +11,7 @@ export function useCalendarEvents(widgetInstanceId: number) {
   const selectedEvent = ref<CalendarEvent | null>(null)
   const filter = ref({
     categories: [] as string[],
-    sources: [] as ('local' | 'ical' | 'google')[],
+    sources: [] as ('local' | 'ical' | 'caldav')[],
     searchQuery: ''
   })
   
@@ -62,7 +62,7 @@ export function useCalendarEvents(widgetInstanceId: number) {
     // Filter by sources
     if (filter.value.sources.length > 0) {
       result = result.filter(event => 
-        filter.value.sources.includes(event.source)
+        filter.value.sources.includes(event.source as any)
       )
     }
     
@@ -85,12 +85,16 @@ export function useCalendarEvents(widgetInstanceId: number) {
       ...eventData,
       id: nanoid(),
       source: 'local',
+      syncStatus: 'pending', // Mark for CalDAV sync
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
     
     const currentEvents = events.value
     await widgetData.set('events', [...currentEvents, newEvent])
+    
+    // Trigger CalDAV sync if enabled
+    await triggerCalDAVSync('create', newEvent)
     
     return newEvent
   }
@@ -105,7 +109,8 @@ export function useCalendarEvents(widgetInstanceId: number) {
     const updatedEvent: CalendarEvent = {
       ...currentEvents[index],
       ...updates,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      syncStatus: 'pending' // Mark for CalDAV sync
     }
     
     const newEvents = [...currentEvents]
@@ -113,17 +118,40 @@ export function useCalendarEvents(widgetInstanceId: number) {
     
     await widgetData.set('events', newEvents)
     
+    // Trigger CalDAV sync if enabled
+    await triggerCalDAVSync('update', updatedEvent)
+    
     return updatedEvent
   }
   
   // Delete an event
   async function deleteEvent(eventId: string): Promise<boolean> {
     const currentEvents = events.value
-    const filtered = currentEvents.filter(e => e.id !== eventId)
+    const eventToDelete = currentEvents.find(e => e.id === eventId)
     
-    if (filtered.length === currentEvents.length) return false
+    if (!eventToDelete) return false
     
-    await widgetData.set('events', filtered)
+    // If it's a CalDAV event, mark for deletion instead of removing
+    if (eventToDelete.caldavHref) {
+      const updatedEvent = {
+        ...eventToDelete,
+        syncStatus: 'pending' as const,
+        deleted: true
+      }
+      
+      const newEvents = currentEvents.map(e => 
+        e.id === eventId ? updatedEvent : e
+      )
+      
+      await widgetData.set('events', newEvents)
+      
+      // Trigger CalDAV sync to delete from server
+      await triggerCalDAVSync('delete', updatedEvent)
+    } else {
+      // Local event, remove immediately
+      const filtered = currentEvents.filter(e => e.id !== eventId)
+      await widgetData.set('events', filtered)
+    }
     
     return true
   }
@@ -188,16 +216,35 @@ export function useCalendarEvents(widgetInstanceId: number) {
     const counts = {
       local: 0,
       ical: 0,
-      google: 0,
+      caldav: 0,
       total: allEvents.value.length
     }
     
     allEvents.value.forEach(event => {
-      counts[event.source]++
+      if (event.source in counts) {
+        counts[event.source]++
+      }
     })
     
     return counts
   })
+  
+  // CalDAV sync trigger (called by widget when CalDAV is enabled)
+  let caldavSyncCallback: ((action: string, event: CalendarEvent) => Promise<void>) | null = null
+  
+  function onCalDAVSync(callback: (action: string, event: CalendarEvent) => Promise<void>) {
+    caldavSyncCallback = callback
+  }
+  
+  async function triggerCalDAVSync(action: string, event: CalendarEvent) {
+    if (caldavSyncCallback) {
+      try {
+        await caldavSyncCallback(action, event)
+      } catch (error) {
+        console.error('CalDAV sync trigger failed:', error)
+      }
+    }
+  }
   
   return {
     // State
@@ -220,6 +267,8 @@ export function useCalendarEvents(widgetInstanceId: number) {
     getUpcomingEvents,
     setFilter,
     clearFilter,
+    refreshEvents: () => widgetData.refresh(),
+    onCalDAVSync,
     
     // Widget data access
     loading: widgetData.loading,

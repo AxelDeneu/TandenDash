@@ -1,10 +1,7 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-// @ts-ignore - ical.js doesn't have types
-import ICAL from 'ical.js'
+import { ref, readonly, computed, onMounted, onUnmounted } from 'vue'
 import type { CalendarEvent } from '../types'
 import { useCalendarEvents } from './useCalendarEvents'
 import { formatISO } from '../utils/date-helpers'
-import { parseISO } from 'date-fns'
 
 export interface SyncConfig {
   url: string
@@ -34,115 +31,63 @@ export function useCalendarSync(
   })
   
   let syncInterval: number | null = null
+  let lastSyncTime: number | null = null
   
-  // Parse iCal data
-  async function parseICalData(icalData: string): Promise<Partial<CalendarEvent>[]> {
-    try {
-      const jcalData = ICAL.parse(icalData)
-      const comp = new ICAL.Component(jcalData)
-      const vevents = comp.getAllSubcomponents('vevent')
-      
-      const parsedEvents: Partial<CalendarEvent>[] = []
-      
-      for (const vevent of vevents) {
-        const event = new ICAL.Event(vevent)
-        
-        // Extract event data
-        const startDate = event.startDate.toJSDate()
-        const endDate = event.endDate.toJSDate()
-        
-        const parsedEvent: Partial<CalendarEvent> = {
-          title: event.summary || 'Untitled Event',
-          description: event.description || '',
-          startDate: formatISO(startDate),
-          endDate: formatISO(endDate),
-          allDay: event.isAllDay(),
-          category: 'Synced',
-          color: '#6b7280', // Gray color for synced events
-          source: 'ical'
-        }
-        
-        // Handle recurring events
-        if (event.isRecurring()) {
-          const iterator = event.iterator()
-          let next = iterator.next()
-          let count = 0
-          const maxOccurrences = 50 // Limit recurring events
-          
-          while (next && count < maxOccurrences) {
-            const occurrence = event.getOccurrenceDetails(next)
-            const recurringEvent = {
-              ...parsedEvent,
-              startDate: formatISO(occurrence.startDate.toJSDate()),
-              endDate: formatISO(occurrence.endDate.toJSDate()),
-              recurringId: `${event.uid}-${count}`
-            }
-            parsedEvents.push(recurringEvent)
-            
-            next = iterator.next()
-            count++
-          }
-        } else {
-          parsedEvents.push(parsedEvent)
-        }
-      }
-      
-      return parsedEvents
-    } catch (error) {
-      console.error('Failed to parse iCal data:', error)
-      throw new Error('Invalid iCal format')
-    }
-  }
+  // Computed properties
+  const nextSyncTime = computed(() => {
+    if (!config.enabled || !config.interval || !lastSyncTime) return null
+    return new Date(lastSyncTime + config.interval * 60 * 1000)
+  })
   
-  // Fetch iCal data
-  async function fetchICalData(url: string): Promise<string> {
-    try {
-      // Use server-side proxy to avoid CORS issues
-      const response = await $fetch('/api/calendar/proxy', {
-        method: 'POST',
-        body: { url }
-      })
-      
-      if (typeof response !== 'string') {
-        throw new Error('Invalid response format')
-      }
-      
-      return response
-    } catch (error) {
-      console.error('Failed to fetch iCal data:', error)
-      throw new Error('Failed to fetch calendar data')
-    }
-  }
+  const canSync = computed(() => {
+    return config.enabled && !!config.url && !status.value.syncing
+  })
   
   // Sync calendar
-  async function syncCalendar() {
+  async function syncCalendar(customStartDate?: Date, customEndDate?: Date) {
     if (!config.enabled || !config.url) return
     
     try {
       status.value.syncing = true
       status.value.error = null
       
-      // Fetch iCal data
-      const icalData = await fetchICalData(config.url)
+      // Use custom dates or calculate default range (±6 months)
+      let startDate: Date
+      let endDate: Date
       
-      // Parse events
-      const parsedEvents = await parseICalData(icalData)
-      
-      // Clear existing synced events
-      const existingEvents = events.allEvents.value
-      const syncedEvents = existingEvents.filter((e) => e.source === 'ical')
-      
-      for (const event of syncedEvents) {
-        await events.deleteEvent(event.id)
+      if (customStartDate && customEndDate) {
+        startDate = customStartDate
+        endDate = customEndDate
+      } else {
+        const now = new Date()
+        startDate = new Date(now)
+        startDate.setMonth(startDate.getMonth() - 6)
+        endDate = new Date(now)
+        endDate.setMonth(endDate.getMonth() + 6)
       }
       
-      // Add new synced events
-      for (const eventData of parsedEvents) {
-        await events.createEvent(eventData as Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>)
-      }
+      // Call the new proxy endpoint that handles sync server-side
+      const response = await $fetch<{
+        events: any[]
+        syncedCount: number
+        deletedCount: number
+        totalCount: number
+      }>(`/api/widgets/calendar/proxy`, {
+        method: 'POST',
+        body: {
+          url: config.url,
+          widgetInstanceId,
+          startDate: formatISO(startDate),
+          endDate: formatISO(endDate)
+        }
+      })
+      
+      // Refresh events from the response
+      await events.refreshEvents()
       
       status.value.lastSync = new Date()
-      status.value.eventsCount = parsedEvents.length
+      status.value.eventsCount = response.syncedCount
+      lastSyncTime = Date.now()
     } catch (error) {
       status.value.error = error instanceof Error ? error.message : 'Sync failed'
       console.error('Calendar sync failed:', error)
@@ -157,51 +102,55 @@ export function useCalendarSync(
     
     // Clear existing interval
     if (syncInterval !== null) {
-      clearInterval(syncInterval)
+      window.clearInterval(syncInterval)
     }
     
-    // Initial sync
-    syncCalendar()
-    
-    // Schedule periodic sync
-    const intervalMs = config.interval * 60 * 1000
+    // Schedule new interval
     syncInterval = window.setInterval(() => {
       syncCalendar()
-    }, intervalMs)
+    }, config.interval * 60 * 1000)
+    
+    // Sync immediately
+    syncCalendar()
   }
   
-  // Computed properties
-  const canSync = computed(() => {
-    return config.enabled && !!config.url && !status.value.syncing
-  })
-  
-  const nextSyncTime = computed(() => {
-    if (!status.value.lastSync || !config.interval) return null
-    
-    const nextSync = new Date(status.value.lastSync)
-    nextSync.setMinutes(nextSync.getMinutes() + config.interval)
-    return nextSync
-  })
-  
-  // Lifecycle
-  onMounted(() => {
-    scheduleSyncInterval()
-  })
-  
-  onUnmounted(() => {
+  // Stop sync
+  function stopSync() {
     if (syncInterval !== null) {
-      clearInterval(syncInterval)
+      window.clearInterval(syncInterval)
+      syncInterval = null
     }
+  }
+  
+  // Enable/disable sync
+  function toggleSync(enabled: boolean) {
+    config.enabled = enabled
+    
+    if (enabled) {
+      scheduleSyncInterval()
+    } else {
+      stopSync()
+    }
+  }
+  
+  // Initialize
+  onMounted(() => {
+    if (config.enabled) {
+      scheduleSyncInterval()
+    }
+  })
+  
+  // Cleanup
+  onUnmounted(() => {
+    stopSync()
   })
   
   return {
-    // State
-    status: computed(() => status.value),
-    canSync,
-    nextSyncTime,
-    
-    // Methods
+    status: readonly(status),
+    nextSyncTime: readonly(nextSyncTime),
+    canSync: readonly(canSync),
     syncCalendar,
-    scheduleSyncInterval
+    toggleSync,
+    stopSync
   }
 }

@@ -27,8 +27,14 @@ export interface WidgetConfig extends BaseWidgetConfig {
   
   // Sync settings
   syncEnabled: boolean
+  syncType: 'readonly' | 'bidirectional'
   syncUrl?: string
   syncInterval: number // minutes
+  
+  // CalDAV settings (for bidirectional sync)
+  caldavUsername?: string
+  caldavPassword?: string // Will be encrypted
+  caldavCalendarUrl?: string
   
   // Appearance
   backgroundColor: string
@@ -67,8 +73,14 @@ export const widgetDefaults: WidgetConfig = {
   
   // Sync settings
   syncEnabled: false,
+  syncType: 'readonly',
   syncUrl: '',
   syncInterval: 30,
+  
+  // CalDAV settings
+  caldavUsername: '',
+  caldavPassword: '',
+  caldavCalendarUrl: '',
   
   // Appearance
   backgroundColor: 'bg-background',
@@ -111,8 +123,14 @@ export const WidgetConfigSchema = z.object({
   
   // Sync settings
   syncEnabled: z.boolean(),
+  syncType: z.enum(['readonly', 'bidirectional']),
   syncUrl: z.string().optional(),
   syncInterval: z.number().min(5).max(1440),
+  
+  // CalDAV settings
+  caldavUsername: z.string().optional(),
+  caldavPassword: z.string().optional(),
+  caldavCalendarUrl: z.string().optional(),
   
   // Appearance
   backgroundColor: z.string(),
@@ -283,12 +301,41 @@ export const widgetConfig: EnhancedWidgetConfig = {
           label: '@options.enableSync',
           description: '@options.enableSyncDesc'
         },
+        syncType: {
+          type: 'radio',
+          label: '@options.syncType',
+          description: '@options.syncTypeDesc',
+          options: [
+            { value: 'readonly', label: '@options.readonlySync' },
+            { value: 'bidirectional', label: '@options.bidirectionalSync' }
+          ],
+          dependencies: { syncEnabled: true }
+        },
         syncUrl: {
           type: 'text',
           label: '@options.syncUrl',
           description: '@options.syncUrlDesc',
           placeholder: '@placeholders.icalUrl',
-          dependencies: { syncEnabled: true }
+          dependencies: { syncEnabled: true, syncType: 'readonly' }
+        },
+        caldavCalendarUrl: {
+          type: 'text',
+          label: '@options.caldavUrl',
+          description: '@options.caldavUrlDesc',
+          placeholder: '@placeholders.caldavUrl',
+          dependencies: { syncEnabled: true, syncType: 'bidirectional' }
+        },
+        caldavUsername: {
+          type: 'text',
+          label: '@options.caldavUsername',
+          description: '@options.caldavUsernameDesc',
+          dependencies: { syncEnabled: true, syncType: 'bidirectional' }
+        },
+        caldavPassword: {
+          type: 'text',
+          label: '@options.caldavPassword',
+          description: '@options.caldavPasswordDesc',
+          dependencies: { syncEnabled: true, syncType: 'bidirectional' }
         },
         syncInterval: {
           type: 'slider',

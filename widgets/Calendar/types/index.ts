@@ -12,9 +12,17 @@ export interface CalendarEvent {
   recurrenceRule?: string // RRULE string
   recurrenceExceptions?: string[] // ISO 8601 dates
   // Source
-  source: 'local' | 'ical' | 'google'
+  source: 'local' | 'ical' | 'caldav'
   sourceId?: string
   sourceUrl?: string
+  uid?: string // iCal UID for synchronization
+  // CalDAV specific
+  etag?: string // For conflict detection
+  caldavHref?: string // Resource URL on CalDAV server
+  // Sync state
+  syncStatus?: 'synced' | 'pending' | 'error'
+  syncError?: string
+  deleted?: boolean // Soft delete for CalDAV sync
   // Metadata
   createdAt: string
   updatedAt: string
@@ -63,4 +71,25 @@ export interface CalendarPreferences {
     name: string
     color: string
   }>
+}
+
+export interface CalDAVConfig {
+  serverUrl: string
+  username: string
+  password: string // Encrypted
+  calendarUrl?: string
+  principalUrl?: string
+  authMethod?: 'basic' | 'oauth2'
+}
+
+export interface CalDAVSyncResult {
+  success: boolean
+  syncedEvents: number
+  deletedEvents: number
+  conflicts: Array<{
+    localEvent: CalendarEvent
+    remoteEvent: CalendarEvent
+    resolution?: 'local' | 'remote' | 'merge'
+  }>
+  errors: string[]
 }

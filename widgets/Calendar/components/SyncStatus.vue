@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CALENDAR_WIDGET_ID } from '../plugin'
+import { WIDGET_ID } from '../plugin'
 import { RefreshCw, AlertTriangle, Check } from '@/lib/icons'
 import { formatRelativeTime } from '../utils/date-helpers'
 import type { SyncStatus } from '../composables/useCalendarSync'
@@ -19,7 +19,7 @@ const emit = defineEmits<{
 }>()
 
 // i18n
-const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
+const { t } = useWidgetI18n(WIDGET_ID)
 
 // Format last sync time
 const lastSyncText = computed(() => {

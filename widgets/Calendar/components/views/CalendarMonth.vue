@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CALENDAR_WIDGET_ID } from '../../plugin'
+import { WIDGET_ID } from '../../plugin'
 import { getCalendarMonth, getWeekNumber } from '../../utils/date-helpers'
 import type { CalendarEvent, CalendarDay } from '../../types'
 
@@ -25,7 +25,7 @@ const emit = defineEmits<{
 }>()
 
 // i18n
-const { t } = useWidgetI18n(CALENDAR_WIDGET_ID)
+const { t } = useWidgetI18n(WIDGET_ID)
 
 // Get calendar days
 const calendarDays = computed(() => {
