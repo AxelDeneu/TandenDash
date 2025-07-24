@@ -100,6 +100,30 @@ const widgetComponent = computed(() => {
   const plugin = widgetPlugins.getPlugin(props.widget.type)
   return plugin?.component || null
 })
+
+// Calculate handle position to keep it visible
+const handlePosition = computed(() => {
+  const pos = displayPosition.value
+  const handleOffset = 24 // Normal offset height (equivalent to -top-6)
+  
+  // Calculate ideal Y position of handle
+  const idealY = -handleOffset
+  
+  // If widget is too close to top edge
+  if (pos.y < handleOffset) {
+    // Handle stays inside widget instead of going outside
+    return {
+      top: `${-pos.y}px`,
+      transform: 'translate(-50%, 0)'
+    }
+  }
+  
+  // Normal position
+  return {
+    top: `${idealY}px`,
+    transform: 'translate(-50%, 0)'
+  }
+})
 </script>
 
 <template>
@@ -120,7 +144,7 @@ const widgetComponent = computed(() => {
       leave-from-class="opacity-100 scale-100"
       leave-to-class="opacity-0 scale-75"
     >
-      <div v-if="editMode" class="absolute -top-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div v-if="editMode" class="absolute left-1/2 z-50" :style="handlePosition">
         <div class="flex items-center gap-1 px-2 py-1.5 bg-background/90 backdrop-blur-md border border-border/50 rounded-full shadow-2xl">
         <!-- Drag Handle -->
         <div
