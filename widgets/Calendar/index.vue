@@ -7,7 +7,6 @@ import CalendarMonth from './components/views/CalendarMonth.vue'
 import CalendarWeek from './components/views/CalendarWeek.vue'
 import CalendarDay from './components/views/CalendarDay.vue'
 import CalendarList from './components/views/CalendarList.vue'
-import CalendarSettings from './components/views/CalendarSettings.vue'
 import EventModal from './components/EventModal.vue'
 import { useCalendarViews } from './composables/useCalendarViews'
 import { useCalendarEvents } from './composables/useCalendarEvents'
@@ -149,19 +148,6 @@ async function handleEventDelete() {
 function switchToView(view: 'month' | 'week' | 'day' | 'list') {
   views.switchView(view)
 }
-
-// Handle config update
-function handleConfigUpdate(config: Partial<WidgetConfig>) {
-  // In a real implementation, this would update the widget config
-  // For now, we'll just update the sync settings
-  if (config.syncEnabled !== undefined || config.syncUrl !== undefined || config.syncInterval !== undefined) {
-    if (syncIcal) {
-      syncIcal.scheduleSyncInterval()
-    } else if (syncCalDAV) {
-      syncCalDAV.scheduleSyncInterval()
-    }
-  }
-}
 </script>
 
 <template>
@@ -171,7 +157,7 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
       backgroundColor,
       textColor,
       borderColor,
-      'border rounded-lg overflow-hidden'
+      'rounded-lg overflow-hidden'
     ]"
   >
     <!-- Calendar Header -->
@@ -276,17 +262,6 @@ function handleConfigUpdate(config: Partial<WidgetConfig>) {
         >
           <Plus class="w-5 h-5" />
         </button>
-        
-        <!-- Settings button -->
-        <CalendarSettings
-          v-bind="props"
-          :sync-status="sync?.status"
-          :next-sync-time="sync?.nextSyncTime"
-          :can-sync="sync?.canSync"
-          :sync-caldav="syncCalDAV"
-          @sync="sync?.syncCalendar || sync?.syncCalDAV"
-          @update:config="handleConfigUpdate"
-        />
       </div>
     </div>
     
