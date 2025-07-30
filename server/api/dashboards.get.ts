@@ -1,15 +1,12 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler } from '../utils/api-handler'
 
-export default defineEventHandler(async (event) => {
-  const dashboardService = container.getServiceFactory().createDashboardService()
+export default defineApiHandler(async ({ services }) => {
+  const dashboardService = services.createDashboardService()
   
   const result = await dashboardService.findAll()
   
   if (!result.success) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: result.error || 'Failed to fetch dashboards'
-    })
+    throw new Error(result.error || 'Failed to fetch dashboards')
   }
   
   return result.data

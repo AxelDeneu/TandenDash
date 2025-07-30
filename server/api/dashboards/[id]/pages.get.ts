@@ -1,24 +1,13 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler, getNumericRouteParam } from '../../../utils/api-handler'
 
-export default defineEventHandler(async (event) => {
-  const pageService = container.getServiceFactory().createPageService()
+export default defineApiHandler(async ({ services, event }) => {
+  const id = getNumericRouteParam(event, 'id')
   
-  const id = getRouterParam(event, 'id')
-  
-  if (!id || isNaN(Number(id))) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid dashboard ID'
-    })
-  }
-  
-  const result = await pageService.getPagesByDashboardId(Number(id))
+  const pageService = services.createPageService()
+  const result = await pageService.getPagesByDashboardId(id)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: result.error || 'Failed to fetch pages'
-    })
+    throw new Error(result.error || 'Failed to fetch pages')
   }
   
   return result.data

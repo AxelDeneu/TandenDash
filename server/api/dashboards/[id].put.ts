@@ -1,27 +1,15 @@
-import { container } from '@/lib/di/container'
-import type { UpdateDashboardRequest } from '@/types'
+import { defineApiHandler, getNumericRouteParam, getValidatedBody } from '../../utils/api-handler'
+import { updateDashboardSchema } from '../../schemas'
 
-export default defineEventHandler(async (event) => {
-  const dashboardService = container.getServiceFactory().createDashboardService()
+export default defineApiHandler(async ({ services, event }) => {
+  const id = getNumericRouteParam(event, 'id')
+  const body = await getValidatedBody(event, (data) => updateDashboardSchema.parse(data))
   
-  const id = getRouterParam(event, 'id')
-  
-  if (!id || isNaN(Number(id))) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid dashboard ID'
-    })
-  }
-  
-  const body = await readBody<Partial<UpdateDashboardRequest>>(event)
-  
-  const result = await dashboardService.update(Number(id), body)
+  const dashboardService = services.createDashboardService()
+  const result = await dashboardService.update(id, { ...body, id })
   
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: result.error || 'Failed to update dashboard'
-    })
+    throw new Error(result.error || 'Failed to update dashboard')
   }
   
   return result.data

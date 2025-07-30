@@ -1,31 +1,16 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler, getValidatedBody } from '../utils/api-handler'
+import { updateModeStateSchema, modeStateSchema } from '../schemas'
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+export default defineApiHandler(async ({ services, event }) => {
+  const body = await getValidatedBody(event, (data) => updateModeStateSchema.parse(data))
   
-  if (!body?.mode) {
-    throw createError({ 
-      statusCode: 400, 
-      statusMessage: 'Mode required' 
-    })
-  }
-  
-  if (body.mode !== 'light' && body.mode !== 'dark') {
-    throw createError({ 
-      statusCode: 400, 
-      statusMessage: 'Mode must be "light" or "dark"' 
-    })
-  }
-  
-  const modeService = container.getServiceFactory().createModeService()
+  const modeService = services.createModeService()
   const result = await modeService.setMode(body.mode)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: result.error || 'Failed to set mode'
-    })
+    throw new Error(result.error || 'Failed to set mode')
   }
   
-  return { mode: body.mode }
+  // Validate response format
+  return modeStateSchema.parse({ mode: body.mode })
 }) 

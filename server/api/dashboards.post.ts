@@ -1,25 +1,14 @@
-import { container } from '@/lib/di/container'
-import type { CreateDashboardRequest } from '@/types'
+import { defineApiHandler, getValidatedBody } from '../utils/api-handler'
+import { createDashboardSchema } from '../schemas'
 
-export default defineEventHandler(async (event) => {
-  const dashboardService = container.getServiceFactory().createDashboardService()
+export default defineApiHandler(async ({ services, event }) => {
+  const body = await getValidatedBody(event, (data) => createDashboardSchema.parse(data))
   
-  const body = await readBody<CreateDashboardRequest>(event)
-  
-  if (!body.name) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Dashboard name is required'
-    })
-  }
-  
+  const dashboardService = services.createDashboardService()
   const result = await dashboardService.create(body)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: result.error || 'Failed to create dashboard'
-    })
+    throw new Error(result.error || 'Failed to create dashboard')
   }
   
   return result.data

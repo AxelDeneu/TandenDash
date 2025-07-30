@@ -1,11 +1,15 @@
-import { db, widgetInstance } from '~/lib/db';
-import { eq } from 'drizzle-orm';
+import { defineApiHandler, getValidatedBody } from '../utils/api-handler'
+import { deleteWidgetSchema } from '../schemas'
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  if (!body?.id) {
-    throw createError({ statusCode: 400, statusMessage: 'id is required' });
+export default defineApiHandler(async ({ services, event }) => {
+  const body = await getValidatedBody(event, (data) => deleteWidgetSchema.parse(data))
+  
+  const widgetService = services.createWidgetService()
+  const result = await widgetService.deleteWidget(body.id)
+  
+  if (!result.success) {
+    throw new Error(result.error || 'Failed to delete widget')
   }
-  await db.delete(widgetInstance).where(eq(widgetInstance.id, body.id));
-  return { success: true };
-}); 
+  
+  return { success: true }
+}) 

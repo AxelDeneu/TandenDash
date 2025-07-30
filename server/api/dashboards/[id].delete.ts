@@ -1,24 +1,13 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler, getNumericRouteParam } from '../../utils/api-handler'
 
-export default defineEventHandler(async (event) => {
-  const dashboardService = container.getServiceFactory().createDashboardService()
+export default defineApiHandler(async ({ services, event }) => {
+  const id = getNumericRouteParam(event, 'id')
   
-  const id = getRouterParam(event, 'id')
-  
-  if (!id || isNaN(Number(id))) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid dashboard ID'
-    })
-  }
-  
-  const result = await dashboardService.delete(Number(id))
+  const dashboardService = services.createDashboardService()
+  const result = await dashboardService.delete(id)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: result.error || 'Failed to delete dashboard'
-    })
+    throw new Error(result.error || 'Failed to delete dashboard')
   }
   
   return { success: true }

@@ -1,24 +1,13 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler, getNumericRouteParam } from '../../../utils/api-handler'
 
-export default defineEventHandler(async (event) => {
-  const dashboardSettingsService = container.getServiceFactory().createDashboardSettingsService()
+export default defineApiHandler(async ({ services, event }) => {
+  const id = getNumericRouteParam(event, 'id')
   
-  const id = getRouterParam(event, 'id')
-  
-  if (!id || isNaN(Number(id))) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid dashboard ID'
-    })
-  }
-  
-  const result = await dashboardSettingsService.findByDashboardId(Number(id))
+  const dashboardSettingsService = services.createDashboardSettingsService()
+  const result = await dashboardSettingsService.findByDashboardId(id)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: result.error || 'Dashboard settings not found'
-    })
+    throw new Error(result.error || 'Dashboard settings not found')
   }
   
   return result.data

@@ -1,15 +1,14 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler } from '../utils/api-handler'
+import { modeStateSchema } from '../schemas'
 
-export default defineEventHandler(async () => {
-  const modeService = container.getServiceFactory().createModeService()
+export default defineApiHandler(async ({ services }) => {
+  const modeService = services.createModeService()
   const result = await modeService.getCurrentMode()
   
   if (!result.success) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: result.error || 'Failed to get current mode'
-    })
+    throw new Error(result.error || 'Failed to get current mode')
   }
   
-  return { mode: result.data || 'light' }
+  // Validate response format
+  return modeStateSchema.parse({ mode: result.data || 'light' })
 }) 

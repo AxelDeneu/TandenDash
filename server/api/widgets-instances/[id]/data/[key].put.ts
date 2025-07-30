@@ -1,18 +1,11 @@
 import { defineApiHandler, getNumericRouteParam, getRouteParam, getValidatedBody } from '../../../../utils/api-handler'
-import { z } from 'zod'
-
-// The body can be any valid JSON value
-const bodyValidator = (body: unknown) => z.any().parse(body)
+import { widgetDataKeySchema, widgetDataValueSchema } from '../../../../schemas'
 
 export default defineApiHandler(async ({ services, event }) => {
   const id = getNumericRouteParam(event, 'id')
-  const key = getRouteParam(event, 'key')
+  const key = widgetDataKeySchema.parse(getRouteParam(event, 'key'))
   
-  if (!key || key.length === 0) {
-    throw new Error('Invalid key parameter')
-  }
-  
-  const body = await getValidatedBody(event, bodyValidator)
+  const body = await getValidatedBody(event, (data) => widgetDataValueSchema.parse(data))
   
   const widgetDataService = services.createWidgetDataService()
   const result = await widgetDataService.setData(id, key, body)

@@ -1,33 +1,15 @@
-import { container } from '@/lib/di/container'
+import { defineApiHandler, getNumericRouteParam, getValidatedBody } from '../../../utils/api-handler'
+import { duplicateDashboardSchema } from '../../../schemas'
 
-export default defineEventHandler(async (event) => {
-  const dashboardService = container.getServiceFactory().createDashboardService()
+export default defineApiHandler(async ({ services, event }) => {
+  const id = getNumericRouteParam(event, 'id')
+  const body = await getValidatedBody(event, (data) => duplicateDashboardSchema.parse(data))
   
-  const id = getRouterParam(event, 'id')
-  
-  if (!id || isNaN(Number(id))) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid dashboard ID'
-    })
-  }
-  
-  const body = await readBody<{ name: string }>(event)
-  
-  if (!body.name) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'New dashboard name is required'
-    })
-  }
-  
-  const result = await dashboardService.duplicateDashboard(Number(id), body.name)
+  const dashboardService = services.createDashboardService()
+  const result = await dashboardService.duplicateDashboard(id, body.name)
   
   if (!result.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: result.error || 'Failed to duplicate dashboard'
-    })
+    throw new Error(result.error || 'Failed to duplicate dashboard')
   }
   
   return result.data
