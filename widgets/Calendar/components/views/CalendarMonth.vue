@@ -112,7 +112,7 @@ const selectEvent = (event: CalendarEvent, e: Event) => {
   <div class="h-full flex flex-col">
     <!-- Days of week header -->
     <div 
-      class="grid gap-1 mb-2 text-center font-medium text-sm"
+      class="grid gap-1 mt-2 pb-2 border-b text-center font-medium text-sm"
       :class="showWeekNumbers ? 'grid-cols-8' : 'grid-cols-7'"
     >
       <!-- Week number header -->

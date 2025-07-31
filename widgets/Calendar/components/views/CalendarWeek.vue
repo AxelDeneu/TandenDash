@@ -145,7 +145,7 @@ function formatEventTime(date: string): string {
     </div>
     
     <!-- Time grid -->
-    <div class="flex-1 min-h-0 overflow-auto">
+    <div class="flex-1 min-h-0 overflow-auto [&::-webkit-scrollbar]:hidden">
       <div class="relative">
         <!-- Hour rows -->
         <div 

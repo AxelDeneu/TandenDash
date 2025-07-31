@@ -266,7 +266,7 @@ function switchToView(view: 'month' | 'week' | 'day' | 'list') {
     </div>
     
     <!-- Calendar Views -->
-    <div class="flex-1 min-h-0 p-4">
+    <div class="flex-1 min-h-0 p-0">
       <!-- Month View -->
       <CalendarMonth
         v-if="views.viewType.value === 'month'"
