@@ -63,12 +63,24 @@
       v-else-if="definition.type === 'select'"
       :model-value="modelValue" 
       @update:model-value="$emit('update:modelValue', $event)"
+      :disabled="isLoadingOptions"
     >
       <SelectTrigger :id="fieldId">
-        <SelectValue :placeholder="getSelectPlaceholder()" />
+        <SelectValue :placeholder="isLoadingOptions ? 'Loading...' : getSelectPlaceholder()" />
       </SelectTrigger>
       <SelectContent>
+        <template v-if="isLoadingOptions">
+          <SelectItem value="_loading" disabled>
+            <span class="text-muted-foreground">Loading options...</span>
+          </SelectItem>
+        </template>
+        <template v-else-if="effectiveOptions.length === 0">
+          <SelectItem value="_empty" disabled>
+            <span class="text-muted-foreground">No options available</span>
+          </SelectItem>
+        </template>
         <SelectItem 
+          v-else
           v-for="option in effectiveOptions" 
           :key="option.value" 
           :value="option.value"
@@ -285,7 +297,13 @@ const fetchDynamicOptions = async () => {
   if (props.definition.dataFetcher && ['checkbox', 'select', 'radio'].includes(props.definition.type)) {
     isLoadingOptions.value = true
     try {
-      const options = await props.definition.dataFetcher()
+      // Pass context to dataFetcher
+      const context = {
+        allValues: props.allValues,
+        fieldKey: props.fieldKey,
+        modelValue: props.modelValue
+      }
+      const options = await props.definition.dataFetcher.call(context)
       dynamicOptions.value = options
     } catch (error) {
       console.error(`Failed to fetch options for ${props.fieldKey}:`, error)
