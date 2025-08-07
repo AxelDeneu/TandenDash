@@ -8,6 +8,7 @@ import type {
   WidgetPosition 
 } from '@/types/widget'
 import { CreateWidgetRequestSchema, UpdateWidgetRequestSchema, validateWidgetConfig } from '@/lib/validation'
+import { mergeWithDefaults } from '@/lib/widgets/utils'
 
 export class WidgetRepository implements IWidgetRepository {
 
@@ -33,7 +34,9 @@ export class WidgetRepository implements IWidgetRepository {
     const validatedData = CreateWidgetRequestSchema.parse(data)
     
     // Validate widget-specific configuration
-    validateWidgetConfig(validatedData.type, validatedData.options)
+    // Merge with defaults to ensure all required fields are present
+    const mergedOptions = mergeWithDefaults(validatedData.type, validatedData.options)
+    validateWidgetConfig(validatedData.type, mergedOptions)
     
     // Validate that pageId exists if provided
     if (validatedData.pageId) {
@@ -52,7 +55,7 @@ export class WidgetRepository implements IWidgetRepository {
     const [created] = await db.insert(widgetInstance).values({
       type: validatedData.type,
       position: JSON.stringify(dbPosition),
-      options: JSON.stringify(validatedData.options),
+      options: JSON.stringify(mergedOptions),
       ...(validatedData.pageId ? { pageId: validatedData.pageId } : {}),
     }).returning()
     
@@ -81,8 +84,18 @@ export class WidgetRepository implements IWidgetRepository {
       if (!current) {
         throw new Error(`Widget with id ${id} not found`)
       }
-      validateWidgetConfig(current.type, validatedData.options)
-      updateData.options = JSON.stringify(validatedData.options)
+      
+      // Parse current options to merge with new ones
+      const currentOptions = JSON.parse(current.options)
+      
+      // Merge with defaults to ensure all required fields are present
+      const mergedOptions = mergeWithDefaults(current.type, {
+        ...currentOptions,
+        ...validatedData.options
+      })
+      
+      validateWidgetConfig(current.type, mergedOptions)
+      updateData.options = JSON.stringify(mergedOptions)
     }
     
     if (validatedData.pageId !== undefined) {
