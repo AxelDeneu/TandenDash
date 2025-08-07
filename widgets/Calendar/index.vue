@@ -163,7 +163,7 @@ function switchToView(view: 'month' | 'week' | 'day' | 'list') {
     <!-- Calendar Header -->
     <div 
       v-if="showMonthYear"
-      class="p-4 flex items-center justify-between border-b"
+      class="flex items-center justify-between border-b"
       :class="headerColor"
     >
       <!-- Navigation -->

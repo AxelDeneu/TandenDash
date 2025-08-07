@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full flex flex-col items-center justify-center p-4">
+  <div class="h-full w-full flex flex-col items-center justify-center">
     <!-- Loading State -->
     <div v-if="weather.loading.value" class="w-full max-w-xs space-y-4">
       <Skeleton class="h-20 w-20 rounded-full mx-auto" />

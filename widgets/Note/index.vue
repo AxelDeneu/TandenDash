@@ -10,7 +10,6 @@
       !isEditing && 'cursor-pointer hover:opacity-90'
     ]"
     :style="{
-      padding: `${padding}px`,
       borderRadius: `${borderRadius}px`,
       fontSize: `${fontSize}px`,
       lineHeight: lineHeight,
