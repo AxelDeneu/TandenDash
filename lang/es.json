@@ -65,6 +65,10 @@
     "confirmDelete": "¿Estás seguro de que quieres eliminar esta página?",
     "cannotDeleteDefault": "No se puede eliminar la página predeterminada"
   },
+  "dev": {
+    "toggleEditMode": "Alternar modo de edición",
+    "editModeActive": "Modo de edición activo"
+  },
   "errors": {
     "notFound": "No encontrado",
     "pageNotFound": "Página no encontrada",

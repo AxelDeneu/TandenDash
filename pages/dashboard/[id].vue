@@ -17,7 +17,8 @@ import {
   useDarkMode,
   useWidgetPlugins,
   useDashboard,
-  useDashboardSettings
+  useDashboardSettings,
+  useWidgetEventBus
 } from '@/composables'
 import { getGridConfig } from '~/lib/utils/grid'
 import DashboardPage from '@/components/dashboard/DashboardPage.vue'
@@ -26,8 +27,9 @@ import DashboardSelector from '@/components/dashboard/DashboardSelector.vue'
 import LoadingPlaceholder from '@/components/common/LoadingPlaceholder.vue'
 import { FloatingDock, type DockAction } from '@/components/ui/dock'
 import type { Page, WidgetInstance, WidgetPosition } from '@/types'
-import {Button} from "~/components/ui/button";
-import {Plus} from '@/lib/icons'
+import { Button } from "~/components/ui/button"
+import { Plus } from '@/lib/icons'
+import DevEditToggle from '@/components/dev/DevEditToggle.vue'
 
 // Route params
 const route = useRoute()
@@ -318,6 +320,12 @@ onMounted(async () => {
   cleanupEventListeners = dragAndDrop.setupEventListeners(dashboardContainer, currentPage)
   setupSwipeHandlers(pages, editMode)
   widgetLoader.setupAutoLoader(pages)
+  
+  // Listen for dev toggle edit mode event
+  const eventBus = useWidgetEventBus()
+  eventBus.on('dev:toggleEditMode', () => {
+    editModeComposable.toggleEditMode()
+  })
 })
 
 onUnmounted(() => {
@@ -325,6 +333,10 @@ onUnmounted(() => {
     cleanupEventListeners()
   }
   dragAndDrop.tempPositions.value = {}
+  
+  // Cleanup event listener
+  const eventBus = useWidgetEventBus()
+  eventBus.off('dev:toggleEditMode')
 })
 </script>
 
@@ -423,5 +435,8 @@ onUnmounted(() => {
 
     <!-- Dashboard Selector -->
     <DashboardSelector v-model="showDashboardSelector" />
+    
+    <!-- Dev Edit Toggle (only in development) -->
+    <DevEditToggle />
   </div>
 </template>

@@ -116,6 +116,10 @@
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette page ?",
     "cannotDeleteDefault": "Impossible de supprimer la page par défaut"
   },
+  "dev": {
+    "toggleEditMode": "Basculer le mode édition",
+    "editModeActive": "Mode édition actif"
+  },
   "errors": {
     "notFound": "Non trouvé",
     "pageNotFound": "Page non trouvée",
