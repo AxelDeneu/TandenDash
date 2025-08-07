@@ -1,0 +1,259 @@
+{
+  "widget": {
+    "name": "Home Assistant",
+    "description": "Afficher et contrôler les appareils Home Assistant"
+  },
+  "config": {
+    "groups": {
+      "connection": {
+        "label": "Connexion",
+        "description": "Configurer la connexion Home Assistant"
+      },
+      "entity": {
+        "label": "Entité",
+        "description": "Sélectionner l'entité à afficher"
+      },
+      "display": {
+        "label": "Affichage",
+        "description": "Personnaliser l'affichage de l'entité"
+      },
+      "control": {
+        "label": "Contrôle",
+        "description": "Configurer les options de contrôle"
+      },
+      "camera": {
+        "label": "Caméra",
+        "description": "Options spécifiques aux caméras"
+      },
+      "appearance": {
+        "label": "Apparence",
+        "description": "Personnaliser l'apparence du widget"
+      }
+    }
+  },
+  "options": {
+    "instanceUrl": "URL de l'instance",
+    "instanceUrlDesc": "URL de votre instance Home Assistant",
+    "accessToken": "Token d'accès",
+    "accessTokenDesc": "Token d'accès longue durée de Home Assistant",
+    "useWebSocket": "Utiliser WebSocket",
+    "useWebSocketDesc": "Activer les mises à jour en temps réel via WebSocket",
+    "reconnectInterval": "Intervalle de reconnexion",
+    "reconnectIntervalDesc": "Temps entre les tentatives de reconnexion",
+    "entityId": "Entité",
+    "entityIdDesc": "Sélectionner l'entité à afficher",
+    "entityDomain": "Filtre par type",
+    "entityDomainDesc": "Filtrer les entités par type",
+    "displayMode": "Mode d'affichage",
+    "displayModeDesc": "Choisir comment afficher l'entité",
+    "showEntityName": "Afficher le nom",
+    "showEntityNameDesc": "Afficher le nom convivial de l'entité",
+    "showEntityState": "Afficher l'état",
+    "showEntityStateDesc": "Afficher l'état actuel",
+    "showLastUpdated": "Afficher la dernière mise à jour",
+    "showLastUpdatedDesc": "Afficher quand l'entité a été mise à jour",
+    "showHistory": "Afficher l'historique",
+    "showHistoryDesc": "Afficher les données historiques pour les capteurs",
+    "historyHours": "Durée de l'historique",
+    "historyHoursDesc": "Nombre d'heures à afficher dans l'historique",
+    "refreshInterval": "Intervalle de rafraîchissement",
+    "refreshIntervalDesc": "Fréquence de mise à jour sans WebSocket",
+    "allowControl": "Autoriser le contrôle",
+    "allowControlDesc": "Activer les fonctions de contrôle des appareils",
+    "confirmActions": "Confirmer les actions",
+    "confirmActionsDesc": "Demander confirmation pour les actions de contrôle",
+    "backgroundColor": "Couleur d'arrière-plan",
+    "backgroundColorDesc": "Couleur d'arrière-plan du widget",
+    "textColor": "Couleur du texte",
+    "textColorDesc": "Couleur principale du texte",
+    "primaryColor": "Couleur primaire",
+    "primaryColorDesc": "Couleur d'accent pour les états actifs",
+    "fontSize": "Taille de police",
+    "fontSizeDesc": "Taille du texte en pixels",
+    "borderRadius": "Rayon des coins",
+    "borderRadiusDesc": "Arrondi des coins en pixels",
+    "showCameraControls": "Afficher les contrôles caméra",
+    "showCameraControlsDesc": "Afficher les boutons de contrôle pour les caméras"
+  },
+  "placeholders": {
+    "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "selectEntity": "Sélectionner une entité..."
+  },
+  "domains": {
+    "all": "Tous les types",
+    "light": "Lumières",
+    "sensor": "Capteurs",
+    "switch": "Interrupteurs",
+    "climate": "Climatisation",
+    "mediaPlayer": "Lecteurs multimédia",
+    "binarySensor": "Capteurs binaires",
+    "binary_sensor": "Capteurs binaires",
+    "media_player": "Lecteurs multimédia",
+    "cover": "Volets",
+    "fan": "Ventilateurs",
+    "lock": "Serrures",
+    "scene": "Scènes",
+    "script": "Scripts",
+    "automation": "Automatisations",
+    "person": "Personnes",
+    "device_tracker": "Traceurs d'appareils",
+    "camera": "Caméras",
+    "weather": "Météo",
+    "number": "Nombres",
+    "select": "Sélecteurs",
+    "remote": "Télécommandes",
+    "event": "Événements",
+    "text": "Textes",
+    "todo": "Tâches",
+    "calendar": "Calendriers",
+    "update": "Mises à jour",
+    "conversation": "Conversations",
+    "zone": "Zones",
+    "sun": "Soleil",
+    "button": "Boutons"
+  },
+  "displayModes": {
+    "compact": "Compact",
+    "standard": "Standard",
+    "detailed": "Détaillé"
+  },
+  "states": {
+    "loading": "Chargement...",
+    "selectEntity": "Veuillez sélectionner une entité à afficher",
+    "entityNotFound": "Entité {entityId} introuvable",
+    "on": "Allumé",
+    "off": "Éteint",
+    "open": "Ouvert",
+    "closed": "Fermé",
+    "locked": "Verrouillé",
+    "unlocked": "Déverrouillé",
+    "detected": "Détecté",
+    "clear": "Rien",
+    "wet": "Mouillé",
+    "dry": "Sec",
+    "idle": "Inactif",
+    "unavailable": "Indisponible",
+    "unknown": "Inconnu"
+  },
+  "errors": {
+    "connectionFailed": "Échec de connexion",
+    "instanceUrl": "URL de l'instance",
+    "fetchingEntities": "Erreur lors de la récupération des entités",
+    "invalidCredentials": "Identifiants invalides",
+    "noEntitiesFound": "Aucune entité trouvée",
+    "selectEntityFirst": "Veuillez d'abord configurer la connexion"
+  },
+  "actions": {
+    "retry": "Réessayer",
+    "open": "Ouvrir",
+    "close": "Fermer",
+    "stop": "Arrêter",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "refreshEntities": "Actualiser les entités",
+    "cancel": "Annuler",
+    "search": "Rechercher"
+  },
+  "messages": {
+    "configureConnection": "Configurer la connexion d'abord",
+    "configureConnectionDesc": "Entrez l'URL et le token d'accès de Home Assistant ci-dessus",
+    "connectionError": "Échec de connexion",
+    "connectionErrorDesc": "Impossible de se connecter à Home Assistant",
+    "noEntitiesFound": "Aucune entité trouvée",
+    "noEntitiesDesc": "Aucune entité disponible dans Home Assistant",
+    "noEntitiesInDomain": "Aucune entité trouvée pour ce type",
+    "fetchError": "Échec de récupération des entités",
+    "unknownError": "Une erreur inconnue s'est produite"
+  },
+  "attributes": {
+    "brightness": "Luminosité",
+    "colorSupport": "Support couleur",
+    "lastUpdated": "Dernière mise à jour",
+    "lastChanged": "Dernier changement",
+    "powerConsumption": "Consommation",
+    "type": "Type",
+    "current": "Actuel",
+    "target": "Cible",
+    "position": "Position",
+    "speed": "Vitesse",
+    "lockType": "Type de serrure",
+    "stateClass": "Classe d'état",
+    "temperature": "Température",
+    "humidity": "Humidité"
+  },
+  "hvacModes": {
+    "off": "Éteint",
+    "heat": "Chauffage",
+    "cool": "Climatisation",
+    "heat_cool": "Chaud/Froid",
+    "auto": "Auto"
+  },
+  "devices": {
+    "unknownType": "Type d'appareil inconnu",
+    "sensor": "Capteur"
+  },
+  "colors": {
+    "default": "Par défaut",
+    "primary": "Primaire",
+    "muted": "Atténué",
+    "transparent": "Transparent",
+    "white": "Blanc",
+    "lightGray": "Gris clair",
+    "gray": "Gris",
+    "darkGray": "Gris foncé",
+    "black": "Noir",
+    "blue": "Bleu",
+    "green": "Vert",
+    "yellow": "Jaune",
+    "red": "Rouge",
+    "card": "Carte"
+  },
+  "common": {
+    "yes": "Oui",
+    "no": "Non",
+    "noResults": "Aucun résultat"
+  },
+  "confirmations": {
+    "lockDevice": "Êtes-vous sûr de vouloir verrouiller cet appareil ?",
+    "unlockDevice": "Êtes-vous sûr de vouloir déverrouiller cet appareil ?"
+  },
+  "time": {
+    "justNow": "À l'instant",
+    "minutesAgo": "Il y a {minutes} min",
+    "hoursAgo": "Il y a {hours} h",
+    "daysAgo": "Il y a {days} j"
+  },
+  "selectEntity": "Sélectionner une entité",
+  "changeEntity": "Changer d'entité",
+  "allEntities": "Toutes",
+  "favorites": "Favoris",
+  "recent": "Récentes",
+  "searchEntities": "Rechercher des entités...",
+  "allDomains": "Tous",
+  "noEntitiesFound": "Aucune entité trouvée",
+  "showingEntities": "Affichage de {count} sur {total} entités",
+  "notConfigured": "Non configuré",
+  "configureInSettings": "Veuillez configurer la connexion Home Assistant dans les paramètres du widget",
+  "entityNotFound": "Entité introuvable",
+  "reconnect": "Reconnecter",
+  "camera": {
+    "states": {
+      "streaming": "En diffusion",
+      "recording": "Enregistrement",
+      "idle": "Inactif"
+    },
+    "actions": {
+      "record": "Enregistrer",
+      "fullscreen": "Plein écran",
+      "exitFullscreen": "Quitter le plein écran",
+      "mute": "Couper le son",
+      "unmute": "Activer le son",
+      "enableMotion": "Activer la détection",
+      "disableMotion": "Désactiver la détection"
+    },
+    "errors": {
+      "loadFailed": "Impossible de charger l'image",
+      "streamFailed": "Impossible de charger le flux vidéo"
+    }
+  }
+}

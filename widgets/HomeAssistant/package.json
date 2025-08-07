@@ -1,0 +1,14 @@
+{
+  "name": "@tandendash/widget-homeassistant",
+  "version": "1.0.0",
+  "description": "Home Assistant integration widget for TandenDash",
+  "private": true,
+  "dependencies": {
+    "home-assistant-js-websocket": "^9.4.0",
+    "hls.js": "^1.5.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.10"
+  }
+}
