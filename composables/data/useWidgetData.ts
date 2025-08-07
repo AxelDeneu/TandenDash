@@ -100,7 +100,7 @@ export function useWidgetData(widgetInstanceId: number | undefined): UseWidgetDa
       // Send to server
       await $fetch(`/api/widgets-instances/${widgetInstanceId}/data/${key}`, {
         method: 'PUT',
-        body: value
+        body: { value }
       })
     } catch (err) {
       // Revert on error
