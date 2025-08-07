@@ -59,41 +59,72 @@
     </div>
 
     <!-- Select Dropdown -->
-    <Select 
-      v-else-if="definition.type === 'select'"
-      :model-value="modelValue" 
-      @update:model-value="$emit('update:modelValue', $event)"
-      :disabled="isLoadingOptions"
-    >
-      <SelectTrigger :id="fieldId">
-        <SelectValue :placeholder="isLoadingOptions ? 'Loading...' : getSelectPlaceholder()" />
-      </SelectTrigger>
-      <SelectContent>
-        <template v-if="isLoadingOptions">
-          <SelectItem value="_loading" disabled>
-            <span class="text-muted-foreground">Loading options...</span>
-          </SelectItem>
-        </template>
-        <template v-else-if="effectiveOptions.length === 0">
-          <SelectItem value="_empty" disabled>
-            <span class="text-muted-foreground">No options available</span>
-          </SelectItem>
-        </template>
-        <SelectItem 
-          v-else
-          v-for="option in effectiveOptions" 
-          :key="option.value" 
-          :value="option.value"
+    <div v-else-if="definition.type === 'select'" class="space-y-2">
+      <div class="flex gap-2">
+        <Select 
+          :model-value="modelValue" 
+          @update:model-value="$emit('update:modelValue', $event)"
+          :disabled="isLoadingOptions"
+          class="flex-1"
         >
-          <div class="flex flex-col">
-            <span>{{ resolveLabel(option.label) }}</span>
-            <span v-if="option.description" class="text-xs text-muted-foreground">
-              {{ resolveLabel(option.description) }}
-            </span>
-          </div>
-        </SelectItem>
-      </SelectContent>
-    </Select>
+          <SelectTrigger :id="fieldId">
+            <SelectValue :placeholder="isLoadingOptions ? 'Loading...' : getSelectPlaceholder()" />
+          </SelectTrigger>
+          <SelectContent>
+            <template v-if="isLoadingOptions">
+              <SelectItem value="_loading" disabled>
+                <span class="text-muted-foreground">Loading options...</span>
+              </SelectItem>
+            </template>
+            <template v-else-if="effectiveOptions.length === 0 && !definition.allowCustomValue">
+              <SelectItem value="_empty" disabled>
+                <span class="text-muted-foreground">No options available</span>
+              </SelectItem>
+            </template>
+            <template v-else>
+              <SelectItem 
+                v-for="option in effectiveOptions" 
+                :key="option.value" 
+                :value="option.value"
+                :disabled="option.disabled"
+              >
+                <div class="flex flex-col">
+                  <span :class="{ 'font-semibold': option.isHeader }">{{ resolveLabel(option.label) }}</span>
+                  <span v-if="option.description" class="text-xs text-muted-foreground">
+                    {{ resolveLabel(option.description) }}
+                  </span>
+                </div>
+              </SelectItem>
+            </template>
+          </SelectContent>
+        </Select>
+        
+        <!-- Action buttons -->
+        <Button
+          v-for="action in definition.actions"
+          :key="action.id"
+          :variant="action.variant || 'outline'"
+          size="icon"
+          @click="handleAction(action)"
+          :title="resolveLabel(action.label)"
+        >
+          <component 
+            v-if="action.icon" 
+            :is="getIcon(action.icon)" 
+            class="h-4 w-4" 
+          />
+        </Button>
+      </div>
+      
+      <!-- Custom value input when no options match -->
+      <Input
+        v-if="definition.allowCustomValue && modelValue && !effectiveOptions.some(opt => opt.value === modelValue)"
+        :model-value="modelValue"
+        @update:model-value="$emit('update:modelValue', $event)"
+        :placeholder="'Custom value: ' + modelValue"
+        class="text-sm"
+      />
+    </div>
 
     <!-- Radio Group -->
     <RadioGroup
@@ -241,7 +272,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
 import { TagsInput, TagsInputInput } from '@/components/ui/tags-input'
 import { Button } from '@/components/ui/button'
-import { AlignVerticalJustifyCenter, AlignHorizontalJustifyCenter, Palette, Plus, Trash2 } from 'lucide-vue-next'
+import { AlignVerticalJustifyCenter, AlignHorizontalJustifyCenter, Palette, Plus, Trash2, RefreshCw } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
@@ -326,19 +357,30 @@ onMounted(() => {
   fetchDynamicOptions()
 })
 
-// Re-fetch options when dependencies change
-watch(() => props.allValues, () => {
-  if (shouldShow.value && props.definition.dataFetcher) {
-    fetchDynamicOptions()
-  }
-}, { deep: true })
+// Re-fetch options when refreshOn fields change
+if (props.definition.refreshOn && props.definition.refreshOn.length > 0) {
+  props.definition.refreshOn.forEach(fieldKey => {
+    watch(() => props.allValues[fieldKey], (newValue, oldValue) => {
+      if (newValue !== oldValue && shouldShow.value && props.definition.dataFetcher) {
+        fetchDynamicOptions()
+      }
+    })
+  })
+}
 
 // Check if field should be shown based on dependencies
 const shouldShow = computed(() => {
   if (!props.definition.dependencies) return true
   
   for (const [depKey, depValue] of Object.entries(props.definition.dependencies)) {
-    if (props.allValues[depKey] !== depValue) {
+    const currentValue = props.allValues[depKey]
+    
+    // Support function-based dependencies
+    if (typeof depValue === 'function') {
+      if (!depValue(currentValue)) {
+        return false
+      }
+    } else if (currentValue !== depValue) {
       return false
     }
   }
@@ -398,7 +440,8 @@ const getIcon = (iconName: string) => {
     AlignHorizontal: AlignHorizontalJustifyCenter,
     Palette,
     Plus,
-    Trash2
+    Trash2,
+    RefreshCw
   }
   return icons[iconName]
 }
