@@ -1,0 +1,258 @@
+{
+  "widget": {
+    "name": "Home Assistant",
+    "description": "Display and control Home Assistant devices"
+  },
+  "config": {
+    "groups": {
+      "connection": {
+        "label": "Connection",
+        "description": "Configure Home Assistant connection"
+      },
+      "entity": {
+        "label": "Entity",
+        "description": "Select the entity to display"
+      },
+      "display": {
+        "label": "Display",
+        "description": "Customize how the entity is displayed"
+      },
+      "control": {
+        "label": "Control",
+        "description": "Configure control options"
+      },
+      "camera": {
+        "label": "Camera",
+        "description": "Camera-specific options"
+      },
+      "appearance": {
+        "label": "Appearance",
+        "description": "Customize widget appearance"
+      }
+    }
+  },
+  "options": {
+    "instanceUrl": "Instance URL",
+    "instanceUrlDesc": "URL of your Home Assistant instance",
+    "accessToken": "Access Token",
+    "accessTokenDesc": "Long-lived access token from Home Assistant",
+    "useWebSocket": "Use WebSocket",
+    "useWebSocketDesc": "Enable real-time updates via WebSocket",
+    "reconnectInterval": "Reconnect Interval",
+    "reconnectIntervalDesc": "Time between reconnection attempts",
+    "entityId": "Entity",
+    "entityIdDesc": "Select the entity to display",
+    "entityDomain": "Entity Type Filter",
+    "entityDomainDesc": "Filter entities by type",
+    "displayMode": "Display Mode",
+    "displayModeDesc": "Choose how to display the entity",
+    "showEntityName": "Show Entity Name",
+    "showEntityNameDesc": "Display the entity's friendly name",
+    "showEntityState": "Show Entity State",
+    "showEntityStateDesc": "Display the current state",
+    "showLastUpdated": "Show Last Updated",
+    "showLastUpdatedDesc": "Display when the entity was last updated",
+    "showHistory": "Show History",
+    "showHistoryDesc": "Display historical data for sensors",
+    "historyHours": "History Duration",
+    "historyHoursDesc": "Number of hours to show in history",
+    "refreshInterval": "Refresh Interval",
+    "refreshIntervalDesc": "Update frequency when not using WebSocket",
+    "allowControl": "Allow Control",
+    "allowControlDesc": "Enable device control features",
+    "confirmActions": "Confirm Actions",
+    "confirmActionsDesc": "Require confirmation for control actions",
+    "backgroundColor": "Background Color",
+    "backgroundColorDesc": "Widget background color",
+    "textColor": "Text Color",
+    "textColorDesc": "Primary text color",
+    "primaryColor": "Primary Color",
+    "primaryColorDesc": "Accent color for active states",
+    "fontSize": "Font Size",
+    "fontSizeDesc": "Text size in pixels",
+    "borderRadius": "Border Radius",
+    "borderRadiusDesc": "Corner roundness in pixels",
+    "showCameraControls": "Show Camera Controls",
+    "showCameraControlsDesc": "Display control buttons for cameras"
+  },
+  "placeholders": {
+    "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+    "selectEntity": "Select an entity..."
+  },
+  "domains": {
+    "all": "All Types",
+    "light": "Lights",
+    "sensor": "Sensors",
+    "switch": "Switches",
+    "climate": "Climate",
+    "mediaPlayer": "Media Players",
+    "binarySensor": "Binary Sensors",
+    "binary_sensor": "Binary Sensors",
+    "media_player": "Media Players",
+    "cover": "Covers",
+    "fan": "Fans",
+    "lock": "Locks",
+    "scene": "Scenes",
+    "script": "Scripts",
+    "automation": "Automations",
+    "person": "People",
+    "device_tracker": "Device Trackers",
+    "camera": "Cameras",
+    "weather": "Weather",
+    "number": "Numbers",
+    "select": "Selectors",
+    "remote": "Remotes",
+    "event": "Events",
+    "text": "Texts",
+    "todo": "Todos",
+    "calendar": "Calendars",
+    "conversation": "Conversations",
+    "zone": "Zones",
+    "sun": "Sun",
+    "button": "Buttons"
+  },
+  "displayModes": {
+    "compact": "Compact",
+    "standard": "Standard",
+    "detailed": "Detailed"
+  },
+  "states": {
+    "loading": "Loading...",
+    "selectEntity": "Please select an entity to display",
+    "entityNotFound": "Entity {entityId} not found",
+    "on": "On",
+    "off": "Off",
+    "open": "Open",
+    "closed": "Closed",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "detected": "Detected",
+    "clear": "Clear",
+    "wet": "Wet",
+    "dry": "Dry",
+    "idle": "Idle",
+    "unavailable": "Unavailable",
+    "unknown": "Unknown"
+  },
+  "errors": {
+    "connectionFailed": "Connection Failed",
+    "instanceUrl": "Instance URL",
+    "fetchingEntities": "Error fetching entities",
+    "invalidCredentials": "Invalid credentials",
+    "noEntitiesFound": "No entities found",
+    "selectEntityFirst": "Please configure connection first"
+  },
+  "actions": {
+    "retry": "Retry",
+    "open": "Open",
+    "close": "Close",
+    "stop": "Stop",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "refreshEntities": "Refresh entities",
+    "cancel": "Cancel",
+    "search": "Search"
+  },
+  "messages": {
+    "configureConnection": "Configure connection first",
+    "configureConnectionDesc": "Enter Home Assistant URL and access token above",
+    "connectionError": "Connection failed",
+    "connectionErrorDesc": "Unable to connect to Home Assistant",
+    "noEntitiesFound": "No entities found",
+    "noEntitiesDesc": "No entities available in Home Assistant",
+    "noEntitiesInDomain": "No entities found for type",
+    "fetchError": "Failed to fetch entities",
+    "unknownError": "An unknown error occurred"
+  },
+  "attributes": {
+    "brightness": "Brightness",
+    "colorSupport": "Color Support",
+    "lastUpdated": "Last Updated",
+    "lastChanged": "Last Changed",
+    "powerConsumption": "Power",
+    "type": "Type",
+    "current": "Current",
+    "target": "Target",
+    "position": "Position",
+    "speed": "Speed",
+    "lockType": "Lock Type",
+    "stateClass": "State Class",
+    "temperature": "Temperature",
+    "humidity": "Humidity"
+  },
+  "hvacModes": {
+    "off": "Off",
+    "heat": "Heat",
+    "cool": "Cool",
+    "heat_cool": "Heat/Cool",
+    "auto": "Auto"
+  },
+  "devices": {
+    "unknownType": "Unknown device type",
+    "sensor": "Sensor"
+  },
+  "colors": {
+    "default": "Default",
+    "primary": "Primary",
+    "muted": "Muted",
+    "transparent": "Transparent",
+    "white": "White",
+    "lightGray": "Light Gray",
+    "gray": "Gray",
+    "darkGray": "Dark Gray",
+    "black": "Black",
+    "blue": "Blue",
+    "green": "Green",
+    "yellow": "Yellow",
+    "red": "Red",
+    "card": "Card"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "noResults": "No results"
+  },
+  "confirmations": {
+    "lockDevice": "Are you sure you want to lock this device?",
+    "unlockDevice": "Are you sure you want to unlock this device?"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{minutes}m ago",
+    "hoursAgo": "{hours}h ago",
+    "daysAgo": "{days}d ago"
+  },
+  "selectEntity": "Select Entity",
+  "changeEntity": "Change Entity",
+  "allEntities": "All",
+  "favorites": "Favorites",
+  "recent": "Recent",
+  "searchEntities": "Search entities...",
+  "allDomains": "All",
+  "noEntitiesFound": "No entities found",
+  "showingEntities": "Showing {count} of {total} entities",
+  "notConfigured": "Not configured",
+  "configureInSettings": "Please configure Home Assistant connection in widget settings",
+  "entityNotFound": "Entity not found",
+  "reconnect": "Reconnect",
+  "camera": {
+    "states": {
+      "streaming": "Streaming",
+      "recording": "Recording",
+      "idle": "Idle"
+    },
+    "actions": {
+      "record": "Record",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit Fullscreen",
+      "mute": "Mute",
+      "unmute": "Unmute",
+      "enableMotion": "Enable Motion Detection",
+      "disableMotion": "Disable Motion Detection"
+    },
+    "errors": {
+      "loadFailed": "Failed to load image",
+      "streamFailed": "Failed to load video stream"
+    }
+  }
+}
