@@ -3,6 +3,9 @@ import type { WidgetInstance } from '@/types/widget'
 import type { TodoListWithItems, TodoItem } from '@/types/todo'
 
 export interface AppEvents {
+  // Index signature to satisfy EventEmitter constraint
+  [key: string]: any[]
+  
   // Page events
   'pages:fetched': [pages: Page[]]
   'page:fetched': [page: Page]

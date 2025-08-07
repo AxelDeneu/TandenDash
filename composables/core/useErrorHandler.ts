@@ -30,10 +30,12 @@ export function useErrorHandler(retryFn?: () => Promise<void>): ErrorHandler {
   }
 
   async function retry(): Promise<void> {
-    if (!retryFn || isRetrying.value || retryCount.value >= maxRetries.value) {
-      if (retryCount.value >= maxRetries.value) {
-        logger.warn('Max retries reached', { retryCount: retryCount.value, maxRetries: maxRetries.value })
-      }
+    if (!retryFn || isRetrying.value) {
+      return
+    }
+
+    if (retryCount.value >= maxRetries.value) {
+      logger.warn('Max retries reached', { retryCount: retryCount.value, maxRetries: maxRetries.value })
       return
     }
 
@@ -53,11 +55,11 @@ export function useErrorHandler(retryFn?: () => Promise<void>): ErrorHandler {
     }
   }
 
-  const canRetry = computed(() => {
-    return retryFn && !isRetrying.value && retryCount.value < maxRetries.value
-  })
-
   const hasError = computed(() => error.value !== null)
+
+  const canRetry = computed(() => {
+    return !!retryFn && !isRetrying.value && retryCount.value < maxRetries.value && hasError.value
+  })
 
   return {
     error: readonly(error),

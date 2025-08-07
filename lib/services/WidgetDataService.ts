@@ -7,7 +7,7 @@ export class WidgetDataService {
     private widgetDataRepository: IWidgetDataRepository
   ) {}
 
-  async getAllData(widgetInstanceId: number): ServiceListResult<WidgetData> {
+  async getAllData(widgetInstanceId: number): Promise<ServiceListResult<WidgetData>> {
     try {
       const data = await this.widgetDataRepository.findByWidgetInstanceId(widgetInstanceId)
       return {
@@ -26,7 +26,7 @@ export class WidgetDataService {
     }
   }
 
-  async getData(widgetInstanceId: number, key: string): ServiceResult<WidgetData | null> {
+  async getData(widgetInstanceId: number, key: string): Promise<ServiceResult<WidgetData | null>> {
     try {
       const data = await this.widgetDataRepository.findByKey(widgetInstanceId, key)
       return {
@@ -43,7 +43,7 @@ export class WidgetDataService {
     }
   }
 
-  async getValue<T = any>(widgetInstanceId: number, key: string): ServiceResult<T | null> {
+  async getValue<T = any>(widgetInstanceId: number, key: string): Promise<ServiceResult<T | null>> {
     try {
       const data = await this.widgetDataRepository.findByKey(widgetInstanceId, key)
       if (!data) {
@@ -76,7 +76,7 @@ export class WidgetDataService {
     }
   }
 
-  async setData(widgetInstanceId: number, key: string, value: any): ServiceResult<WidgetData> {
+  async setData(widgetInstanceId: number, key: string, value: any): Promise<ServiceResult<WidgetData>> {
     try {
       // Convert value to JSON string if it's not already a string
       const jsonValue = typeof value === 'string' ? value : JSON.stringify(value)
@@ -102,7 +102,7 @@ export class WidgetDataService {
     }
   }
 
-  async updateData(widgetInstanceId: number, key: string, value: any): ServiceResult<WidgetData> {
+  async updateData(widgetInstanceId: number, key: string, value: any): Promise<ServiceResult<WidgetData>> {
     try {
       // Convert value to JSON string if it's not already a string
       const jsonValue = typeof value === 'string' ? value : JSON.stringify(value)
@@ -126,7 +126,7 @@ export class WidgetDataService {
     }
   }
 
-  async deleteData(widgetInstanceId: number, key: string): ServiceResult<boolean> {
+  async deleteData(widgetInstanceId: number, key: string): Promise<ServiceResult<boolean>> {
     try {
       const result = await this.widgetDataRepository.delete(widgetInstanceId, key)
       return {
@@ -143,7 +143,7 @@ export class WidgetDataService {
     }
   }
 
-  async deleteAllData(widgetInstanceId: number): ServiceResult<boolean> {
+  async deleteAllData(widgetInstanceId: number): Promise<ServiceResult<boolean>> {
     try {
       const result = await this.widgetDataRepository.deleteAll(widgetInstanceId)
       return {
@@ -161,7 +161,7 @@ export class WidgetDataService {
   }
 
   // Batch operations for performance
-  async setMultiple(widgetInstanceId: number, data: Record<string, any>): ServiceResult<WidgetData[]> {
+  async setMultiple(widgetInstanceId: number, data: Record<string, any>): Promise<ServiceResult<WidgetData[]>> {
     try {
       const results: WidgetData[] = []
       
@@ -190,7 +190,7 @@ export class WidgetDataService {
     }
   }
 
-  async getMultiple<T = Record<string, any>>(widgetInstanceId: number, keys: string[]): ServiceResult<T> {
+  async getMultiple<T = Record<string, any>>(widgetInstanceId: number, keys: string[]): Promise<ServiceResult<T>> {
     try {
       const result: Record<string, any> = {}
       

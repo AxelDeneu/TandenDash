@@ -164,7 +164,8 @@ export function parsePagination(event: H3Event): {
   const query = getQuery(event)
   
   const page = Math.max(1, parseInt(query.page as string) || 1)
-  const limit = Math.min(100, Math.max(1, parseInt(query.limit as string) || 20))
+  const limitValue = parseInt(query.limit as string)
+  const limit = Math.min(100, Math.max(1, isNaN(limitValue) ? 20 : limitValue))
   const offset = (page - 1) * limit
 
   return { page, limit, offset }

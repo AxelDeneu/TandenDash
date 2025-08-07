@@ -115,12 +115,14 @@ export function useWidgetData(widgetInstanceId: number | undefined): UseWidgetDa
   
   // Set multiple values at once
   const setMultiple = async (newData: Record<string, any>): Promise<void> => {
+    loading.value = true
+    error.value = null
+    
+    // Store old data for rollback
+    const oldData = new Map(data.value)
+    
     try {
-      loading.value = true
-      error.value = null
-      
       // Optimistic update
-      const oldData = new Map(data.value)
       for (const [key, value] of Object.entries(newData)) {
         data.value.set(key, value)
       }
@@ -132,7 +134,7 @@ export function useWidgetData(widgetInstanceId: number | undefined): UseWidgetDa
       })
     } catch (err) {
       // Revert on error
-      data.value = oldData as Map<string, any>
+      data.value = oldData
       error.value = err as Error
       console.error('Failed to set multiple widget data:', err)
       throw err
@@ -143,12 +145,14 @@ export function useWidgetData(widgetInstanceId: number | undefined): UseWidgetDa
   
   // Remove a value
   const remove = async (key: string): Promise<void> => {
+    loading.value = true
+    error.value = null
+    
+    // Store old value for rollback
+    const oldValue = data.value.get(key)
+    
     try {
-      loading.value = true
-      error.value = null
-      
       // Optimistic update
-      const oldValue = data.value.get(key)
       data.value.delete(key)
       
       // Send to server

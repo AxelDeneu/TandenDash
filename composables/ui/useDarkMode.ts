@@ -40,8 +40,18 @@ export function useDarkMode(): UseDarkMode {
   async function initializeMode(): Promise<void> {
     try {
       const data = await $fetch<{ mode: 'light' | 'dark' }>('/api/mode-state')
+      
+      // Validate mode value
+      if (data.mode !== 'light' && data.mode !== 'dark') {
+        throw new Error(`Invalid mode received: ${data.mode}`)
+      }
+      
       await setHtmlMode(data.mode)
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Invalid mode')) {
+        throw error // Re-throw validation errors
+      }
+      // Only handle network/fetch errors by falling back to light mode
       await setHtmlMode('light')
     }
   }
