@@ -73,7 +73,8 @@ export default defineNuxtConfig({
           // Allow access to widget directories
           resolve(process.cwd(), 'widgets'),
         ]
-      }
+      },
+      allowedHosts: ['localhost', '127.0.0.1', '[::1]', 'tandendash.test']
     },
     build: {
       // Optimize bundle size
