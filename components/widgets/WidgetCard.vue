@@ -74,7 +74,8 @@ const widgetProps = computed(() => {
     const mergedProps = {
       ...plugin.defaultConfig,
       ...options,
-      id: props.widget.id  // Include widget instance ID for widgets that need to update themselves
+      id: props.widget.id,  // Include widget instance ID for widgets that need to update themselves
+      widgetInstanceId: props.widget.id  // Pass widgetInstanceId for HomeAssistant widget
     }
     
     // Check for any numeric keys and warn if found
