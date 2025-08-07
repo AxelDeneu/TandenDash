@@ -65,6 +65,10 @@
     "confirmDelete": "Sind Sie sicher, dass Sie diese Seite löschen möchten?",
     "cannotDeleteDefault": "Die Standardseite kann nicht gelöscht werden"
   },
+  "dev": {
+    "toggleEditMode": "Bearbeitungsmodus umschalten",
+    "editModeActive": "Bearbeitungsmodus aktiv"
+  },
   "errors": {
     "notFound": "Nicht gefunden",
     "pageNotFound": "Seite nicht gefunden",

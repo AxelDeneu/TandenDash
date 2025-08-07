@@ -20,6 +20,7 @@ export { usePageUI } from './ui/usePageUI'
 export { useFloatingDock } from './ui/useFloatingDock'
 export { useCarouselNavigation } from './ui/useCarouselNavigation'
 export { useDarkMode } from './ui/useDarkMode'
+export { useDevelopment } from './ui/useDevelopment'
 
 // Interaction composables
 export { useSwipeGesture } from './interaction/useSwipeGesture'
