@@ -30,6 +30,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         
         // Utiliser mergeLocaleMessage pour ajouter les traductions
         $i18n.mergeLocaleMessage(localeCode, widgetMessages)
+        console.log(`[Widget i18n] Loaded translations for widget '${widgetName}' in locale '${localeCode}'`)
       }
     }
   }
