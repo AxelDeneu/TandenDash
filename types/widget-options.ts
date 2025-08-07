@@ -17,6 +17,8 @@ export interface WidgetOptionDefinition {
   dataFetcher?: () => Promise<OptionItem[]> // Function to fetch dynamic options
   customComponent?: string // For custom type - name of the custom component to use
   actions?: WidgetOptionAction[] // Actions like create/delete for list management
+  refreshOn?: string[] // List of field keys that should trigger a refresh of this field's data
+  allowCustomValue?: boolean // Allow custom values in select fields
 }
 
 export interface WidgetOptionAction {
