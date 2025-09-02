@@ -56,15 +56,7 @@ export default defineNuxtConfig({
       alias: {},
     },
     optimizeDeps: {
-      exclude: ['better-sqlite3', 'drizzle-orm/better-sqlite3', 'drizzle-orm'],
-      include: ['vue', 'vue-router', '@vueuse/core'] // Pre-bundle common dependencies
-    },
-    define: {
-      global: 'globalThis'
-    },
-    ssr: {
-      noExternal: [],
-      external: ['better-sqlite3']
+      exclude: ['ws']
     },
     // Allow resolution of widget node_modules
     server: {
@@ -75,69 +67,18 @@ export default defineNuxtConfig({
         ]
       },
       allowedHosts: ['localhost', '127.0.0.1', '[::1]', 'tandendash.test']
-    },
-    build: {
-      // Optimize bundle size
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true, // Remove console.log in production
-          drop_debugger: true,
-          pure_funcs: ['console.log', 'console.info', 'console.debug'],
-          passes: 2 // Run compression passes twice for better optimization
-        }
-      },
-      // Split chunks by size
-      chunkSizeWarningLimit: 600,
-      rollupOptions: {
-        output: {
-          // Manual chunk splitting for better caching
-          manualChunks: {
-            'vendor': ['vue', 'vue-router', 'pinia'],
-            'utils': ['zod', 'clsx', 'tailwind-merge']
-          }
-        },
-        external: ['better-sqlite3', 'drizzle-orm/better-sqlite3']
-      },
-      // Enable CSS code splitting
-      cssCodeSplit: true,
-      // Source map generation only in development
-      sourcemap: process.env.NODE_ENV === 'development'
     }
   },
 
-  // Server-only imports
+  compatibilityDate: '2025-04-15',
+  
+  // Nitro configuration for server-side externals
   nitro: {
     experimental: {
       wasm: true
     },
-    // Optimize server performance
-    compressPublicAssets: {
-      gzip: true,
-      brotli: true
-    },
-    prerender: {
-      // Prerender static pages
-      routes: []
-    },
-    // Enable HTTP/2 push
-    http2Push: true,
-    // Ensure database modules stay server-side
     externals: {
-      external: ['better-sqlite3', 'drizzle-orm/better-sqlite3']
+      external: ['ws']
     }
-  },
-
-  // Prevent database imports on client side
-  ssr: true,
-
-  // Performance optimizations
-  experimental: {
-    payloadExtraction: false, // Reduce initial payload size
-    renderJsonPayloads: false, // Optimize JSON payload rendering
-    viewTransition: true // Enable view transitions API
-  },
-
-
-  compatibilityDate: '2025-04-15'
+  }
 })

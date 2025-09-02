@@ -1,6 +1,5 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
-import WebSocket from 'ws'
 
 // Schema for camera stream request
 const CameraStreamRequestSchema = z.object({
@@ -59,6 +58,9 @@ async function tryWebSocketStream(baseUrl: string, entityId: string, accessToken
   console.log('[Camera Stream] Trying WebSocket camera/stream command')
   
   try {
+    // Dynamic import of WebSocket to avoid ES/CommonJS issues
+    const { default: WebSocket } = await import('ws')
+    
     // Create WebSocket connection
     const wsUrl = baseUrl.replace(/^http/, 'ws') + '/api/websocket'
     const ws = new WebSocket(wsUrl)
