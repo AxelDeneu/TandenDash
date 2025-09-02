@@ -10,6 +10,8 @@ import { WidgetPlugin } from '../plugin'
 const props = defineProps<{
   entities: HassEntity[]
   selectedId?: string
+  mode?: 'single' | 'add'
+  excludeIds?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -25,6 +27,11 @@ const groupedEntities = computed(() => {
   const groups: Record<string, HassEntity[]> = {}
   
   const filtered = props.entities.filter(entity => {
+    // Exclude already selected entities in 'add' mode
+    if (props.mode === 'add' && props.excludeIds?.includes(entity.entity_id)) {
+      return false
+    }
+    
     if (!searchQuery.value) return true
     
     const query = searchQuery.value.toLowerCase()
