@@ -119,19 +119,22 @@ export function useWidgetUI(): UseWidgetUI {
 
     const draggedWidget = dragState.value.draggedWidget
 
-    // Reset drag state
-    dragState.value = {
-      isDragging: false,
-      draggedWidget: null,
-      startPosition: null
-    }
-
+    // Emit drag end event immediately
     context.events.emit('widget:drag-end', draggedWidget, null, null)
     
-    // Remove global drag class
+    // Remove global drag class immediately
     if (typeof document !== 'undefined') {
       document.body.classList.remove('widget-dragging')
     }
+
+    // Delay resetting isDragging to allow animation to complete
+    setTimeout(() => {
+      dragState.value = {
+        isDragging: false,
+        draggedWidget: null,
+        startPosition: null
+      }
+    }, 300)
   }
 
   function cancelDrag(): void {
@@ -139,13 +142,17 @@ export function useWidgetUI(): UseWidgetUI {
 
     const draggedWidget = dragState.value.draggedWidget
     
-    dragState.value = {
-      isDragging: false,
-      draggedWidget: null,
-      startPosition: null
-    }
-
+    // Emit cancelled event immediately
     context.events.emit('widget:drag-cancelled', draggedWidget)
+
+    // Delay resetting isDragging to allow animation to complete
+    setTimeout(() => {
+      dragState.value = {
+        isDragging: false,
+        draggedWidget: null,
+        startPosition: null
+      }
+    }, 300)
     
     if (typeof document !== 'undefined') {
       document.body.classList.remove('widget-dragging')
