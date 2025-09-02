@@ -9,7 +9,7 @@ const props = defineProps<{
   newPageName: string;
 }>();
 const emit = defineEmits<{
-  (e: 'add'): void;
+  (e: 'add', name: string): void;
   (e: 'close'): void;
   (e: 'update:newPageName', value: string): void;
 }>();
@@ -37,7 +37,7 @@ const updatePageName = (value: string) => {
       </DialogHeader>
       <Input :model-value="localPageName" @update:model-value="updatePageName" :placeholder="$t('pages.pageNamePlaceholder')" class="mb-4" />
       <DialogFooter>
-        <Button @click="() => emit('add')">{{ $t('common.add') }}</Button>
+        <Button @click="() => emit('add', localPageName)">{{ $t('common.add') }}</Button>
         <DialogClose as-child><Button variant="secondary">{{ $t('common.cancel') }}</Button></DialogClose>
       </DialogFooter>
     </DialogContent>

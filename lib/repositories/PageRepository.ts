@@ -52,10 +52,14 @@ export class PageRepository implements IPageRepository {
     
     const [created] = await db.insert(pages).values({
       name: validatedData.name,
-      dashboardId: validatedData.dashboardId || null,
+      dashboardId: validatedData.dashboardId ?? null,
       snapping: validatedData.snapping ?? false,
       gridRows: validatedData.gridRows ?? 6,
       gridCols: validatedData.gridCols ?? 6,
+      marginTop: validatedData.marginTop ?? 0,
+      marginRight: validatedData.marginRight ?? 0,
+      marginBottom: validatedData.marginBottom ?? 0,
+      marginLeft: validatedData.marginLeft ?? 0,
     }).returning()
     
     return created

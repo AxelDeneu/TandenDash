@@ -81,7 +81,7 @@ defineEmits<{
   'close-edit-widget': []
   'widget-edited': [pageId: number]
   'close-add-page': []
-  'add-page': []
+  'add-page': [name: string]
   'close-edit-page': []
   'edit-page': [data: { name: string; snapping: boolean; gridRows: number; gridCols: number }]
   'update:newPageName': [value: string]

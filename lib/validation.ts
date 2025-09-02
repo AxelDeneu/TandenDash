@@ -36,6 +36,7 @@ export const DeleteWidgetRequestSchema = z.object({
 // Page validation schemas
 export const CreatePageRequestSchema = z.object({
   name: z.string().min(1).max(255),
+  dashboardId: z.number().int().positive().optional(),
   snapping: z.boolean().optional(),
   gridRows: z.number().int().min(1).max(50).optional(),
   gridCols: z.number().int().min(1).max(50).optional(),
