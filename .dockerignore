@@ -1,0 +1,16 @@
+node_modules/
+.nuxt/
+.output/
+*.db
+*.db-shm
+*.db-wal
+.git/
+.vscode/
+.idea/
+.claude
+.data
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
