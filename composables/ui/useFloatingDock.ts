@@ -53,7 +53,8 @@ const DOCK_MARGIN = 20
 
 export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloatingDock {
   const logger = useLogger({ module: 'FloatingDock' })
-  
+  const eventBus = useWidgetEventBus()
+
   // Calculate centered default position
   const calculateDefaultPosition = (): DockPosition => {
     if (typeof window === 'undefined') {
@@ -346,6 +347,10 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
       position: position.value,
       autoHide: isAutoHideEnabled.value 
     })
+
+    eventBus.on('editMode:changed', (value: boolean) => (
+        value ? show() : hide()
+    ))
   })
   
   // Cleanup
@@ -366,6 +371,10 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
     window.removeEventListener('touchstart', handleTouchStart)
     window.removeEventListener('touchend', handleTouchEnd)
     window.removeEventListener('touchcancel', handleTouchCancel)
+
+    eventBus.off('editMode:changed', (value: boolean) => (
+        value ? show() : hide()
+    ))
   })
   
   return {

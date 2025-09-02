@@ -93,17 +93,6 @@ const buttonSize = computed(() => {
   }
   return buttonSizes[props.size]
 })
-
-// Watch for visibility changes to emit events
-import { watch } from 'vue'
-
-watch(dock.isVisible, (visible) => {
-  if (visible) {
-    emit('dock-show')
-  } else {
-    emit('dock-hide')
-  }
-})
 </script>
 
 <template>

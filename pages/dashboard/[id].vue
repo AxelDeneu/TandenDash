@@ -307,6 +307,15 @@ watch(dashboardId, async (newId) => {
   }
 })
 
+// Watch for edit mode changes to show/hide floating dock
+watch(editMode, (isEditMode) => {
+  if (isEditMode) {
+    floatingDock.show()
+  }
+  // Note: We don't auto-hide the dock when edit mode is disabled
+  // to allow users to manually control dock visibility
+})
+
 // Cleanup function for event listeners
 let cleanupEventListeners: (() => void) | null = null
 
