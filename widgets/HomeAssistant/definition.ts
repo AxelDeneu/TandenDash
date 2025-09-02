@@ -3,14 +3,7 @@ import type { BaseWidgetConfig } from '@/types/widget'
 import type { EnhancedWidgetConfig } from '@/types/widget-options'
 
 export interface WidgetConfig extends BaseWidgetConfig {
-  // Connection settings
-  instanceUrl: string
-  accessToken: string
-  useWebSocket: boolean
-  reconnectInterval: number // seconds
-  
   // Display settings
-  showEntityName: boolean
   showEntityState: boolean
   showLastUpdated: boolean
   showHistory: boolean
@@ -34,14 +27,7 @@ export interface WidgetConfig extends BaseWidgetConfig {
 }
 
 export const widgetDefaults: WidgetConfig = {
-  // Connection settings
-  instanceUrl: '',
-  accessToken: '',
-  useWebSocket: true,
-  reconnectInterval: 30,
-  
   // Display settings
-  showEntityName: true,
   showEntityState: true,
   showLastUpdated: false,
   showHistory: false,
@@ -69,14 +55,7 @@ export const widgetDefaults: WidgetConfig = {
 }
 
 export const WidgetConfigSchema = z.object({
-  // Connection settings
-  instanceUrl: z.string().url().or(z.literal('')),
-  accessToken: z.string(),
-  useWebSocket: z.boolean(),
-  reconnectInterval: z.number().min(5).max(300),
-  
   // Display settings
-  showEntityName: z.boolean(),
   showEntityState: z.boolean(),
   showLastUpdated: z.boolean(),
   showHistory: z.boolean(),
@@ -106,51 +85,11 @@ export const WidgetConfigSchema = z.object({
 export const widgetConfig: EnhancedWidgetConfig = {
   groups: [
     {
-      id: 'connection',
-      label: '@config.groups.connection.label',
-      description: '@config.groups.connection.description',
-      defaultOpen: true,
-      options: {
-        instanceUrl: {
-          type: 'text',
-          label: '@options.instanceUrl',
-          description: '@options.instanceUrlDesc',
-          placeholder: 'http://homeassistant.local:8123'
-        },
-        accessToken: {
-          type: 'text',
-          label: '@options.accessToken',
-          description: '@options.accessTokenDesc',
-          placeholder: '@placeholders.accessToken'
-        },
-        useWebSocket: {
-          type: 'toggle',
-          label: '@options.useWebSocket',
-          description: '@options.useWebSocketDesc'
-        },
-        reconnectInterval: {
-          type: 'slider',
-          label: '@options.reconnectInterval',
-          description: '@options.reconnectIntervalDesc',
-          min: 5,
-          max: 300,
-          step: 5,
-          unit: 's',
-          dependencies: { useWebSocket: true }
-        }
-      }
-    },
-    {
       id: 'display',
       label: '@config.groups.display.label',
       description: '@config.groups.display.description',
       collapsible: true,
       options: {
-        showEntityName: {
-          type: 'toggle',
-          label: '@options.showEntityName',
-          description: '@options.showEntityNameDesc'
-        },
         showEntityState: {
           type: 'toggle',
           label: '@options.showEntityState',
@@ -183,8 +122,7 @@ export const widgetConfig: EnhancedWidgetConfig = {
           min: 10,
           max: 3600,
           step: 10,
-          unit: 's',
-          dependencies: { useWebSocket: false }
+          unit: 's'
         }
       }
     },

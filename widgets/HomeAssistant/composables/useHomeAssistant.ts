@@ -21,7 +21,7 @@ export interface HomeAssistantState {
   error: Error | null
 }
 
-export function useHomeAssistant() {
+export function useHomeAssistant(dashboardId?: number) {
   // State
   const state = reactive<HomeAssistantState>({
     isConnected: false,
@@ -33,6 +33,29 @@ export function useHomeAssistant() {
   // Connection reference
   let connection: Connection | null = null
   let unsubscribeEntities: (() => void) | null = null
+  
+  // Load configuration from dashboard settings
+  const loadDashboardConfig = async (): Promise<HomeAssistantConfig | null> => {
+    if (!dashboardId) return null
+    
+    try {
+      const response = await $fetch<HomeAssistantConfig>(`/api/dashboards/${dashboardId}/homeassistant-config`)
+      return response
+    } catch (error) {
+      console.error('Failed to load HomeAssistant config from dashboard:', error)
+      return null
+    }
+  }
+  
+  // Connect using dashboard configuration
+  const connectWithDashboardConfig = async () => {
+    const config = await loadDashboardConfig()
+    if (config && config.instanceUrl && config.accessToken) {
+      await connect(config)
+    } else {
+      state.error = new Error('Home Assistant configuration not found in dashboard settings')
+    }
+  }
   
   // Connect to Home Assistant
   const connect = async (config: HomeAssistantConfig) => {
@@ -169,6 +192,8 @@ export function useHomeAssistant() {
     
     // Methods
     connect,
+    connectWithDashboardConfig,
+    loadDashboardConfig,
     disconnect,
     getEntity,
     callService: callHomeAssistantService,

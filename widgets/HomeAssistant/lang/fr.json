@@ -1,4 +1,11 @@
 {
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "select": "Sélectionner",
+    "noResults": "Aucun résultat"
+  },
   "widget": {
     "name": "Home Assistant",
     "description": "Afficher et contrôler les appareils Home Assistant"
@@ -208,11 +215,6 @@
     "red": "Rouge",
     "card": "Carte"
   },
-  "common": {
-    "yes": "Oui",
-    "no": "Non",
-    "noResults": "Aucun résultat"
-  },
   "confirmations": {
     "lockDevice": "Êtes-vous sûr de vouloir verrouiller cet appareil ?",
     "unlockDevice": "Êtes-vous sûr de vouloir déverrouiller cet appareil ?"
@@ -233,6 +235,7 @@
   "noEntitiesFound": "Aucune entité trouvée",
   "showingEntities": "Affichage de {count} sur {total} entités",
   "notConfigured": "Non configuré",
+  "configureInDashboardSettings": "Veuillez configurer Home Assistant dans les réglages du dashboard",
   "configureInSettings": "Veuillez configurer la connexion Home Assistant dans les paramètres du widget",
   "entityNotFound": "Entité introuvable",
   "reconnect": "Reconnecter",
@@ -255,5 +258,39 @@
       "loadFailed": "Impossible de charger l'image",
       "streamFailed": "Impossible de charger le flux vidéo"
     }
+  },
+  "iconPicker": {
+    "title": "Choisir une icône",
+    "searchPlaceholder": "Rechercher une icône...",
+    "selected": "Sélectionnée",
+    "categories": {
+      "home": "Maison",
+      "climate": "Climat",
+      "media": "Média", 
+      "sensors": "Capteurs",
+      "navigation": "Navigation",
+      "controls": "Contrôles",
+      "misc": "Divers",
+      "all": "Toutes"
+    }
+  },
+  "entityConfig": {
+    "title": "Configuration des entités",
+    "description": "Gérez les entités affichées dans ce widget",
+    "addEntity": "Ajouter une entité",
+    "displayName": "Nom affiché",
+    "icon": "Icône",
+    "displayMode": "Mode d'affichage",
+    "modes": {
+      "default": "Détaillé",
+      "compact": "Compact"
+    }
+  },
+  "entityGrid": {
+    "title": "Entités",
+    "mixedModes": "Modes mixtes",
+    "noEntities": "Aucune entité configurée",
+    "addFirstEntity": "Ajouter une entité",
+    "summary": "{total} entités ({compact} compactes, {default} détaillées)"
   }
 }

@@ -1,4 +1,11 @@
 {
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "select": "Select",
+    "noResults": "No results"
+  },
   "widget": {
     "name": "Home Assistant",
     "description": "Display and control Home Assistant devices"
@@ -207,11 +214,6 @@
     "red": "Red",
     "card": "Card"
   },
-  "common": {
-    "yes": "Yes",
-    "no": "No",
-    "noResults": "No results"
-  },
   "confirmations": {
     "lockDevice": "Are you sure you want to lock this device?",
     "unlockDevice": "Are you sure you want to unlock this device?"
@@ -232,6 +234,7 @@
   "noEntitiesFound": "No entities found",
   "showingEntities": "Showing {count} of {total} entities",
   "notConfigured": "Not configured",
+  "configureInDashboardSettings": "Please configure Home Assistant in dashboard settings",
   "configureInSettings": "Please configure Home Assistant connection in widget settings",
   "entityNotFound": "Entity not found",
   "reconnect": "Reconnect",
@@ -254,5 +257,39 @@
       "loadFailed": "Failed to load image",
       "streamFailed": "Failed to load video stream"
     }
+  },
+  "iconPicker": {
+    "title": "Choose Icon",
+    "searchPlaceholder": "Search icons...",
+    "selected": "Selected",
+    "categories": {
+      "home": "Home",
+      "climate": "Climate",
+      "media": "Media",
+      "sensors": "Sensors", 
+      "navigation": "Navigation",
+      "controls": "Controls",
+      "misc": "Miscellaneous",
+      "all": "All"
+    }
+  },
+  "entityConfig": {
+    "title": "Entity Configuration",
+    "description": "Manage entities displayed in this widget",
+    "addEntity": "Add Entity",
+    "displayName": "Display Name",
+    "icon": "Icon",
+    "displayMode": "Display Mode",
+    "modes": {
+      "default": "Detailed",
+      "compact": "Compact"
+    }
+  },
+  "entityGrid": {
+    "title": "Entities",
+    "mixedModes": "Mixed modes",
+    "noEntities": "No entities configured",
+    "addFirstEntity": "Add an entity",
+    "summary": "{total} entities ({compact} compact, {default} detailed)"
   }
 }
