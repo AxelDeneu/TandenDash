@@ -54,6 +54,7 @@ const DOCK_MARGIN = 20
 export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloatingDock {
   const logger = useLogger({ module: 'FloatingDock' })
   const eventBus = useWidgetEventBus()
+  const { enableEditMode, disableEditMode } = useEditMode();
 
   // Calculate centered default position
   const calculateDefaultPosition = (): DockPosition => {
@@ -116,11 +117,7 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
   
   // Toggle dock visibility
   function toggle(): void {
-    if (isVisible.value) {
-      hide()
-    } else {
-      show()
-    }
+    isVisible.value ? disableEditMode() : enableEditMode()
   }
   
   // Toggle auto-hide feature
@@ -131,7 +128,7 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
       resetAutoHideTimer()
     } else {
       clearAutoHideTimer()
-      show()
+      disableEditMode()
     }
     
     logger.info('Auto-hide toggled', { enabled: isAutoHideEnabled.value })
@@ -164,7 +161,7 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
       autoHideTimeoutId.value = setTimeout(() => {
         const timeSinceInteraction = Date.now() - lastInteractionTime.value
         if (timeSinceInteraction >= autoHideDelay) {
-          hide()
+          disableEditMode();
         } else {
           resetAutoHideTimer()
         }
@@ -223,15 +220,16 @@ export function useFloatingDock(options: UseFloatingDockOptions = {}): UseFloati
   function handleWheelClick(event: MouseEvent): void {
     if (event.button === 1) { // Middle mouse button
       event.preventDefault()
-      toggle()
       logger.debug('Wheel click detected')
+
+      isVisible.value ? disableEditMode() : enableEditMode()
     }
   }
   
   // Handle 4-finger touch gesture
   function handleFourFingerTouch(): void {
-    toggle()
     logger.debug('4-finger gesture detected')
+    isVisible.value ? disableEditMode() : enableEditMode()
   }
   
   // Mouse/touch move handler

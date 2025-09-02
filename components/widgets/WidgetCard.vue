@@ -134,7 +134,13 @@ const handlePosition = computed(() => {
     :data-widget-id="widget.id"
     class="absolute bg-card rounded-lg p-4"
     :style="widgetStyle"
-    :class="editMode ? 'border-2 border-primary/30 shadow-xl' : 'border border-transparent'"
+    :class="{
+      'transition-all': true,
+      'border-2': editMode,
+      'border-primary/10 shadow-2xl': editMode && !isDragging,
+      'border-primary/30 shadow-4xl': editMode && isDragging,
+      'border border-transparent': !editMode,
+    }"
   >
     <!-- Edit Mode Controls Bar -->
     <Transition
@@ -216,9 +222,22 @@ const handlePosition = computed(() => {
 <style scoped>
 /* Enhanced shadows for floating controls */
 .shadow-2xl {
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
     0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+/* Custom shadows for enhanced depth */
+.shadow-3xl {
+  box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.shadow-4xl {
+  box-shadow:
+      0 35px 60px -12px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Smooth transitions for edit controls visibility */

@@ -21,7 +21,6 @@ export function useEditMode(): UseEditMode {
   function enableEditMode(): void {
 
     isEditMode.value = true
-    context.events.emit('edit-mode:enabled')
     
     // Emit global event
     eventBus.emit('editMode:changed', true)
@@ -34,7 +33,6 @@ export function useEditMode(): UseEditMode {
 
   function disableEditMode(): void {
     isEditMode.value = false
-    context.events.emit('edit-mode:disabled')
     
     // Emit global event
     eventBus.emit('editMode:changed', false)
@@ -52,6 +50,10 @@ export function useEditMode(): UseEditMode {
       enableEditMode()
     }
   }
+
+  onMounted(() => {
+    eventBus.on('editMode:changed', (changed: boolean) => isEditMode.value = changed)
+  })
 
   return {
     isEditMode: readonly(isEditMode),
