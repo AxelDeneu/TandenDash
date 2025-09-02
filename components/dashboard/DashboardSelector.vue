@@ -124,9 +124,9 @@
         </DialogTitle>
       </DialogHeader>
 
-      <div class="space-y-6 py-4">
-        <!-- General section -->
-        <div class="space-y-4">
+      <div class="py-4">
+        <!-- Name section - always visible -->
+        <div class="space-y-4 pb-6">
           <div class="space-y-2">
             <Label for="dashboard-name">{{ $t('dashboard.dashboardName') }}</Label>
             <Input
@@ -151,137 +151,216 @@
           </div>
         </div>
 
-        <!-- Settings section - only show when editing -->
+        <!-- Tabs section - only show when editing -->
         <template v-if="editingDashboard">
-          <Separator />
+          <Separator class="mb-6" />
           
-          <!-- Regional Settings -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-medium">{{ $t('dashboard.regionalSettings') }}</h3>
+          <Tabs default-value="general" class="w-full">
+            <TabsList class="grid w-full grid-cols-2">
+              <TabsTrigger value="general">{{ $t('dashboard.generalSettings') }}</TabsTrigger>
+              <TabsTrigger value="homeassistant">
+                <span>Home Assistant</span>
+                <Badge v-if="!settingsForm.homeAssistantUrl" variant="secondary" class="ml-2 text-xs">
+                  {{ $t('dashboard.notConfigured') }}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
             
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="locale">{{ $t('dashboard.language') }}</Label>
-                <Select v-model="settingsForm.locale">
-                  <SelectTrigger id="locale">
-                    <SelectValue :placeholder="$t('dashboard.selectLanguage')" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div class="space-y-2">
-                <Label for="timezone">{{ $t('dashboard.timezone') }}</Label>
-                <Select v-model="settingsForm.timezone">
-                  <SelectTrigger id="timezone">
-                    <SelectValue :placeholder="$t('dashboard.selectTimezone')" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
-                    <SelectItem value="Europe/London">Europe/Londres</SelectItem>
-                    <SelectItem value="America/New_York">New York</SelectItem>
-                    <SelectItem value="America/Los_Angeles">Los Angeles</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="dateFormat">{{ $t('dashboard.dateFormat') }}</Label>
-                <Select v-model="settingsForm.dateFormat">
-                  <SelectTrigger id="dateFormat">
-                    <SelectValue :placeholder="$t('dashboard.dateFormat')" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div class="space-y-2">
-                <Label>{{ $t('dashboard.timeFormat') }}</Label>
-                <RadioGroup v-model="settingsForm.timeFormat" class="flex gap-4">
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="24h" id="24h" />
-                    <Label for="24h" class="font-normal">24h</Label>
+            <!-- General Settings Tab -->
+            <TabsContent value="general" class="mt-6 space-y-6">
+              <!-- Regional Settings -->
+              <div class="space-y-4">
+                <h3 class="text-sm font-medium">{{ $t('dashboard.regionalSettings') }}</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label for="locale">{{ $t('dashboard.language') }}</Label>
+                    <Select v-model="settingsForm.locale">
+                      <SelectTrigger id="locale">
+                        <SelectValue :placeholder="$t('dashboard.selectLanguage')" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fr">Français</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        <SelectItem value="de">Deutsch</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="12h" id="12h" />
-                    <Label for="12h" class="font-normal">12h</Label>
+
+                  <div class="space-y-2">
+                    <Label for="timezone">{{ $t('dashboard.timezone') }}</Label>
+                    <Select v-model="settingsForm.timezone">
+                      <SelectTrigger id="timezone">
+                        <SelectValue :placeholder="$t('dashboard.selectTimezone')" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
+                        <SelectItem value="Europe/London">Europe/Londres</SelectItem>
+                        <SelectItem value="America/New_York">New York</SelectItem>
+                        <SelectItem value="America/Los_Angeles">Los Angeles</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                </RadioGroup>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label for="dateFormat">{{ $t('dashboard.dateFormat') }}</Label>
+                    <Select v-model="settingsForm.dateFormat">
+                      <SelectTrigger id="dateFormat">
+                        <SelectValue :placeholder="$t('dashboard.dateFormat')" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label>{{ $t('dashboard.timeFormat') }}</Label>
+                    <RadioGroup v-model="settingsForm.timeFormat" class="flex gap-4">
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="24h" id="24h" />
+                        <Label for="24h" class="font-normal">24h</Label>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="12h" id="12h" />
+                        <Label for="12h" class="font-normal">12h</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <Separator />
+              <Separator />
 
-          <!-- Units Settings -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-medium">{{ $t('dashboard.measurementUnits') }}</h3>
+              <!-- Units Settings -->
+              <div class="space-y-4">
+                <h3 class="text-sm font-medium">{{ $t('dashboard.measurementUnits') }}</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label>{{ $t('dashboard.measurementSystem') }}</Label>
+                    <RadioGroup v-model="settingsForm.measurementSystem" class="space-y-2">
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="metric" id="metric" />
+                        <Label for="metric" class="font-normal">{{ $t('dashboard.metric') }}</Label>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="imperial" id="imperial" />
+                        <Label for="imperial" class="font-normal">{{ $t('dashboard.imperial') }}</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label>{{ $t('dashboard.temperature') }}</Label>
+                    <RadioGroup v-model="settingsForm.temperatureUnit" class="space-y-2">
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="celsius" id="celsius" />
+                        <Label for="celsius" class="font-normal">{{ $t('dashboard.celsius') }}</Label>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <RadioGroupItem value="fahrenheit" id="fahrenheit" />
+                        <Label for="fahrenheit" class="font-normal">{{ $t('dashboard.fahrenheit') }}</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <!-- Theme -->
+              <div class="space-y-4">
+                <h3 class="text-sm font-medium">{{ $t('dashboard.appearance') }}</h3>
+                <div class="space-y-2">
+                  <Label>{{ $t('dashboard.theme') }}</Label>
+                  <RadioGroup v-model="settingsForm.theme" class="flex gap-4">
+                    <div class="flex items-center space-x-2">
+                      <RadioGroupItem value="light" id="light" />
+                      <Label for="light" class="font-normal">{{ $t('theme.light') }}</Label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <RadioGroupItem value="dark" id="dark" />
+                      <Label for="dark" class="font-normal">{{ $t('theme.dark') }}</Label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <RadioGroupItem value="auto" id="auto" />
+                      <Label for="auto" class="font-normal">{{ $t('dashboard.auto') }}</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            </TabsContent>
             
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label>{{ $t('dashboard.measurementSystem') }}</Label>
-                <RadioGroup v-model="settingsForm.measurementSystem" class="space-y-2">
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="metric" id="metric" />
-                    <Label for="metric" class="font-normal">{{ $t('dashboard.metric') }}</Label>
+            <!-- Home Assistant Tab -->
+            <TabsContent value="homeassistant" class="mt-6 space-y-6">
+              <div class="space-y-4">
+                <div class="space-y-2">
+                  <h3 class="text-sm font-medium">{{ $t('dashboard.homeAssistantSettings') }}</h3>
+                  <p class="text-sm text-muted-foreground">
+                    {{ $t('dashboard.homeAssistantDescription') }}
+                  </p>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="space-y-2">
+                    <Label for="ha-url">{{ $t('dashboard.homeAssistantUrl') }}</Label>
+                    <Input
+                      id="ha-url"
+                      v-model="settingsForm.homeAssistantUrl"
+                      placeholder="http://homeassistant.local:8123"
+                      type="url"
+                    />
                   </div>
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="imperial" id="imperial" />
-                    <Label for="imperial" class="font-normal">{{ $t('dashboard.imperial') }}</Label>
+
+                  <div class="space-y-2">
+                    <Label for="ha-token">{{ $t('dashboard.homeAssistantToken') }}</Label>
+                    <Input
+                      id="ha-token"
+                      v-model="settingsForm.homeAssistantToken"
+                      placeholder="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                      type="password"
+                    />
+                    <p class="text-xs text-muted-foreground">
+                      {{ $t('dashboard.homeAssistantTokenHelp') }}
+                    </p>
                   </div>
-                </RadioGroup>
+
+                  <!-- Connection Test -->
+                  <div class="space-y-3">
+                    <div class="flex gap-2">
+                      <Button 
+                        type="button"
+                        variant="outline" 
+                        size="sm"
+                        @click="testHomeAssistantConnection"
+                        :disabled="!settingsForm.homeAssistantUrl || !settingsForm.homeAssistantToken || haConnectionState.testing"
+                      >
+                        <Loader2 v-if="haConnectionState.testing" class="w-4 h-4 mr-2 animate-spin" />
+                        {{ haConnectionState.testing ? $t('dashboard.testing') : $t('dashboard.testConnection') }}
+                      </Button>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div v-if="haConnectionState.success" class="flex items-center gap-2 text-sm text-green-600">
+                      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                      {{ $t('dashboard.connectionSuccessful') }}
+                    </div>
+                    
+                    <div v-else-if="haConnectionState.error" class="flex items-center gap-2 text-sm text-destructive">
+                      <AlertCircle class="w-4 h-4" />
+                      {{ haConnectionState.error }}
+                    </div>
+                  </div>
+                </div>
               </div>
-
-              <div class="space-y-2">
-                <Label>{{ $t('dashboard.temperature') }}</Label>
-                <RadioGroup v-model="settingsForm.temperatureUnit" class="space-y-2">
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="celsius" id="celsius" />
-                    <Label for="celsius" class="font-normal">{{ $t('dashboard.celsius') }}</Label>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <RadioGroupItem value="fahrenheit" id="fahrenheit" />
-                    <Label for="fahrenheit" class="font-normal">{{ $t('dashboard.fahrenheit') }}</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <!-- Theme -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-medium">{{ $t('dashboard.appearance') }}</h3>
-            <div class="space-y-2">
-              <Label>{{ $t('dashboard.theme') }}</Label>
-              <RadioGroup v-model="settingsForm.theme" class="flex gap-4">
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem value="light" id="light" />
-                  <Label for="light" class="font-normal">{{ $t('theme.light') }}</Label>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem value="dark" id="dark" />
-                  <Label for="dark" class="font-normal">{{ $t('theme.dark') }}</Label>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <RadioGroupItem value="auto" id="auto" />
-                  <Label for="auto" class="font-normal">{{ $t('dashboard.auto') }}</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         </template>
       </div>
 
@@ -342,6 +421,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, Edit2, Copy, Trash2, Loader2, AlertCircle } from 'lucide-vue-next'
 import { useDashboard, useDashboardSettings } from '@/composables'
 import type { Dashboard } from '@/types'
@@ -381,7 +461,16 @@ const settingsForm = reactive({
   timeFormat: '24h' as '24h' | '12h',
   dateFormat: 'DD/MM/YYYY',
   timezone: 'Europe/Paris',
-  theme: 'auto' as 'light' | 'dark' | 'auto'
+  theme: 'auto' as 'light' | 'dark' | 'auto',
+  homeAssistantUrl: '',
+  homeAssistantToken: ''
+})
+
+// Home Assistant connection test state
+const haConnectionState = reactive({
+  testing: false,
+  success: false,
+  error: null as string | null
 })
 
 // Dashboard settings composable (initialized when editing)
@@ -423,6 +512,8 @@ const editDashboard = async (db: Dashboard) => {
     settingsForm.dateFormat = settings.dateFormat
     settingsForm.timezone = settings.timezone
     settingsForm.theme = settings.theme
+    settingsForm.homeAssistantUrl = settings.homeAssistantUrl || ''
+    settingsForm.homeAssistantToken = settings.homeAssistantToken || ''
   }
   
   isEditDialogOpen.value = true
@@ -479,6 +570,39 @@ const deleteDashboard = async () => {
 const cancelEdit = () => {
   isEditDialogOpen.value = false
   dashboardSettings.value = null
+  // Reset HA connection state
+  haConnectionState.testing = false
+  haConnectionState.success = false
+  haConnectionState.error = null
+}
+
+// Test Home Assistant connection
+const testHomeAssistantConnection = async () => {
+  if (!editingDashboard.value) return
+  
+  haConnectionState.testing = true
+  haConnectionState.error = null
+  haConnectionState.success = false
+  
+  try {
+    const response = await $fetch(`/api/dashboards/${editingDashboard.value.id}/homeassistant-config`, {
+      method: 'POST',
+      body: {
+        instanceUrl: settingsForm.homeAssistantUrl,
+        accessToken: settingsForm.homeAssistantToken
+      }
+    })
+    
+    if (response.success) {
+      haConnectionState.success = true
+    } else {
+      haConnectionState.error = 'Connexion échouée'
+    }
+  } catch (error: any) {
+    haConnectionState.error = error?.data?.message || error?.message || 'Erreur de connexion'
+  } finally {
+    haConnectionState.testing = false
+  }
 }
 
 const formatDate = (date: string) => {

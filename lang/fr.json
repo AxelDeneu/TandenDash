@@ -21,7 +21,9 @@
     "unknown": "Inconnu",
     "redirecting": "Redirection vers le tableau de bord...",
     "details": "Détails",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "select": "Sélectionner",
+    "noResults": "Aucun résultat"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -86,6 +88,16 @@
     "celsius": "Celsius (°C)",
     "fahrenheit": "Fahrenheit (°F)",
     "auto": "Auto",
+    "generalSettings": "Paramètres généraux",
+    "homeAssistantSettings": "Configuration Home Assistant",
+    "homeAssistantDescription": "Configurez votre instance Home Assistant pour tous les widgets de ce dashboard",
+    "homeAssistantUrl": "URL de l'instance Home Assistant",
+    "homeAssistantToken": "Token d'accès",
+    "homeAssistantTokenHelp": "Créez un token d'accès longue durée dans Home Assistant → Profil → Tokens d'accès",
+    "testConnection": "Tester la connexion",
+    "testing": "Test en cours...",
+    "connectionSuccessful": "Connexion réussie",
+    "notConfigured": "Non configuré",
     "deleteDashboard": "Supprimer le dashboard",
     "deleteDashboardConfirm": "Êtes-vous sûr de vouloir supprimer le dashboard \"{name}\" ? Cette action est irréversible.",
     "dashboardCopy": "{name} (copie)"

@@ -21,7 +21,9 @@
     "unknown": "Unknown",
     "redirecting": "Redirecting to dashboard...",
     "details": "Details",
-    "remove": "Remove"
+    "remove": "Remove",
+    "select": "Select",
+    "noResults": "No results"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -86,6 +88,16 @@
     "celsius": "Celsius (°C)",
     "fahrenheit": "Fahrenheit (°F)",
     "auto": "Auto",
+    "generalSettings": "General Settings",
+    "homeAssistantSettings": "Home Assistant Configuration",
+    "homeAssistantDescription": "Configure your Home Assistant instance for all widgets in this dashboard",
+    "homeAssistantUrl": "Home Assistant URL",
+    "homeAssistantToken": "Access Token",
+    "homeAssistantTokenHelp": "Create a long-lived access token in Home Assistant → Profile → Access Tokens",
+    "testConnection": "Test Connection",
+    "testing": "Testing...",
+    "connectionSuccessful": "Connection successful",
+    "notConfigured": "Not configured",
     "deleteDashboard": "Delete dashboard",
     "deleteDashboardConfirm": "Are you sure you want to delete the dashboard \"{name}\"? This action cannot be undone.",
     "dashboardCopy": "{name} (copy)"
