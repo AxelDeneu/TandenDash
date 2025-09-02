@@ -9,6 +9,7 @@ import { LoggerService } from './LoggerService'
 import { DashboardService } from './DashboardService'
 import { DashboardSettingsService } from './DashboardSettingsService'
 import { WidgetDataService } from './WidgetDataService'
+import { HomeAssistantConfigService } from './HomeAssistantConfigService'
 
 export class ServiceFactory implements IServiceFactory {
   constructor(
@@ -25,6 +26,7 @@ export class ServiceFactory implements IServiceFactory {
   private dashboardService?: DashboardService
   private dashboardSettingsService?: DashboardSettingsService
   private widgetDataService?: WidgetDataService
+  private homeAssistantConfigService?: HomeAssistantConfigService
 
   createWidgetService() {
     if (!this.widgetService) {
@@ -108,5 +110,14 @@ export class ServiceFactory implements IServiceFactory {
       this.widgetDataService = new WidgetDataService(widgetDataRepository)
     }
     return this.widgetDataService
+  }
+
+  createHomeAssistantConfigService() {
+    if (!this.homeAssistantConfigService) {
+      const dashboardSettingsRepository = this.repositoryFactory.createDashboardSettingsRepository()
+      const logger = this.createLoggerService()
+      this.homeAssistantConfigService = new HomeAssistantConfigService(dashboardSettingsRepository, logger)
+    }
+    return this.homeAssistantConfigService
   }
 }

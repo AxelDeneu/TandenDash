@@ -23,7 +23,9 @@ export const dashboardSettingsSchema = z.object({
   timeFormat: z.enum(['24h', '12h']).optional(),
   dateFormat: z.string().optional(),
   timezone: z.string().optional(),
-  theme: z.enum(['light', 'dark', 'auto']).optional()
+  theme: z.enum(['light', 'dark', 'auto']).optional(),
+  homeAssistantUrl: z.string().optional(),
+  homeAssistantToken: z.string().optional()
 })
 
 export const dashboardQuerySchema = z.object({

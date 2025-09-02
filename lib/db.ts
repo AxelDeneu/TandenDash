@@ -79,6 +79,8 @@ export const dashboardSettings = sqliteTable('DashboardSettings', {
   dateFormat: text('dateFormat').notNull().default('DD/MM/YYYY'),
   timezone: text('timezone').notNull().default('Europe/Paris'),
   theme: text('theme').notNull().default('auto'), // 'light' | 'dark' | 'auto'
+  homeAssistantUrl: text('homeAssistantUrl').notNull().default(''),
+  homeAssistantToken: text('homeAssistantToken').notNull().default(''),
   createdAt: text('createdAt').notNull().default(sql`(datetime('now'))`),
   updatedAt: text('updatedAt').notNull().default(sql`(datetime('now'))`),
 }, (table) => ({

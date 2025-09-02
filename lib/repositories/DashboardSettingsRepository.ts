@@ -32,7 +32,9 @@ export class DashboardSettingsRepository implements IDashboardSettingsRepository
       timeFormat: '24h',
       dateFormat: 'DD/MM/YYYY',
       timezone: 'Europe/Paris',
-      theme: 'auto'
+      theme: 'auto',
+      homeAssistantUrl: '',
+      homeAssistantToken: ''
     }
 
     const result = await db
@@ -58,6 +60,8 @@ export class DashboardSettingsRepository implements IDashboardSettingsRepository
     if (data.dateFormat !== undefined) updateData.dateFormat = data.dateFormat
     if (data.timezone !== undefined) updateData.timezone = data.timezone
     if (data.theme !== undefined) updateData.theme = data.theme
+    if (data.homeAssistantUrl !== undefined) updateData.homeAssistantUrl = data.homeAssistantUrl
+    if (data.homeAssistantToken !== undefined) updateData.homeAssistantToken = data.homeAssistantToken
 
     // Add updatedAt
     updateData.updatedAt = new Date().toISOString()

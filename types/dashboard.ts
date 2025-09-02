@@ -18,6 +18,8 @@ export interface DashboardSettings {
   dateFormat: string
   timezone: string
   theme: 'light' | 'dark' | 'auto'
+  homeAssistantUrl: string
+  homeAssistantToken: string
   createdAt: string
   updatedAt: string
 }
@@ -50,6 +52,8 @@ export interface UpdateDashboardSettingsRequest {
   dateFormat?: string
   timezone?: string
   theme?: 'light' | 'dark' | 'auto'
+  homeAssistantUrl?: string
+  homeAssistantToken?: string
 }
 
 export interface DeleteDashboardRequest {

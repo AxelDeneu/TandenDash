@@ -167,6 +167,13 @@ export interface IWidgetDataService {
   getMultiple<T = Record<string, any>>(widgetInstanceId: number, keys: string[]): Promise<ServiceResult<T>>
 }
 
+// HomeAssistant config service interface
+export interface IHomeAssistantConfigService {
+  getDashboardConfig(dashboardId: number): Promise<ServiceResult<{ instanceUrl: string; accessToken: string }>>
+  updateDashboardConfig(dashboardId: number, config: { instanceUrl: string; accessToken: string }): Promise<ServiceResult<{ instanceUrl: string; accessToken: string }>>
+  testConnection(config: { instanceUrl: string; accessToken: string }): Promise<ServiceResult<boolean>>
+}
+
 // Service factory interface
 export interface IServiceFactory {
   createWidgetService(): IWidgetService
@@ -178,4 +185,5 @@ export interface IServiceFactory {
   createDashboardService(): IDashboardService
   createDashboardSettingsService(): IDashboardSettingsService
   createWidgetDataService(): IWidgetDataService
+  createHomeAssistantConfigService(): IHomeAssistantConfigService
 }
