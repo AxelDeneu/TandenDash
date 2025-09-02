@@ -1,0 +1,10 @@
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Keep folder structure
+!.gitkeep
+!.gitignore

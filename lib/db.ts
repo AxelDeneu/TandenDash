@@ -119,18 +119,20 @@ export const widgetData = sqliteTable('WidgetData', {
 
 // Database configuration
 const getDatabasePath = (): string => {
-  const isDevelopment = process.env.NODE_ENV === 'development'
-  const isTest = process.env.NODE_ENV === 'test'
-  
   if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL
   }
   
-  if (isTest) {
-    return 'data.test.db'
+  if (process.env.NODE_ENV === 'test') {
+    return 'database/test.db'
   }
   
-  return 'data.db'
+  if (process.env.NODE_ENV === 'development') {
+    return 'database/dev.db'
+  }
+  
+  // Production
+  return 'database/data.db'
 }
 
 // Database connection with optimization
